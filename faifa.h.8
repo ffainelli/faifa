@@ -1,0 +1,113 @@
+.TH FAIFA.H 8 "April 2008" Linux "User manual"
+.SH NAME
+faifa.h \- Public interface for the Faifa library
+.SH DESCRIPTION
+faifa.h describes the public interface of the faifa library
+
+.B
+Faifa operations
+
+Faifa basically performs 3 main operations :
+
+- send all vendor and protocol specific frames with the corresponding parameters
+.br
+- dump all vendor and HomePlug 1.0/AV frames with the appropriate frame parsing
+.br
+- discover the HPAV network topology
+
+The available vendor specific operations are stored in an array of struct hpav_frame_ops. For each entry the mmtype and the description is specified, with possible callbacks to handle frame initialization and dump function.
+
+.B
+Using the faifa library
+
+Faifa is also provided as shared library (so file) and static library (a) so that you can link programs with to send HomePlug AV frames. The library allows you, specifying a given mmtype to send the corresponding HPAV frame to a given device.
+
+.B
+Linking with faifa
+
+You should include faifa.h into your C source file and can directly call functions that are provided by the faifa library. When linking with the faifa library, make sure your linker flags include "-lfaifa" or the absolute path of the shared object to make sure your program will successfully link.
+An example makefile could look like:
+
+all: test
+LIBS:=-lm -ltest -lfaifa
+	$(CC) -D$(OS) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+
+.B
+Prototypes
+
+Below are the prototypes provided by the faifa library that you may want to use, though frame.h should be more appropriate for higher-level function handling.
+Most of the functions here are juste wrappers to the PCAP library.
+
+.B
+faifa_t - private handle
+  
+typedef struct faifa faifa_t;
+
+struct faifa {
+	char ifname[IFNAMSIZ];
+	pcap_t *pcap;
+	char error[256];
+};
+
+The faifa private handler is a structure wich stores commonly used variables such as the interface name, a libpcap handler for all packet related informations and the pcap error code.
+This structure is initialised on startup of the program.
+
+.B
+faifa_t *faifa_init(void)
+
+Initialize the faifa private handle of the library. Returns a private handle on success, NULL on error.
+
+This function should be called at the very beginning of your program, i.e : right after parsing command line arguments for instance.
+
+.B
+void faifa_free(faifa_t *faifa)
+
+Free the faifa library and dereferences all the private handle members. 
+
+This function should be called on the error path of your program or while closing it.
+
+.B
+char *faifa_error(faifa_t *faifa);
+
+Return a text message related to the last error.
+
+.B
+int faifa_open(faifa_t *faifa, char *name);
+
+Open specified network device. Returns 0 on success, -1 on error
+
+This function will verify that the interface is an Ethernet link layer interface, that it exists
+and is up and running. These operations required root or similar priviledges.
+
+.B
+int faifa_close(faifa_t *faifa);
+
+Close network device. Returns 0 on success, -1 on error.
+
+.B
+int faifa_send(faifa_t *faifa, void *buf, int len)
+
+Send raw ethernet frame on the interface. Returns the number of bytes sent on success, -1 on error.
+
+This function will send a raw ethernet frame (see faifa(8) for more informations) therefore letting you
+total control over the frame you wish to send. Additionnal checks should be performed if your ethernet
+protocol requires more checkings.
+
+.B
+int faifa_recv(faifa_t *faifa, void *buf, int len)
+
+Receive raw ethernet frame. Returns the number of bytes received on success, -1 on error.
+
+This function opens the network interface in non-blocking read mode, therefore letting you start another
+capture program.
+
+.B
+void (*faifa_loop_handler_t)(faifa_t *faifa, void *buf, int len, void *user)
+
+Receive and dispatch frames in a loop. This function helps you dispatch received frames
+to a local function based on the buffer contents.
+
+.SH SEE ALSO
+.BR faifa(8)
+.SH AUTHOR
+Florian Fainelli <florian.fainelli@openpattern.org>, Xavier Carcelle <xavier.carcelle@openpattern.org>

@@ -1,0 +1,142 @@
+.TH FAIFA 8 "April 2008" Linux "User manual"
+.SH NAME
+faifa \- configure HomePlug 1.0/AV devices
+.SH SYNOPSIS
+.B faifa [OPTIONS]
+.br
+-m	show the menu asking for known MM types
+.br
+-i	specify network interface to use
+.br
+-d	discover network topology
+.br
+-k	specify network key to set
+.br
+-a	destination MAC address (use with -k)
+.br
+-h	show the usage
+.br
+.SH DESCRIPTION
+faifa can configure any Intellon-based PowerLine Communication device using the Intellon INT5000 and INT6000 series (6000 and 6300 chips). It supports all Intellon-specific management and control frames.
+
+.SH "MENU COMMANDS"
+-m:	show the menu asking for known MM types
+.br
+-i:	specify network interface to use
+.br
+-d:	discover network topology
+.br
+-k:	specify network key to set
+.br
+-a:	destination MAC address (use with -k)
+.br
+-h:	show the usage
+
+.TP
+.B "HomePlug AV protocol"
+
+The HomePlug AV protocol was developed by Intellon and specifies how the powerline PHY layer and HPAV MAC layer can converge to allow Ethernet framesto be sent on the medium. It handles all the low-level modulation and constellation building plus the Medium Access Control handling between devices.
+The HomePlug AV network topology consits of one coordinator (called CCo) for a given logical HPAV network (i.e: with the same Network Encryption Key) and none or several stations (called STAs). Other devices can have a specific role which is a bridge, between several logical networks.
+
+
+------------------------------------
+.br
+| HomePlug PHY					|
+.br
+------------------------------------
+.br
+| HomePlug MAC convergence layer	|
+.br
+------------------------------------
+.br
+| Ethernet MAC layer			|
+.br
+------------------------------------
+.br
+
+It is possible to configure the HPAV MAC convergence layer by using specific Ethernet frames with the 0x88e1 Ethertype. Such frames will be interpreted by the Intellon controller present in the devices and are known as control or management frames.
+
+Such frames can be either protocol specific (i.e: common to all HPAV implementations) or vendor specific. There is no convention to specify whether an HPAV configuration and management frame is vendor specific or not. Most implementations will share a common format for basic network operations like setting the Network Management Key or the Encryption Key.
+
+A HomePlug AV management frame is described below :
+
+	8 bits		16 bits
+.br
+---------------------------------------------------
+.br
+| MM version | 		MM type				|
+.br
+---------------------------------------------------
+.br
+| 		OUI (24 bits)						|
+.br
+---------------------------------------------------
+.br
+|		Payload	(var)					|
+.br
+---------------------------------------------------
+
+The payload is highly dependent on the implementation tough most vendors will try to define a common template for it. Such management frame should be encapsulated in standard ethernet frames with the 0x88e1 ethertype.
+
+
+.B
+Faifa operations
+
+Faifa basically performs 3 main operations :
+
+- send all vendor and protocol specific frames with the corresponding parameters
+.br
+- dump all vendor and HomePlug 1.0/AV frames with the appropriate frame parsing
+.br
+- discover the HPAV network topology
+
+The available vendor specific operations are stored in an array of struct hpav_frame_ops. For each entry the mmtype and the description is specified, with possible callbacks to handle frame initialization and dump function.
+
+.B
+Using the faifa library
+
+Faifa is also provided as shared library (so file) and static library so that you can link programs with to send HomePlug AV frames. The library allows you, specifying a given mmtype to send the corresponding HPAV frame to a given device.
+
+.B
+Linking with faifa
+
+You should include faifa.h into your C source file and can directly call functions that are provided by the faifa library. When linking with the faifa library, make sure your linker flags include "-lfaifa" or the absolute path of the shared object to make sure your program will successfully link.
+
+.B
+Sending frames using do_frame
+
+The main function you want to call is do_frame and pass it the MMtype and destination MAC address you want to send the frame to. This function will :
+
+- lookup the mmtype by reading the array containing available frame operations
+.br
+- initialize the frame header (MM version, type, source and destination MAC addresses)
+.br
+- call the initialisation function (if needed) to let the user input the parameters (or any other input method)
+.br
+- calculate the appropriate frame size
+.br
+- send it to the device
+.br
+- close the network socket descriptor
+
+This function propagates the return code from the write command on the socket descriptor.
+
+.B
+Receiving frames using do_receive_frame
+
+This function will listen for received frames on the specified interface and will :
+
+- check that the ethertype is set to 0x88e1 otherwise it will discard the frame
+.br
+- cast the received packet to an HPAV management frame structure
+.br
+- lookup for the received MM type into the arrays of known response/indications
+.br
+- call the frame parsing function (based on the mmtype) accordingly
+
+You will probably want to set the network descriptor in reading mode non-blocking. Faifa uses this function with a call to a pcap_loop method inside a dedicated thread to receive all frames.
+
+.SH SEE ALSO
+.BR ifconfig(8)
+.SH AUTHOR
+Florian Fainelli <florian@openwrt.org>, Xavier Carcelle <xavier.carcelle@gmail.com>, Nicolas Thill <nico@openwrt.org>
