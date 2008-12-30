@@ -85,7 +85,7 @@ int faifa_open(faifa_t *faifa, char *name)
 	}
 #endif
 
-	if (!pcap_lookupdev(name)) {
+	if (!pcap_lookupdev(pcap_errbuf)) {
 		faifa_set_error(faifa, "pcap_lookupdev: can't find device %s", name);
 		goto __error_pcap_lookupdev;
 	}
