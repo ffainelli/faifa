@@ -12,6 +12,7 @@
 #
 
 OS=$(shell uname -s | tr a-z A-Z)
+ARCH=$(shell uname -m | sed -e 's/i.86/i386/')
 CFLAGS:= -W -Wall -g -fPIC 
 APP:=faifa
 SVN_REV=$(shell svn info | grep "Revision" | awk '{ print $$2}')
@@ -73,6 +74,7 @@ strip:
 	strip $(LIB_NAME).so
 
 debs:
+	sed -i -e 's/ARCH/$(ARCH)/' debian/control
 	dpkg-buildpackage -r
 
 man:

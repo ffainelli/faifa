@@ -26,14 +26,3 @@ Description: Homeplug 1.0/AV tool
  devices.
  It sends all private and public ethernet management
  frames to the devices.
-
-Package: faifa
-Section: net
-Depends: libfaifa0
-Architecture: amd64
-Description: Homeplug 1.0/AV tool
- Faifa is a network tool to configure, inspect
- flash, collect statistics on HomePlug 1.0/AV
- devices.
- It sends all private and public ethernet management
- frames to the devices.
