@@ -17,7 +17,7 @@ APP:=faifa
 SVN_REV=$(shell svn info | grep "Revision" | awk '{ print $$2}')
 
 # Object files for the library
-LIB_OBJS:=faifa.c frame.o crypto.o
+LIB_OBJS:=faifa.o frame.o crypto.o
 LIB_NAME:=lib$(APP)
 
 # Object files for the program
