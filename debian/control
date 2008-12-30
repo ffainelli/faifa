@@ -19,7 +19,7 @@ Description: faifa library
 Package: faifa
 Section: net
 Depends: libfaifa0
-Architecture: i386
+Architecture: ARCH
 Description: Homeplug 1.0/AV tool
  Faifa is a network tool to configure, inspect
  flash, collect statistics on HomePlug 1.0/AV
