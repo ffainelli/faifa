@@ -76,6 +76,7 @@ strip:
 debs:
 	sed -i -e 's/ARCH/$(ARCH)/' debian/control
 	dpkg-buildpackage -r
+	sed -i -e 's/$(ARCH)/ARCH/' debian/control
 
 man:
 	-rm $(MANFIL)
