@@ -24,7 +24,7 @@ LIB_NAME:=lib$(APP)
 # Object files for the program
 OBJS:= main.o $(LIB_OBJS)
 HEADERS:= faifa.h faifa_compat.h faifa_priv.h homeplug.h homeplug_av.h crypto.h device.h endian.h
-LIBS:=-lpthread -lssl -lcrypto
+LIBS:=$(LDFLAGS) -lpthread -lssl -lcrypto
 
 ifeq ($(OS),CYGWIN_NT-5.1)
 LIBS+=-lwpcap
