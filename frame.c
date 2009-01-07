@@ -38,6 +38,7 @@
 #include "endian.h"
 #include "device.h"
 #include "crypto.h"
+#include "crc32.h"
 
 int opt_verbose = 0;
 FILE *err_stream;
@@ -440,7 +441,19 @@ static int hpav_dump_start_mac_confirm(void *buf, int len, struct ether_header *
 		goto out;
 		break;
 	case 0x14:
-		faifa_printf(out_stream, "Status: Invalid command\n");
+		faifa_printf(out_stream, "Status: NVM not present\n");
+		goto out;
+		break;
+	case 0x18:
+		faifa_printf(out_stream, "Status: NVM too small\n");
+		goto out;
+		break;
+	case 0x1C:
+		faifa_printf(out_stream, "Status: Invalid header checksum\n");
+		goto out;
+		break;
+	case 0x20:
+		faifa_printf(out_stream, "Status: Invalid section checksum\n");
 		goto out;
 		break;
 	}
@@ -474,6 +487,55 @@ static int hpav_dump_reset_device_confirm(void *buf, int len, struct ether_heade
 	faifa_printf(out_stream, "Status : %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
 	avail -= sizeof(*mm);
 
+	return (len - avail);
+}
+
+static int hpav_init_write_data_request(void *buf, int len, struct ether_header *UNUSED(hdr))
+{
+	int avail = len;
+	struct write_mod_data_request *mm = (struct write_mod_data_request *)buf;
+	char filename[256];
+	char *buffer;
+	FILE *fp;
+	short unsigned int size;
+	uint32_t crc32;
+	
+	faifa_printf(out_stream, "Module ID? ");
+	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
+	faifa_printf(out_stream, "Offset? ");
+	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->offset));
+	faifa_printf(out_stream, "Firmware file? ");
+	fscanf(in_stream, "%s", (char *)filename);
+	fp = fopen(filename, "rb");
+	if (!fp) {
+		faifa_printf(err_stream, "Cannot open: %s\n", filename);
+		avail = -1;
+		goto out;
+	}
+	fseek(fp, 0, SEEK_END);
+	size = ftell(fp);
+	if (size > 1024) {
+		faifa_printf(out_stream, "Invalid file size > 1024\n");
+		avail = -1;
+		goto out;	
+	}
+	fseek(fp, 0, SEEK_SET);
+	mm->length = size;
+	buffer = malloc(size);
+	if (!buffer) {
+		faifa_printf(err_stream, "Cannot allocate memory\n");
+		avail = -1;
+		goto out;
+	}
+	fread(buffer, size, 1, fp); 
+	/* Compute crc on the file */
+	crc32 = crc32buf(buffer, size);
+	memcpy(&(mm->data), buffer, size);
+	mm->checksum = crc32;
+out:
+	if (fp)
+		fclose(fp);
+	avail -= sizeof(*mm);
 	return (len - avail);
 }
 
@@ -1838,6 +1900,7 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 	}, {
 		.mmtype = 0xA020,
 		.desc = "Write Module Data Request",
+		.init_frame = hpav_init_write_data_request,
 	}, {
 		.mmtype = 0xA021,
 		.desc = "Write Module Data Confirm",
