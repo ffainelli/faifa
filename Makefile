@@ -15,7 +15,7 @@ OS=$(shell uname -s | tr a-z A-Z)
 ARCH=$(shell uname -m | sed -e 's/i.86/i386/' -e 's/x86_64/amd64'/)
 CFLAGS:= -W -Wall -g -fPIC 
 APP:=faifa
-SVN_REV=$(shell set LANG=C; svn info | grep "Revision" | awk '{ print $$2}')
+SVN_REV=$(shell set LC_ALL=C; svn info | grep "Revision" | awk '{ print $$2}')
 
 # Object files for the library
 LIB_OBJS:=faifa.o frame.o crypto.o
