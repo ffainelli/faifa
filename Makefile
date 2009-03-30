@@ -58,7 +58,11 @@ clean:
 		*.o \
 		*.a \
 		*.so \
-		$(MANFIL)
+		$(MANFIL) \
+		../*.deb \
+		../*.dsc \
+		../*.tar.gz \
+		../*.changes
 distclean: clean
 
 install: installman strip
