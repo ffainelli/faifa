@@ -216,7 +216,7 @@ int faifa_get_hwaddr(faifa_t *faifa, u_int8_t *hwaddr)
 	int fd;
 	struct ifreq ifr;
 
-	fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	fd = socket(AF_INET, SOCK_DRAM, 0);
 	if (fd == -1) {
 		faifa_set_error(faifa, "socket: %s", strerror(errno));
 		goto __error_socket;
