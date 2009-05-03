@@ -21,6 +21,6 @@
  */
 
 int ether_init_header(void *buf, int len, u_int8_t *da, u_int8_t *sa, u_int16_t ethertype);
-int set_init_callback(u_int16_t mmtype, int (*callback));
-int set_dump_callback(u_int16_t mmtype, int (*callback));
+int set_init_callback(u_int16_t mmtype, int (*callback)(void *buf, int len, void *user));
+int set_dump_callback(u_int16_t mmtype, int (*callback)(void *buf, int len, struct ether_header *hdr));
 void do_receive_frame(faifa_t *faifa, void *buf, int len, void *UNUSED(user));

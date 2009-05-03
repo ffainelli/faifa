@@ -99,7 +99,7 @@ int dump_hex(void *buf, int len, char *sep)
 
 #define HEX_BLOB_BYTES_PER_ROW  16
 
-static u_int32_t dump_hex_blob(faifa_t *faifa, u_int8_t *buf, u_int32_t len)
+static u_int32_t dump_hex_blob(faifa_t *UNUSED(faifa), u_int8_t *buf, u_int32_t len)
 {
 	u_int32_t i, d, m = len % HEX_BLOB_BYTES_PER_ROW;
 
@@ -122,15 +122,6 @@ static u_int32_t dump_hex_blob(faifa_t *faifa, u_int8_t *buf, u_int32_t len)
 static int init_empty_frame(void *UNUSED(buf), int UNUSED(len), void *UNUSED(user))
 {
 	return 0;
-}
-
-/**
- * set_key - set a key to the specified station
- * @macaddr:	unused
- */
-static void set_key(char *UNUSED(macaddr))
-{
-	return;
 }
 
 /*
@@ -496,7 +487,7 @@ static int hpav_dump_reset_device_confirm(void *buf, int len, struct ether_heade
 	return (len - avail);
 }
 
-static int hpav_init_write_data_request(void *buf, int len, struct ether_header *UNUSED(hdr))
+static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
 	struct write_mod_data_request *mm = (struct write_mod_data_request *)buf;
@@ -2213,7 +2204,7 @@ static int hp10_mmtype2index(u_int8_t mmtype)
  * @callback:	the new callback
  */
 
-int set_init_callback(u_int16_t mmtype, int (*callback))
+int set_init_callback(u_int16_t mmtype, int (*callback)(void *buf, int len, void *user))
 {
 	int i;
 
@@ -2233,7 +2224,7 @@ int set_init_callback(u_int16_t mmtype, int (*callback))
  * @callback:	the new callback
  */
 
-int set_dump_callback(u_int16_t mmtype, int (*callback))
+int set_dump_callback(u_int16_t mmtype, int (*callback)(void *buf, int len, struct ether_header *hdr))
 {
 	int i;
 
