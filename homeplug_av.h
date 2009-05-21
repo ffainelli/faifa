@@ -465,7 +465,7 @@ struct hpav_fc {
 	u_int8_t	mnbf:1;
 	u_int8_t	rsvd:5;
 	u_int8_t	fccs_av[3];
-} __attribute__((__packed__));;
+} __attribute__((__packed__));
 
 struct hpav_bcn {
 	u_int8_t	del_type:2;
@@ -477,7 +477,7 @@ struct hpav_bcn {
 	u_int16_t	bto_2;
 	u_int16_t	bto_3;
 	u_int8_t	fccs_av[3];
-} __attribute__((__packed__));;
+} __attribute__((__packed__));
 
 /* 0xA034 - Sniffer Request */
 struct sniffer_request {
