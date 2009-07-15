@@ -1,22 +1,15 @@
 This package was debianized by Florian Fainelli <florian.fainelli@openpattern.ogr> on
 Sun, 18 May 2008 11:29:24 +0200.
 
-It was downloaded from <fill in http/ftp site>
+It was downloaded from https://dev.open-plc.org
 
-Upstream Author: <put author(s) name and email here>
+Upstream Author: Xavier Carcelle, Nicolas Thill, Florian Fainelli
 
-Copyright: <put the year(s) of the copyright, and the names of the
-            copyright holder(s) here>
+Copyright: 2008 Xavier Carcelle, Nicolas Thills, Florian Fainelli
 
 License:
 
-<Put the license of the package here>
-
+GPLv2
 
 The Debian packaging is (C) 2008, Florian Fainelli <florian.fainelli@openpattern.ogr> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
-
-
-# Please also look if there are files or directories which have a
-# different copyright/license attached and list them here.
-
