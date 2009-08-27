@@ -1,7 +1,7 @@
 /*
  *  Faifa library compatibility layer
  *
- *  Copyright (C) 2007-2008 Xavier Carcelle <xavier.carcelle@gmail.com>
+ *  Copyright (C) 2007-2009 Xavier Carcelle <xavier.carcelle@gmail.com>
  *		    	    Florian Fainelli <florian@openwrt.org>
  *			    Nicolas Thill <nico@openwrt.org>
  *
@@ -28,6 +28,8 @@
 #endif
 
 #ifdef __CYGWIN__
+#define PCAP_SRC_IF_STRING "rpcap://"
+
 #define ETH_ZLEN        60              /* Min. octets in frame w/o FCS */
 #define ETH_ALEN	6
 #define ETHER_CRC_LEN	4

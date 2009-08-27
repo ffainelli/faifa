@@ -1,7 +1,7 @@
 /*
  *  Core library functions
  *
- *  Copyright (C) 2007-2008 Xavier Carcelle <xavier.carcelle@gmail.com>
+ *  Copyright (C) 2007-2009 Xavier Carcelle <xavier.carcelle@gmail.com>
  *		    	    Florian Fainelli <florian@openwrt.org>
  *			    Nicolas Thill <nico@openwrt.org>
  *
@@ -93,14 +93,58 @@ int faifa_open(faifa_t *faifa, char *name)
 		faifa_set_error(faifa, "Must be root to execute this program");
 		goto __error_pcap_lookupdev;
 	}
-#endif
-
+	
 	if (!pcap_lookupdev(pcap_errbuf)) {
 		faifa_set_error(faifa, "pcap_lookupdev: can't find device %s", name);
 		goto __error_pcap_lookupdev;
 	}
 
-	faifa->pcap = pcap_open_live(name, pcap_snaplen , 1, 100, pcap_errbuf);
+	/* Use open_live on Unixes */
+	faifa->pcap = pcap_open_live(name, pcap_snaplen, 1, 100, pcap_errbuf);
+#else
+	pcap_if_t *alldevs;
+	pcap_if_t *d;
+	pcap_addr_t *a;
+	int i = 0;
+	int inum;
+
+	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, pcap_errbuf) == -1) {
+		faifa_set_error(faifa, "Could not get interface list");
+		goto __error_pcap_lookupdev;
+	}
+	for (d = alldevs; d != NULL; d = d->next) {
+		if (d->flags & PCAP_IF_LOOPBACK)
+			continue;
+		printf("%d. %s", ++i, d->name);
+		if (d->description)
+			printf(" (%s)\n", d->description);
+		else
+			printf(" No description\n");
+		for (a = d->addresses; a; a = a->next) 
+			if (a->addr->sa_family != AF_INET)
+				continue;
+	}
+
+	if (!i) {
+		faifa_set_error(faifa, "No interfaces found");
+		goto __error_pcap_lookupdev;
+	}
+__ask_inum:
+	printf("Enter interface number (1-%d):", i);
+	scanf("%d", &inum);
+
+	if (inum < 1 || inum > i) {
+		printf("Interface index out of range !\n");
+		goto __ask_inum;
+	}
+	/* Jump to the selected adapter */
+	for (d = alldevs, i = 0; i < inum-1; d = d->next, i++);
+	strcpy(name, d->name);
+	pcap_snaplen = 65536;
+	printf("Using: %s\n", name);
+
+	faifa->pcap = pcap_open(name, pcap_snaplen, 1, 1000, NULL, pcap_errbuf);
+#endif
 	if (faifa->pcap == NULL) {
 		faifa_set_error(faifa, "pcap_open_live: %s", pcap_errbuf);
 		goto __error_pcap_open_live;
@@ -112,6 +156,9 @@ int faifa_open(faifa_t *faifa, char *name)
 	}
 
 	strncpy(faifa->ifname, name, sizeof(faifa->ifname));
+#ifdef __CYGWIN__
+	pcap_freealldevs(alldevs);
+#endif
 	
 	return 0;
 	
