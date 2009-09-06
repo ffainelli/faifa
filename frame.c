@@ -398,7 +398,7 @@ static int hpav_init_start_mac_request(void *buf, int len, void *UNUSED(buffer))
 	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
 	faifa_printf(out_stream, "Image load address? ");
 	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->image_load));
-	faifa_printf(out_stream, "Image lenght? ");
+	faifa_printf(out_stream, "Image length? ");
 	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->image_length));
 	faifa_printf(out_stream, "Image checksum? ");
 	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->image_chksum));
@@ -1277,7 +1277,7 @@ static int hpav_dump_check_points_indicate(void *buf, int len, struct ether_head
 	faifa_printf(out_stream, "Next index: 0x%08lx\n", (long unsigned)(mm->index));
 	faifa_printf(out_stream, "Number of parts: %d\n", (short unsigned int)(mm->num_parts));
 	faifa_printf(out_stream, "Current part: %d\n", (short unsigned int)(mm->cur_part));
-	faifa_printf(out_stream, "Data lenght: %d (0x%04hx)\n", (unsigned int)(mm->data_length), (unsigned int)(mm->data_length));
+	faifa_printf(out_stream, "Data length: %d (0x%04hx)\n", (unsigned int)(mm->data_length), (unsigned int)(mm->data_length));
 	faifa_printf(out_stream, "Data offset: 0x%04hx\n", (unsigned int)(mm->data_offset));
 	/* FIXME: we should probably move the offset */
 	//dump_hex(mm->data + mm->data_offset, (unsigned int)(mm->data_length), " ");
