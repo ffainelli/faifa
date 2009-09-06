@@ -18,7 +18,6 @@ ifneq ($(OS),CYGWIN_NT-5.1)
 CFLAGS+= -fPIC
 endif
 APP:=faifa
-SVN_REV=$(shell set LC_ALL=C; svn info | grep "Revision" | awk '{ print $$2}')
 
 # Object files for the library
 LIB_OBJS:=faifa.o frame.o crypto.o
