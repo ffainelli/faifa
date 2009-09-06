@@ -22,6 +22,7 @@ APP:=faifa
 # Object files for the library
 LIB_OBJS:=faifa.o frame.o crypto.o
 LIB_NAME:=lib$(APP)
+LIB_SONAME:=lib$(APP).so.0
 
 # Object files for the program
 OBJS:= main.o $(LIB_OBJS)
@@ -41,7 +42,7 @@ MANTYP=8
 MANFIL=$(APP).$(MANTYP).gz
 MANINSTALLDIR=$(MANDIR)/man$(MANTYP)
 
-all: $(APP) $(LIB_NAME).a $(LIB_NAME).so
+all: $(APP) $(LIB_NAME).a $(LIB_SONAME)
 
 $(APP): $(OBJS) $(HEADERS)
 	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -49,8 +50,8 @@ $(APP): $(OBJS) $(HEADERS)
 $(LIB_NAME).a: $(LIB_OBJS) $(HEADERS)
 	$(AR) rcs $(LIB_NAME).a	$(LIB_OBJS)
 
-$(LIB_NAME).so: $(LIB_OBJS) $(HEADERS)
-	$(CC) -shared -Wl,-soname,$(LIB_NAME).so -o $(LIB_NAME).so $(LIB_OBJS) $(LIBS)
+$(LIB_SONAME): $(LIB_OBJS) $(HEADERS)
+	$(CC) -shared -Wl,-soname,$(LIB_SONAME) -o $(LIB_SONAME) $(LIB_OBJS) $(LIBS)
 
 %.o: %.c $(HEADERS)
 	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -c $<
@@ -59,7 +60,7 @@ clean:
 	rm -f $(APP) faifa-dump-devel-stdout \
 		*.o \
 		*.a \
-		*.so \
+		*.so* \
 		$(MANFIL) \
 		../*.deb \
 		../*.dsc \
@@ -71,13 +72,13 @@ install: installman strip
 	install -d $(DESTDIR)/usr/sbin/
 	install -m0755 $(APP) $(DESTDIR)/usr/sbin/
 	install -d $(DESTDIR)/usr/lib/
-	install -m0644 lib$(APP).so $(DESTDIR)/usr/lib/
+	install -m0644 $(LIB_SONAME) $(DESTDIR)/usr/lib/
 	install -d $(DESTDIR)/usr/include
 	cp $(HEADERS) $(DESTDIR)/usr/include/
 
 strip:
 	strip $(APP) 
-	strip $(LIB_NAME).so
+	strip $(LIB_SONAME)
 
 debs:
 	sed -i -e 's/ARCH/$(ARCH)/' debian/control
