@@ -73,8 +73,8 @@ install: installman strip
 	install -m0755 $(APP) $(DESTDIR)/usr/sbin/
 	install -d $(DESTDIR)/usr/lib/
 	install -m0644 $(LIB_SONAME) $(DESTDIR)/usr/lib/
-	install -d $(DESTDIR)/usr/include
-	cp $(HEADERS) $(DESTDIR)/usr/include/
+	install -d $(DESTDIR)/usr/include/faifa
+	cp $(HEADERS) $(DESTDIR)/usr/include/faifa/
 
 strip:
 	strip $(APP) 
