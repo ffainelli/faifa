@@ -1,4 +1,4 @@
-This package was debianized by Florian Fainelli <florian.fainelli@openpattern.org> on
+This package was debianized by Florian Fainelli <florian@openwrt.org> on
 Sun, 18 May 2008 11:29:24 +0200.
 
 It was downloaded from https://dev.open-plc.org
@@ -35,6 +35,6 @@ found in `/usr/share/common-licenses/GPL-2'.
 
 
 The Debian packaging is
-Copyright (C) 2008, Florian Fainelli <florian.fainelli@openpattern.org>
+Copyright (C) 2008, Florian Fainelli <florian@openwrt.org>
 Copyright (C) 2009, Damien Raude-Morvan <drazzib@drazzib.com>
 and is licensed under the GPL V2 or later, see `/usr/share/common-licenses/GPL-2'.

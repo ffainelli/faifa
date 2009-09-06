@@ -1,7 +1,7 @@
 Source: faifa
 Section: net
 Priority: extra
-Maintainer: Florian Fainelli <florian.fainelli@openpattern.org>
+Maintainer: Florian Fainelli <florian@openwrt.org>
 Uploaders: Damien Raude-Morvan <drazzib@drazzib.com>
 Build-Depends: debhelper (>= 7), libpcap0.8-dev, libssl-dev (>= 0.9.7), quilt
 Standards-Version: 3.8.3
