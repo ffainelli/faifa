@@ -25,7 +25,7 @@ LIB_NAME:=lib$(APP)
 LIB_SONAME:=lib$(APP).so.0
 
 # Object files for the program
-OBJS:= main.o $(LIB_OBJS)
+OBJS:= main.o
 HEADERS:= faifa.h faifa_compat.h faifa_priv.h homeplug.h homeplug_av.h crypto.h device.h endian.h
 LIBS:=$(LDFLAGS) -lpthread -lssl -lcrypto
 
@@ -44,8 +44,8 @@ MANINSTALLDIR=$(MANDIR)/man$(MANTYP)
 
 all: $(APP) $(LIB_NAME).a $(LIB_SONAME)
 
-$(APP): $(OBJS) $(HEADERS)
-	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+$(APP): $(OBJS) $(HEADERS) $(LIB_SONAME)
+	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_SONAME)
 
 $(LIB_NAME).a: $(LIB_OBJS) $(HEADERS)
 	$(AR) rcs $(LIB_NAME).a	$(LIB_OBJS)
