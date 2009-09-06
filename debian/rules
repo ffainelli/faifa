@@ -1,0 +1,67 @@
+#!/usr/bin/make -f
+
+include /usr/share/quilt/quilt.make
+
+# Directory for tmp installation of the package. Files must be installed/copied there
+# before being packaged
+TMPDIR=debian/tmp
+
+DEB_VERSION := $(shell dpkg-parsechangelog | egrep '^Version:' | cut -f 2 -d ' ')
+UPSTREAM_VERSION := $(shell echo $(DEB_VERSION) | sed 's/-[^-]*$$//')
+REVISION := $(shell echo $(UPSTREAM_VERSION) | sed -e 's/.*svn//')
+
+CFLAGS = -Wall -g
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+
+build: build-stamp
+build-stamp: $(QUILT_STAMPFN)
+	dh_testdir
+	SVN_REV=$(REVISION) $(MAKE)
+	touch $@
+
+clean: unpatch
+	dh_testdir
+	dh_testroot
+	dh_clean build-stamp
+	$(MAKE) distclean
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+	$(MAKE) DESTDIR=$(CURDIR)/$(TMPDIR) install
+	
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -a
+	dh_testroot -a
+	dh_install -a
+	dh_installchangelogs -a
+	dh_installman -a
+	dh_installdocs -a
+	dh_link -a
+	dh_strip -a
+	dh_compress -a
+	dh_fixperms -a
+	dh_makeshlibs -a
+	dh_shlibdeps -Llibfaifa -l$(CURDIR)/$(TMPDIR)/usr/lib/faifa -a
+	dh_installdeb -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
+
+get-orig-source:
+	sh debian/orig-tar.sh $(UPSTREAM_VERSION)

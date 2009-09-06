@@ -1,0 +1,9 @@
+faifa (0.2~svn27-1) unstable; urgency=low
+
+  [ Florian Fainelli ]
+  * Initial release
+
+  [ Damien Raude-Morvan ]
+  * Update Debian packaging
+
+ -- Damien Raude-Morvan <drazzib@drazzib.com>  Fri, 21 Aug 2009 01:00:59 +0200

@@ -1,0 +1,52 @@
+Source: faifa
+Section: net
+Priority: extra
+Maintainer: Florian Fainelli <florian.fainelli@openpattern.org>
+Uploaders: Damien Raude-Morvan <drazzib@drazzib.com>
+Build-Depends: debhelper (>= 7), libpcap0.8-dev, libssl-dev (>= 0.9.7), quilt
+Standards-Version: 3.8.3
+Vcs-Svn: http://svn.drazzib.com/debian-pkg/faifa/trunk/
+Vcs-Browser: http://svn.drazzib.com/wsvn/debian-pkg/faifa/trunk/
+Homepage: https://dev.open-plc.org/
+
+Package: faifa
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Architecture: any
+Description: Homeplug 1.0/AV tool
+ Faifa is a network tool to configure, inspect
+ flash, collect statistics on HomePlug 1.0/AV
+ devices.
+ .
+ It sends all private and public ethernet management
+ frames to the devices.
+ .
+ This package contains faifa tool.
+
+Package: libfaifa-dev
+Section: libdevel
+Architecture: any
+Depends: libfaifa0 (= ${binary:Version})
+Description: Homeplug 1.0/AV development libraries
+ Faifa is a network tool to configure, inspect
+ flash, collect statistics on HomePlug 1.0/AV
+ devices.
+ .
+ It sends all private and public ethernet management
+ frames to the devices.
+ .
+ This package contains faifa development libraries.
+
+Package: libfaifa0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Homeplug 1.0/AV library
+ Faifa is a network tool to configure, inspect
+ flash, collect statistics on HomePlug 1.0/AV
+ devices.
+ .
+ It sends all private and public ethernet management
+ frames to the devices.
+ .
+ This package contains faifa library.
+

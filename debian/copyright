@@ -1,0 +1,40 @@
+This package was debianized by Florian Fainelli <florian.fainelli@openpattern.org> on
+Sun, 18 May 2008 11:29:24 +0200.
+
+It was downloaded from https://dev.open-plc.org
+
+Upstream Author:
+  Xavier Carcelle
+  Nicolas Thill
+  Florian Fainelli
+
+Copyright:
+  Copyright (C) 2007-2008 Xavier Carcelle <xavier.carcelle@gmail.com>
+                          Florian Fainelli <florian@openwrt.org>
+                          Nicolas Thill <nico@openwrt.org>
+
+License:
+GPL (v2 or later)
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  
+On Debian system the full text of the GPL V2, can be
+found in `/usr/share/common-licenses/GPL-2'.
+
+
+The Debian packaging is
+Copyright (C) 2008, Florian Fainelli <florian.fainelli@openpattern.org>
+Copyright (C) 2009, Damien Raude-Morvan <drazzib@drazzib.com>
+and is licensed under the GPL V2 or later, see `/usr/share/common-licenses/GPL-2'.
