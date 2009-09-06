@@ -2,7 +2,7 @@
 # Makefile for the faifa program and library
 #
 #
-# Copyright (C) 2007-2008 
+# Copyright (C) 2007-2009
 #	Xavier Carcelle <xavier.carcelle@gmail.com>
 #	Florian Fainelli <florian@openwrt.org>
 #	Nicolas Thill <nico@openwrt.org>
@@ -12,7 +12,6 @@
 #
 
 OS=$(shell uname -s | tr a-z A-Z)
-ARCH=$(shell uname -m | sed -e 's/i.86/i386/' -e 's/x86_64/amd64'/)
 CFLAGS:= -W -Wall -g 
 ifneq ($(OS),CYGWIN_NT-5.1)
 CFLAGS+= -fPIC
@@ -62,11 +61,8 @@ clean:
 		*.o \
 		*.a \
 		*.so* \
-		$(MANFIL) \
-		../*.deb \
-		../*.dsc \
-		../*.tar.gz \
-		../*.changes
+		$(MANFIL)
+
 distclean: clean
 
 install: installman strip
@@ -80,11 +76,6 @@ install: installman strip
 strip:
 	strip $(APP) 
 	strip $(LIB_SONAME)
-
-debs:
-	sed -i -e 's/ARCH/$(ARCH)/' debian/control
-	dpkg-buildpackage -r
-	sed -i -e 's/$(ARCH)/ARCH/' debian/control
 
 man:
 	-rm $(MANFIL)
