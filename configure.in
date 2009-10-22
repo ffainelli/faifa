@@ -7,6 +7,7 @@ PA_ADD_CFLAGS(-Wall)
 
 AC_CHECK_HEADERS(pthread.h)
 AC_CHECK_HEADERS(pcap.h)
+AC_CHECK_HEADERS(openssl/sha.h)
 
 AC_PROG_INSTALL
 
