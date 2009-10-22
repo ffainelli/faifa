@@ -90,7 +90,7 @@ extern void set_key(char *macaddr);
 int main(int argc, char **argv)
 {
 	faifa_t *faifa;
-	char *opt_ifname;
+	char *opt_ifname = NULL;
 	char *opt_macaddr;
 	char *opt_err_stream = NULL;
 	char *opt_out_stream = NULL;
