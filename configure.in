@@ -2,14 +2,48 @@ AC_INIT(faifa, 0.2)
 AC_PREREQ(2.59)
 
 AC_PROG_CC
+AC_PROG_RANLIB
+AC_PROG_INSTALL
 
 PA_ADD_CFLAGS(-Wall)
 
-AC_CHECK_HEADERS(pthread.h)
-AC_CHECK_HEADERS(pcap.h)
-AC_CHECK_HEADERS(openssl/sha.h)
+# Basic headers
+AC_CHECK_HEADERS(stdio.h)
+AC_CHECK_HEADERS(stdlib.h)
+AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(sys/types.h)
+AC_CHECK_HEADERS(arpa/inet.h)
+AC_CHECK_HEADERS(errno.h)
+AC_CHECK_HEADERS(stdarg.h)
+AC_CHECK_HEADERS(string.h)
+AC_CHECK_HEADERS(net/if.h)
 
-AC_PROG_INSTALL
+# Libraries provided headers
+AC_CHECK_HEADERS([pthread.h],,[AC_MSG_ERROR([You need libpthread development files])])
+AC_CHECK_HEADERS([pcap.h],,[AC_MSG_ERROR([You need libpcap development files])])
+AC_CHECK_HEADERS([openssl/sha.h],,[AC_MSG_ERROR([You need openssl development files])])
+
+# Check libraries
+AC_CHECK_LIB(pthread, pthread_create,
+	[AC_CHECK_LIB(pthread, pthread_join,[LIBS="${LIBS} -lpthread"],
+	AC_MSG_ERROR(You need pthread_join check your libpthread))],
+	AC_MSG_ERROR(You need pthread_create check your libpthread))
+AC_CHECK_LIB(pcap, pcap_lookupdev,
+	[AC_CHECK_LIB(pcap, pcap_datalink,
+	[AC_CHECK_LIB(pcap, pcap_next_ex,
+	[AC_CHECK_LIB(pcap, pcap_sendpacket,
+	[AC_CHECK_LIB(pcap, pcap_close,
+	,AC_MSG_ERROR(You need pcap_close check your libpcap))],
+	AC_MSG_ERROR(You need pcap_sendpacket check your libpcap))],
+	AC_MSG_ERROR(You need pcap_next_ex check your libpcap))],
+	AC_MSG_ERROR(You need pcap_datalink check your libpcap))],
+	AC_MSG_ERROR(You need pcap_lookupdev check your libpcap))
+AC_CHECK_LIB([crypto], [SHA256_Init],
+	[AC_CHECK_LIB([crypto], [SHA256_Update],
+	[AC_CHECK_LIB([crypto], [SHA256_Final],LIBS="${LIBS} -lcrypto",
+		AC_MSG_ERROR(you need SHA256_Final check your libcrypto))],
+		AC_MSG_ERROR(you need SHA256_Update check your libcrypto))],
+		AC_MSG_ERROR(you need SHA256_Update check your libcrypto))
 
 AC_CONFIG_HEADER(config.h)
 AC_OUTPUT(Makefile)

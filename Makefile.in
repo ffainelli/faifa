@@ -14,6 +14,7 @@
 CC	= @CC@
 CFLAGS	= @CFLAGS@
 INSTALL	= @INSTALL@
+LIBS	= @LIBS@
 
 prefix		= @prefix@
 exec_prefix	= @exec_prefix@
@@ -35,14 +36,13 @@ LIB_SONAME:=lib$(APP).so.0
 # Object files for the program
 OBJS:= main.o
 HEADERS:= faifa.h faifa_compat.h faifa_priv.h homeplug.h homeplug_av.h crypto.h device.h endian.h
-LIBS:=$(LDFLAGS) -lpthread -lssl -lcrypto
+LIBS:=$(LDFLAGS) $(LIBS)
 
 ifeq ($(OS),CYGWIN_NT-5.1)
 LIBS+=-lwpcap
 APP:=$(APP).exe
 else
 CFLAGS+= -fPIC
-LIBS+=-lpcap
 endif
 
 man8dir = $(mandir)/man8
