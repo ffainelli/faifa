@@ -20,7 +20,7 @@ prefix		= @prefix@
 exec_prefix	= @exec_prefix@
 bindir		= @bindir@
 mandir		= @mandir@
-libexecdir	= @libexecdir@
+libdir		= @libdir@
 datarootdir	= @datarootdir@
 includedir	= @includedir@
 
@@ -76,8 +76,8 @@ distclean: clean
 install: installman strip
 	$(INSTALL) -d $(DESTDIR)/$(bindir)
 	$(INSTALL) -m0755 $(APP) $(DESTDIR)/$(bindir)
-	$(INSTALL) -d $(DESTDIR)/$(libexecdir)
-	$(INSTALL) -m0644 $(LIB_SONAME) $(DESTDIR)/$(libexecdir)
+	$(INSTALL) -d $(DESTDIR)/$(libdir)
+	$(INSTALL) -m0644 $(LIB_SONAME) $(DESTDIR)/$(libdir)
 	$(INSTALL) -d $(DESTDIR)/$(includedir)/faifa
 	cp $(HEADERS) $(DESTDIR)/$(includedir)/faifa
 
@@ -100,7 +100,7 @@ uninstallman:
 
 uninstall: uninstallman
 	-rm $(DESTDIR)/$(bindir)/$(APP)
-	-rm $(DESTDIR)/$(libexecdir)/$(LIB_SONAME)
+	-rm $(DESTDIR)/$(libdir)/$(LIB_SONAME)
 	-rm -r $(DESTDIR)/$(includedir)/faifa
 
 .PHONY:
