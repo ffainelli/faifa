@@ -74,7 +74,7 @@ faifa_t *faifa_init(void)
 	faifa = calloc(1, sizeof(faifa_t));
 	if (faifa == NULL)
 		goto __error_malloc;
-	
+
 	return faifa;
 
 	free(faifa);
@@ -108,7 +108,7 @@ int faifa_open(faifa_t *faifa, char *name)
 		faifa_set_error(faifa, "Must be root to execute this program");
 		goto __error_pcap_lookupdev;
 	}
-	
+
 	if (!pcap_lookupdev(pcap_errbuf)) {
 		faifa_set_error(faifa, "pcap_lookupdev: can't find device %s", name);
 		goto __error_pcap_lookupdev;
@@ -135,7 +135,7 @@ int faifa_open(faifa_t *faifa, char *name)
 			printf(" (%s)\n", d->description);
 		else
 			printf(" No description\n");
-		for (a = d->addresses; a; a = a->next) 
+		for (a = d->addresses; a; a = a->next)
 			if (a->addr->sa_family != AF_INET)
 				continue;
 	}
@@ -174,9 +174,9 @@ __ask_inum:
 #ifdef __CYGWIN__
 	pcap_freealldevs(alldevs);
 #endif
-	
+
 	return 0;
-	
+
 __error_device_not_ethernet:
 	pcap_close(faifa->pcap);
 __error_pcap_open_live:
@@ -190,7 +190,7 @@ int faifa_recv(faifa_t *faifa, void *buf, int len)
 	struct pcap_pkthdr *pcap_header;
 	u_char *pcap_data;
 	int n;
-	
+
 	n = pcap_next_ex(faifa->pcap, &pcap_header, (const u_char **)&pcap_data);
 	if (n < 0) {
 		faifa_set_error(faifa, "pcap_next_ex: %s", pcap_geterr(faifa->pcap));
@@ -203,7 +203,7 @@ int faifa_recv(faifa_t *faifa, void *buf, int len)
 		len = pcap_header->caplen;
 
 	memcpy(buf, pcap_data, len);
-	
+
 	return len;
 }
 

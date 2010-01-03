@@ -849,7 +849,7 @@ enum pid {
 };
 
 struct cm_enc_payload_mm {
-	u_int16_t	len;	
+	u_int16_t	len;
 	u_int8_t	mme[0];
 } __attribute__((__packed__));
 

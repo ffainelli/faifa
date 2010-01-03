@@ -393,14 +393,14 @@ static int hpav_dump_cc_discover_list_confirm(void *buf, int len, struct ether_h
 		dump_cc_sta_info(&(sta->infos[i]));
 		avail -= sizeof(sta->infos[i]);
 	}
-	
+
 	faifa_printf(out_stream, "Number of Networks: %d\n", net->count);
 	avail -= sizeof(*net);
 	for (i = 0; i < net->count; i++) {
 		dump_cc_net_info(&(net->infos[i]));
 		avail -= sizeof(net->infos[i]);
 	}
-	
+
 	return (len - avail);
 }
 
@@ -511,7 +511,7 @@ static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer)
 	FILE *fp;
 	short unsigned int size;
 	uint32_t crc32;
-	
+
 	faifa_printf(out_stream, "Module ID? ");
 	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
 	faifa_printf(out_stream, "Offset? ");
@@ -529,7 +529,7 @@ static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer)
 	if (size > 1024) {
 		faifa_printf(out_stream, "Invalid file size > 1024\n");
 		avail = -1;
-		goto out;	
+		goto out;
 	}
 	fseek(fp, 0, SEEK_SET);
 	mm->length = size;
@@ -647,7 +647,7 @@ static int hpav_dump_read_config_block_confirm(void *buf, int len, struct ether_
 	faifa_printf(out_stream, "Config length: %d\n", (short unsigned int)(mm->config_length));
 	dump_conf_block(&(mm->hdr));
 	dump_sdram_block(&(mm->config));
-out:	
+out:
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -719,10 +719,10 @@ static int hpav_dump_get_devices_attrs_confirm(void *buf, int len, struct ether_
 	faifa_printf(out_stream, "Build number: %lu\n", (long unsigned int)(mm->fmt.build_number));
 	faifa_printf(out_stream, "Build date: %s\n", mm->fmt.build_date);
 	faifa_printf(out_stream, "Release type: %s\n", mm->fmt.release_type);
-	
+
 out:
 	avail -= sizeof(*mm);
-	
+
 	return (len - avail);
 }
 
@@ -774,7 +774,7 @@ static int hpav_init_get_tone_map_charac_request(void *buf, int len, void *UNUSE
 		(short unsigned int *)&macaddr[3],
 		(short unsigned int *)&macaddr[4],
 		(short unsigned int *)&macaddr[5]);
-	
+
 	for (i = 0; i < 6; i++)
 		mm->macaddr[i] = macaddr[i];
 
@@ -926,7 +926,7 @@ static int hpav_init_link_stats_request(void *buf, int len, void *UNUSED(user))
 
 	faifa_printf(out_stream, "Direction ?\n0: TX\n1: RX\n2: TX and RX\n");
 	fscanf(in_stream, "%2d", &direction);
-	
+
 	if (direction >= 0 || direction <= 2)
 		mm->direction = (short unsigned int)(direction);
 
@@ -977,7 +977,7 @@ static void dump_tx_link_stats(struct tx_link_stats *tx)
 static void dump_rx_link_stats(struct rx_link_stats *rx)
 {
 	int i;
-	
+
 	faifa_printf(out_stream, "MPDU acked......................: %llu\n", (long long unsigned)(rx->mpdu_ack));
 	faifa_printf(out_stream, "MPDU failures...................: %llu\n", (long long unsigned)(rx->mpdu_fail));
 	faifa_printf(out_stream, "PB received successfully........: %llu\n", (long long unsigned)(rx->pb_passed));
@@ -1021,10 +1021,10 @@ static int hpav_dump_link_stats_confirm(void *buf, int len, struct ether_header 
 		goto out;
 		break;
 	}
-	
+
 	faifa_printf(out_stream, "Link ID: %02hx\n", (short unsigned int)(mm->link_id));
 	faifa_printf(out_stream, "TEI: %02hx\n", (short unsigned int)(mm->tei));
-	
+
 	switch (mm->direction) {
 	case HPAV_SD_TX:
 		faifa_printf(out_stream, "Direction: Tx\n");
@@ -1186,7 +1186,7 @@ static void dump_hpav_beacon(struct hpav_bcn *bcn)
 		bcn->bto_2, (unsigned int)(bcn->bto_2));
 	faifa_printf(out_stream, "Beacon transmission offset 3: %d (0x%04hx)\n",
 		bcn->bto_3, (unsigned int)(bcn->bto_3));
-	faifa_printf(out_stream, "Frame control check sequence: %2hx%2hx%2hx\n", 
+	faifa_printf(out_stream, "Frame control check sequence: %2hx%2hx%2hx\n",
 		(unsigned int)(bcn->fccs_av[0]),
 		(unsigned int)(bcn->fccs_av[1]),
 		(unsigned int)(bcn->fccs_av[2]));
@@ -1203,7 +1203,7 @@ static int hpav_dump_sniffer_indicate(void *buf, int len, struct ether_header *U
 	faifa_printf(out_stream, "Beacon time: %lu\n", (long unsigned)(mm->beacontime));
 	dump_hpav_frame_ctl(&(mm->fc));
 	dump_hpav_beacon(&(mm->bcn));
-	
+
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1312,11 +1312,11 @@ static int hpav_dump_loopback_request(void *buf, int len, void *UNUSED(buffer))
 	fscanf(in_stream, "%2d", &duration);
 	if (duration >= 0 || duration <= 60)
 		mm->duration = (short unsigned int)(duration);
-	
+
 	/* FIXME: building a static test frame */
 	ether_init_header(eth_test_frame, 512, broadcast_macaddr, broadcast_macaddr, ETHERTYPE_HOMEPLUG_AV);
 	memcpy(mm->data, eth_test_frame, sizeof(eth_test_frame));
-	
+
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1407,7 +1407,7 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 			(short unsigned int *)&dek[13],
 			(short unsigned int *)&dek[14],
 			(short unsigned int *)&dek[15]);
-		
+
 		/* Generate the key from the DEK and DAK salt */
 		gen_passphrase(dek, dak, dak_salt);
 		memcpy(mm->nmk_payload, dak, AES_KEY_SIZE);
@@ -1432,7 +1432,7 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 			mm->rdra[i] = macaddr[i];
 
 	}
-	
+
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1523,7 +1523,7 @@ static char *get_avln_status_str(u_int8_t avln_status)
 		return NULL;
 		break;
 	}
-	
+
 	return NULL;
 }
 
@@ -1666,7 +1666,7 @@ static int hpav_dump_cm_get_key_request(void *buf, int len, struct ether_header 
 	faifa_printf(out_stream, "PMN: %02hx\n", (short unsigned int)(mm->pmn));
 	if (mm->req_key_type == HASH_KEY)
 		faifa_printf(out_stream, "Hash key: ");dump_hex(mm->hash_key, len, "");faifa_printf(out_stream, "\n");
-	
+
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1709,7 +1709,7 @@ static int hpav_dump_cm_get_key_confirm(void *buf, int len, struct ether_header 
 	faifa_printf(out_stream, "Hash key: ");dump_hex(mm->key, len, "");faifa_printf(out_stream, "\n");
 
 	avail -= sizeof(*mm);
-	
+
 	return (len - avail);
 }
 
@@ -1729,7 +1729,7 @@ static int hpav_dump_cm_bridge_infos_confirm(void *buf, int len, struct ether_he
 			dump_hex(mm->bridge_infos.bri_addr[i], 6, ":");faifa_printf(out_stream, "\n");
 		}
 	}
-	
+
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1747,7 +1747,7 @@ static char *get_net_access_str(u_int8_t access)
 	default:
 		return "Unknown";
 		break;
-	
+
 	}
 	return NULL;
 }
@@ -1889,18 +1889,18 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 		.mmtype = 0xA00C,
 		.desc = "Start MAC Request",
 		.init_frame = hpav_init_start_mac_request,
-		.dump_frame = hpav_dump_start_mac_request, 
+		.dump_frame = hpav_dump_start_mac_request,
 	}, {
 		.mmtype = 0xA00D,
 		.desc = "Start MAC Confirm",
-		.dump_frame = hpav_dump_start_mac_confirm, 
+		.dump_frame = hpav_dump_start_mac_confirm,
 	}, {
 		.mmtype = 0xA010,
 		.desc = "Get NVM parameters Request",
 	}, {
 		.mmtype = 0xA011,
 		.desc = "Get NVM parameters Confirm",
-		.dump_frame = hpav_dump_nvram_params_confirm, 
+		.dump_frame = hpav_dump_nvram_params_confirm,
 	}, {
 		.mmtype = 0xA01C,
 		.desc = "Reset Device Request",
@@ -1908,7 +1908,7 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 	}, {
 		.mmtype = 0xA01D,
 		.desc = "Reset Device Confirm",
-		.dump_frame = hpav_dump_reset_device_confirm, 
+		.dump_frame = hpav_dump_reset_device_confirm,
 	}, {
 		.mmtype = 0xA020,
 		.desc = "Write Module Data Request",
@@ -1916,7 +1916,7 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 	}, {
 		.mmtype = 0xA021,
 		.desc = "Write Module Data Confirm",
-		.dump_frame = hpav_dump_write_mod_data_confirm, 
+		.dump_frame = hpav_dump_write_mod_data_confirm,
 	}, {
 		.mmtype = 0xA022,
 		.desc = "Write Module Data Indicate",
@@ -1926,14 +1926,14 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 	}, {
 		.mmtype = 0xA025,
 		.desc = "Read Module Data Confirm",
-		.dump_frame = hpav_dump_start_mac_confirm, 
+		.dump_frame = hpav_dump_start_mac_confirm,
 	}, {
 		.mmtype = 0xA028,
 		.desc = "Write Module Data to NVM Request",
 	}, {
 		.mmtype = 0xA029,
 		.desc = "Write Module Data to NVM Confirm",
-		.dump_frame = hpav_dump_start_mac_confirm, 
+		.dump_frame = hpav_dump_start_mac_confirm,
 	}, {
 		.mmtype = 0xA02C,
 		.desc = "Get Watchdog Report Request",
@@ -1941,7 +1941,7 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 	}, {
 		.mmtype = 0xA02E,
 		.desc = "Get Watchdog Report Indicate",
-		.dump_frame = hpav_dump_watchdog_report_indicate, 
+		.dump_frame = hpav_dump_watchdog_report_indicate,
 	}, {
 		.mmtype = 0xA030,
 		.desc = "Get Link Statistics Request",
@@ -1949,7 +1949,7 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 	}, {
 		.mmtype = 0xA031,
 		.desc = "Get Link Statistics Confirm",
-		.dump_frame = hpav_dump_link_stats_confirm, 
+		.dump_frame = hpav_dump_link_stats_confirm,
 	}, {
 		.mmtype = 0xA034,
 		.desc = "Sniffer Mode Request",
@@ -2067,7 +2067,7 @@ static int hp10_init_channel_estimation_request(void *buf, int len, void *UNUSED
 	struct hp10_channel_estimation_request *mm = (struct hp10_channel_estimation_request *)buf;
 
 	mm->version = 0;
-	
+
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -2187,7 +2187,7 @@ static inline void set_oui(void *raw, u_int8_t *oui)
 static int hpav_mmtype2index(u_int16_t mmtype)
 {
 	unsigned int i;
-	
+
 	for (i = 0; i < ARRAY_SIZE(hpav_frame_ops); i++) {
 		if (hpav_frame_ops[i].mmtype == mmtype)
 			return i;
@@ -2229,7 +2229,7 @@ int set_init_callback(u_int16_t mmtype, int (*callback)(void *buf, int len, void
 
 	if (callback)
 		hpav_frame_ops[i].init_frame = callback;
-	
+
 	return 0;
 }
 
@@ -2344,7 +2344,7 @@ static int hpav_do_frame(void *frame_buf, int frame_len, u_int16_t mmtype, u_int
 	}
 	frame_len -= n;
 	frame_ptr += n;
-	
+
 	faifa_printf(out_stream, "Frame: %s (0x%04X)\n", hpav_frame_ops[i].desc,
 						hpav_frame_ops[i].mmtype);
 
@@ -2381,7 +2381,7 @@ static int hp10_do_frame(u_int8_t *frame_buf, int frame_len, u_int8_t mmtype, u_
 
 	/* Zero-fill the frame */
 	bzero(frame_ptr, frame_len);
-	
+
 	/* Check the destination MAC address */
 	if (da == NULL)
 		da = broadcast_macaddr;
@@ -2454,7 +2454,7 @@ int do_frame(faifa_t *faifa, u_int16_t mmtype, u_int8_t *da, u_int8_t *sa, void 
 /**
  * hpav_dump_frame - Parse an HomePlug AV frame
  * @frame_ptr:	packet data
- * @frame_len:	packet length 
+ * @frame_len:	packet length
  */
 static int hpav_dump_frame(u_int8_t *frame_ptr, int frame_len, struct ether_header *hdr)
 {
@@ -2499,7 +2499,7 @@ static int hp10_dump_frame(u_int8_t *frame_ptr, int UNUSED(frame_len))
 	int i;
 
 	frame_ptr += sizeof(struct hp10_frame);
-	
+
 	for (mmeindex = 0; mmeindex < mmecount; mmeindex++) {
 		mmentry = (struct hp10_mmentry *)frame_ptr;
 		faifa_printf(out_stream, "Frame: 0x%02hX (",
@@ -2550,7 +2550,7 @@ void do_receive_frame(faifa_t *faifa, void *buf, int len, void *UNUSED(user))
 		hp10_dump_frame(payload_ptr, payload_len);
 	else if (*eth_type == ntohs(ETHERTYPE_HOMEPLUG_AV))
 		hpav_dump_frame(payload_ptr, payload_len, eth_header);
-	
+
 	/* Dump the frame on the screen for debugging purposes */
 	if (opt_verbose)
 		dump_hex_blob(faifa, frame_ptr, frame_len);

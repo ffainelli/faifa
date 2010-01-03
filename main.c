@@ -154,7 +154,7 @@ int main(int argc, char **argv)
 			return -1;
 		}
 	}
-	
+
 	if (opt_out_stream == NULL)
 		out_stream = stdout;
 	else {
@@ -174,13 +174,13 @@ int main(int argc, char **argv)
 			return -1;
 		}
 	}
-	
+
 	faifa = faifa_init();
 	if (faifa == NULL) {
 		error("can't initialize Faifa library");
 		return -1;
 	}
-	
+
 	if (faifa_open(faifa, opt_ifname) == -1) {
 		error(faifa_error(faifa));
 		faifa_free(faifa);
@@ -192,6 +192,6 @@ int main(int argc, char **argv)
 
 	faifa_close(faifa);
 	faifa_free(faifa);
-	
+
 	return 0;
 }

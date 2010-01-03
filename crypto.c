@@ -69,7 +69,7 @@ void init_salted_secret(struct salted_secret *secret, const unsigned char *isecr
 
 		memcpy(secret->value, (unsigned char *)isecret, l);
 	}
-	
+
 	if (!isalt)
 		l = 16;
 
@@ -105,7 +105,7 @@ const unsigned char* hash_hpav(const unsigned char* isecret, const unsigned char
 	SHA256_Update(&context, secret.value, secret.len);
 	SHA256_Final(NULL, &context);
 
-	/* Do it 998 times as the standard requires it 
+	/* Do it 998 times as the standard requires it
 	* or only 4 times if we use the NID */
 	for(i = 0; i < max; i++) {
 		SHA256_Init(&context);
