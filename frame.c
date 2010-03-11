@@ -36,10 +36,10 @@
  */
 
 #include <arpa/inet.h>
+#include <sys/types.h>
 #ifndef __CYGWIN__
 #include <net/ethernet.h>
 #endif
-#include <sys/types.h>
 
 #include <stdio.h>
 #include <stdlib.h>

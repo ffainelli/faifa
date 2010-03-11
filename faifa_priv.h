@@ -38,6 +38,7 @@
 #ifndef __FAIFA_PRIV_H__
 #define __FAIFA_PRIV_H__
 
+#include <sys/socket.h>
 #include <net/if.h>
 #include <pcap.h>
 

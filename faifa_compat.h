@@ -42,10 +42,11 @@
 # define ETHERTYPE_8021Q  0x8100
 #endif
 
+#define ETH_ZLEN        60              /* Min. octets in frame w/o FCS */
+
 #ifdef __CYGWIN__
 #define PCAP_SRC_IF_STRING "rpcap://"
 
-#define ETH_ZLEN        60              /* Min. octets in frame w/o FCS */
 #define ETH_ALEN	6
 #define ETHER_CRC_LEN	4
 #define ETH_FRAME_LEN   1514
