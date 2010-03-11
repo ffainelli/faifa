@@ -71,7 +71,10 @@ clean:
 		*.so* \
 		$(MANFIL)
 
-distclean: clean
+autoclean:
+	-rm configure config.log config.status Makefile
+
+distclean: clean autoclean
 
 install: installman strip
 	$(INSTALL) -d $(DESTDIR)/$(bindir)
