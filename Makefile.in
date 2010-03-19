@@ -12,6 +12,7 @@
 #
 
 CC	= @CC@
+STRIP	= @STRIP@
 CFLAGS	= @CFLAGS@
 INSTALL	= @INSTALL@
 LIBS	= @LIBS@
@@ -24,9 +25,9 @@ libdir		= @libdir@
 datarootdir	= @datarootdir@
 includedir	= @includedir@
 
-OS=$(shell uname -s | tr a-z A-Z)
+OS?=$(shell uname -s | tr a-z A-Z)
 APP:=faifa
-SVN_REV?=$(shell LC_ALL=C svn info | grep "Revision" | awk '{ print $$2}')
+SVN_REV?=$(shell LC_ALL=C svn info | awk '/Revision/ { print $$2 }')
 
 # Object files for the library
 LIB_OBJS:=faifa.o frame.o crypto.o
@@ -52,8 +53,8 @@ MANFIL=$(APP).8.gz
 
 all: $(APP) $(LIB_NAME).a $(LIB_SONAME)
 
-$(APP): $(OBJS) $(HEADERS) $(LIB_SONAME)
-	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_SONAME)
+$(APP): $(OBJS) $(HEADERS) $(LIB_NAME).a
+	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_NAME).a
 
 $(LIB_NAME).a: $(LIB_OBJS) $(HEADERS)
 	$(AR) rcs $(LIB_NAME).a	$(LIB_OBJS)
@@ -72,39 +73,37 @@ clean:
 		$(MANFIL)
 
 autoclean:
-	-rm configure config.log config.status Makefile
+	-rm -f configure config.log config.status Makefile
 
 distclean: clean autoclean
 
 install: installman strip
-	$(INSTALL) -d $(DESTDIR)/$(bindir)
-	$(INSTALL) -m0755 $(APP) $(DESTDIR)/$(bindir)
-	$(INSTALL) -d $(DESTDIR)/$(libdir)
-	$(INSTALL) -m0644 $(LIB_SONAME) $(DESTDIR)/$(libdir)
-	$(INSTALL) -d $(DESTDIR)/$(includedir)/faifa
-	cp $(HEADERS) $(DESTDIR)/$(includedir)/faifa
+	$(INSTALL) -d $(DESTDIR)$(bindir)
+	$(INSTALL) -m0755 $(APP) $(DESTDIR)$(bindir)
+	$(INSTALL) -d $(DESTDIR)$(libdir)
+	$(INSTALL) -m0644 $(LIB_SONAME) $(DESTDIR)$(libdir)
+	$(INSTALL) -d $(DESTDIR)$(includedir)/faifa
+	cp $(HEADERS) $(DESTDIR)$(includedir)/faifa
 
 strip:
-	strip $(APP) 
-	strip $(LIB_SONAME)
+	$(STRIP) $(APP)
+	$(STRIP) $(LIB_SONAME)
 
 man:
-	-rm $(MANFIL)
-	cp $(APP).$(MANTYP) $(APP).$(MANTYP).orig
-	gzip -9v $(APP).$(MANTYP)
-	mv $(APP).$(MANTYP).orig $(APP).$(MANTYP)
+	-rm -f $(MANFIL)
+	gzip -c -q -9v $(APP).$(MANTYP) > $(MANFIL)
 
 installman: man
-	$(INSTALL) -d $(DESTDIR)/$(man8dir)
-	$(INSTALL) -m0644 $(MANFIL) $(DESTDIR)/$(man8dir)
+	$(INSTALL) -d $(DESTDIR)$(man8dir)
+	$(INSTALL) -m0644 $(MANFIL) $(DESTDIR)$(man8dir)
 
 uninstallman:
-	-rm $(DESTDIR)/$(man8dir)/$(MANFIL)
+	-rm -f $(DESTDIR)$(man8dir)/$(MANFIL)
 
 uninstall: uninstallman
-	-rm $(DESTDIR)/$(bindir)/$(APP)
-	-rm $(DESTDIR)/$(libdir)/$(LIB_SONAME)
-	-rm -r $(DESTDIR)/$(includedir)/faifa
+	-rm -f $(DESTDIR)$(bindir)/$(APP)
+	-rm -f $(DESTDIR)$(libdir)/$(LIB_SONAME)
+	-rm -f $(DESTDIR)$(includedir)/faifa
 
 .PHONY:
 	clean
