@@ -2592,7 +2592,8 @@ static int ask_for_frame(u_int16_t *mmtype)
 		}
 	}
 	faifa_printf(out_stream, "\nChoose the frame type (Ctrl-C to exit): 0x");
-	fscanf(in_stream, "%4x", (unsigned int *)mmtype);
+	fscanf(in_stream, "%4x", &i);
+	*mmtype = (u_int16_t)(0xFFFF & i);
 
 	return (*mmtype != 0xFFFF);
 }
