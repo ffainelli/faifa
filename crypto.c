@@ -41,7 +41,7 @@
 
 #include "crypto.h"
 
-#define HASH_SIZ	32
+#define HASH_SIZ	SHA256_DIGEST_LENGTH
 
 unsigned char hash_value[HASH_SIZ];
 
@@ -99,18 +99,18 @@ const unsigned char* hash_hpav(const unsigned char* isecret, const unsigned char
 		max = 999;
 
 	SHA256_Init(&context);
-	memset(hash_value, 0x00, sizeof(hash_value));
+	memset(hash_value, 0, sizeof(hash_value));
 
 	init_salted_secret(&secret, isecret, salt);
 	SHA256_Update(&context, secret.value, secret.len);
-	SHA256_Final(NULL, &context);
+	SHA256_Final(hash_value, &context);
 
 	/* Do it 998 times as the standard requires it
 	* or only 4 times if we use the NID */
 	for(i = 0; i < max; i++) {
 		SHA256_Init(&context);
 		SHA256_Update(&context, hash_value, HASH_SIZ);
-		SHA256_Final(NULL, &context);
+		SHA256_Final(hash_value, &context);
 	}
 
 	return hash_value;
@@ -121,7 +121,7 @@ int gen_passphrase(const short unsigned int *password, u_int8_t *key, const unsi
 	unsigned char password_cpy[MAX_SECRET_SIZ + 1];
 	const unsigned char *password_hash;
 
-	/* Use a local variable to tore the input password */
+	/* Use a local variable to store the input password */
 	memcpy((unsigned char *)password_cpy, password, MAX_SECRET_SIZ);
 
 	password_hash = (const unsigned char *)malloc(HASH_SIZ);

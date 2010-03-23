@@ -1354,7 +1354,7 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 	struct set_encryption_key_request *mm = (struct set_encryption_key_request *)buf;
 	int i, local;
 	u_int8_t key[16], dak[16];
-	short unsigned int nek[16], dek[16];
+	char nek[16], dek[16];
 	short unsigned int macaddr[6];
 
 	faifa_printf(out_stream, "Local or distant setting ?\n");
@@ -1365,23 +1365,7 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 	mm->peks = 0x01;
 	mm->peks_payload = 0x0f;
 	faifa_printf(out_stream, "AES NMK key ?");
-	fscanf(in_stream, "%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx",
-			(short unsigned int *)&nek[0],
-			(short unsigned int *)&nek[1],
-			(short unsigned int *)&nek[2],
-			(short unsigned int *)&nek[3],
-			(short unsigned int *)&nek[4],
-			(short unsigned int *)&nek[5],
-			(short unsigned int *)&nek[6],
-			(short unsigned int *)&nek[7],
-			(short unsigned int *)&nek[8],
-			(short unsigned int *)&nek[9],
-			(short unsigned int *)&nek[10],
-			(short unsigned int *)&nek[11],
-			(short unsigned int *)&nek[12],
-			(short unsigned int *)&nek[13],
-			(short unsigned int *)&nek[14],
-			(short unsigned int *)&nek[15]);
+	fscanf(in_stream, "%s", nek);
 
 	/* Generate the key from the NEK and and NMK Salt */
 	gen_passphrase(nek, key, nmk_salt);
@@ -1390,23 +1374,7 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 	/* If we are setting a remote device ask for more options */
 	if (!local) {
 		faifa_printf(out_stream, "Device DEK ?\n");
-		fscanf(in_stream, "%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx%2hx",
-			(short unsigned int *)&dek[0],
-			(short unsigned int *)&dek[1],
-			(short unsigned int *)&dek[2],
-			(short unsigned int *)&dek[3],
-			(short unsigned int *)&dek[4],
-			(short unsigned int *)&dek[5],
-			(short unsigned int *)&dek[6],
-			(short unsigned int *)&dek[7],
-			(short unsigned int *)&dek[8],
-			(short unsigned int *)&dek[9],
-			(short unsigned int *)&dek[10],
-			(short unsigned int *)&dek[11],
-			(short unsigned int *)&dek[12],
-			(short unsigned int *)&dek[13],
-			(short unsigned int *)&dek[14],
-			(short unsigned int *)&dek[15]);
+		fscanf(in_stream, "%s", dek);
 
 		/* Generate the key from the DEK and DAK salt */
 		gen_passphrase(dek, dak, dak_salt);
