@@ -145,6 +145,7 @@ int faifa_open(faifa_t *faifa, char *name)
 		goto __error_pcap_lookupdev;
 	}
 __ask_inum:
+	//TODO : remove this user input to an external function to enumerate interfaces rather then inside a library
 	printf("Enter interface number (1-%d):", i);
 	scanf("%d", &inum);
 
