@@ -77,6 +77,6 @@ struct sha256_ctx {
  * @return
  *	0 on success, -1 on failure
  */
-extern int gen_passphrase(const short unsigned int *password, u_int8_t *key, const unsigned char *salt);
+extern int gen_passphrase(const char *password, u_int8_t *key, const unsigned char *salt);
 
 #endif /* __CRYPTO_H__ */

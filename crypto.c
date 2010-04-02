@@ -116,7 +116,7 @@ const unsigned char* hash_hpav(const unsigned char* isecret, const unsigned char
 	return hash_value;
 }
 
-int gen_passphrase(const short unsigned int *password, u_int8_t *key, const unsigned char *salt)
+int gen_passphrase(const char *password, u_int8_t *key, const unsigned char *salt)
 {
 	unsigned char password_cpy[MAX_SECRET_SIZ + 1];
 	const unsigned char *password_hash;
