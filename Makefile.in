@@ -31,7 +31,7 @@ SVN_REV?=$(shell LC_ALL=C svn info | awk '/Revision/ { print $$2 }')
 
 # Object files for the library
 LIB_OBJS:=faifa.o frame.o crypto.o
-LIB_NAME:=lib$(APP)
+LIB_NAME:=lib$(APP).a
 LIB_SONAME:=lib$(APP).so.0
 
 # Object files for the program
@@ -51,13 +51,13 @@ man8dir = $(mandir)/man8
 MANTYP=8
 MANFIL=$(APP).8.gz
 
-all: $(APP) $(LIB_NAME).a $(LIB_SONAME)
+all: $(APP) $(LIB_NAME) $(LIB_SONAME)
 
-$(APP): $(OBJS) $(HEADERS) $(LIB_NAME).a
-	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_NAME).a
+$(APP): $(OBJS) $(HEADERS) $(LIB_NAME)
+	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_NAME)
 
-$(LIB_NAME).a: $(LIB_OBJS) $(HEADERS)
-	$(AR) rcs $(LIB_NAME).a	$(LIB_OBJS)
+$(LIB_NAME): $(LIB_OBJS) $(HEADERS)
+	$(AR) rcs $(LIB_NAME)	$(LIB_OBJS)
 
 $(LIB_SONAME): $(LIB_OBJS) $(HEADERS)
 	$(CC) -shared -Wl,-soname,$(LIB_SONAME) -o $(LIB_SONAME) $(LIB_OBJS) $(LIBS)
