@@ -12,7 +12,7 @@
 #
 
 CC	= @CC@
-STRIP	= @STRIP@
+STRIP	?= $(CROSS)strip
 CFLAGS	= @CFLAGS@
 INSTALL	= @INSTALL@
 LIBS	= @LIBS@
