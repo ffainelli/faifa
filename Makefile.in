@@ -53,8 +53,8 @@ MANFIL=$(APP).8.gz
 
 all: $(APP) $(LIB_NAME) $(LIB_SONAME)
 
-$(APP): $(OBJS) $(HEADERS) $(LIB_NAME)
-	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_NAME)
+$(APP): $(OBJS) $(HEADERS) $(LIB_SONAME)
+	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_SONAME)
 
 $(LIB_NAME): $(LIB_OBJS) $(HEADERS)
 	$(AR) rcs $(LIB_NAME)	$(LIB_OBJS)
