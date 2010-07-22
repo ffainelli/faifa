@@ -340,7 +340,6 @@ static void dump_cc_sta_info(struct cc_sta_info *sta_info)
 	faifa_printf(out_stream, "SNID: %d\n", sta_info->snid);
 	faifa_printf(out_stream, "CCo caps: %02hx\n", (short unsigned int)(sta_info->cco_cap));
 	faifa_printf(out_stream, "Signal Level: %s\n", get_signal_level_str(sta_info->sig_level));
-	faifa_printf(out_stream, "Average BLE: %d\n", sta_info->avg_ble);
 }
 
 static char *get_cco_status_str(u_int8_t status)
