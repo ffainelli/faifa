@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	while ((c = getopt(argc, argv, "i:ma:k:veosh")) != -1) {
+	while ((c = getopt(argc, argv, "i:ma:k:ve:o:s:h")) != -1) {
 		switch (c) {
 			case 'i':
 				opt_ifname = optarg;
