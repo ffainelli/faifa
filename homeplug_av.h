@@ -222,7 +222,6 @@ struct cc_sta_info {
 	u_int8_t	rsvd;
 	u_int8_t	cco_cap;
 	u_int8_t	sig_level;
-	u_int8_t	avg_ble;
 } __attribute__((__packed__));
 
 struct cc_sta_infos {
