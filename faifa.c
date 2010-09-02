@@ -171,6 +171,14 @@ __ask_inum:
 		goto __error_device_not_ethernet;
 	}
 
+	/* TODO: Check FreeBSD pcap BIOCIMMEDIATE behavior and compatibility */
+#ifdef DARWIN
+	u_int arg = 1;
+
+	if (ioctl(pcap_fileno(faifa->pcap), BIOCIMMEDIATE, &arg) < 0)
+		faifa_set_error(faifa,"Can not set ioctl BIOCIMMEDIATE in %s", name);
+#endif
+
 	strncpy(faifa->ifname, name, sizeof(faifa->ifname));
 #ifdef __CYGWIN__
 	pcap_freealldevs(alldevs);

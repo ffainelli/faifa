@@ -41,6 +41,10 @@
 #include <sys/socket.h>
 #include <net/if.h>
 #include <pcap.h>
+#ifdef DARWIN
+#include <sys/ioctl.h>
+#include <net/bpf.h>
+#endif
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
