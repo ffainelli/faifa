@@ -40,8 +40,6 @@ HEADERS:= faifa.h faifa_compat.h faifa_priv.h homeplug.h homeplug_av.h crypto.h 
 
 ifeq ($(OS),DARWIN)
 LDFLAGS:=-dynamiclib -Wl,-dylib_install_name -Wl,$(LIB_SONAME)
-else
-LDFLAGS:=-shared -Wl,-soname,$(LIB_SONAME)
 endif
 
 LIBS:=$(LDFLAGS) $(LIBS)
