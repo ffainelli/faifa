@@ -1,18 +1,24 @@
-.TH FAIFA 8 "April 2008" Linux "User manual"
+.TH FAIFA 8 "April 2011" Linux "User manual"
 .SH NAME
 faifa \- configure HomePlug 1.0/AV devices
 .SH SYNOPSIS
 .B faifa [OPTIONS]
 .br
-\-m	show the menu asking for known MM types
-.br
 \-i	specify network interface to use
 .br
-\-d	discover network topology
+\-m	show the menu asking for known MM types
 .br
-\-k	specify network key to set
+\-a	destination MAC address to send frames to
 .br
-\-a	destination MAC address (use with \-k)
+\-k	network key to set
+.br
+\-v	be verbose (default: no)
+.br
+\-e	set error stream (default: stderr)
+.br
+\-o	set output stream (default: stdout)
+.br
+\-s	set input stream (default: stdin)
 .br
 \-h	show the usage
 .br
@@ -20,17 +26,23 @@ faifa \- configure HomePlug 1.0/AV devices
 faifa can configure any Intellon-based PowerLine Communication device using the Intellon INT5000 and INT6000 HomePlug AV (200Mbits) chips. It supports all Intellon-specific management and control frames.
 
 .SH "MENU COMMANDS"
-\-m:	show the menu asking for known MM types
+\-i	specify network interface to use
 .br
-\-i:	specify network interface to use
+\-m	show the menu asking for known MM types
 .br
-\-d:	discover network topology
+\-a	destination MAC address to send frames to
 .br
-\-k:	specify network key to set
+\-k	network key to set
 .br
-\-a:	destination MAC address (use with \-k)
+\-v	be verbose (default: no)
 .br
-\-h:	show the usage
+\-e	set error stream (default: stderr)
+.br
+\-o	set output stream (default: stdout)
+.br
+\-s	set input stream (default: stdin)
+.br
+\-h	show the usage
 
 .TP
 .B "HomePlug AV protocol"
