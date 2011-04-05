@@ -57,20 +57,17 @@
 
 #include "crypto.h"
 #include "endian.h"
-#include "device.h"
 #include "crypto.h"
 #include "crc32.h"
 
-int opt_verbose = 0;
 FILE *err_stream;
 FILE *out_stream;
 FILE *in_stream;
 
 /* Constants */
-struct hpav_device *hpav_dev_list;
-u_int8_t hpav_intellon_oui[3] = { 0x00, 0xB0, 0x52};
-u_int8_t hpav_intellon_macaddr[ETHER_ADDR_LEN] = { 0x00, 0xB0, 0x52, 0x00, 0x00, 0x01 };
-u_int8_t broadcast_macaddr[ETHER_ADDR_LEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static u_int8_t hpav_intellon_oui[3] = { 0x00, 0xB0, 0x52};
+static u_int8_t hpav_intellon_macaddr[ETHER_ADDR_LEN] = { 0x00, 0xB0, 0x52, 0x00, 0x00, 0x01 };
+static u_int8_t broadcast_macaddr[ETHER_ADDR_LEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 /**
  * init_hex - initialize a buffer using hexadecimal parsing (%2hx)
@@ -2408,7 +2405,7 @@ int do_frame(faifa_t *faifa, u_int16_t mmtype, u_int8_t *da, u_int8_t *sa, void 
 		frame_len = ETH_ZLEN;
 
 	/* Dump the frame on the screen for debugging purposes */
-	if (opt_verbose)
+	if (faifa->verbose)
 		dump_hex_blob(faifa, frame_buf, frame_len);
 
 	frame_len = faifa_send(faifa, frame_buf, frame_len);
@@ -2519,7 +2516,7 @@ void do_receive_frame(faifa_t *faifa, void *buf, int len, void *UNUSED(user))
 		hpav_dump_frame(payload_ptr, payload_len, eth_header);
 
 	/* Dump the frame on the screen for debugging purposes */
-	if (opt_verbose)
+	if (faifa->verbose)
 		dump_hex_blob(faifa, frame_ptr, frame_len);
 }
 

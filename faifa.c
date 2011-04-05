@@ -52,8 +52,6 @@
 #include "faifa_priv.h"
 #include "homeplug_av.h"
 
-extern struct hpav_frame_ops hpav_frame_ops[64];
-
 void faifa_set_error(faifa_t *faifa, char *format, ...)
 {
 	va_list ap;
@@ -341,4 +339,9 @@ int faifa_parse_mac_addr(faifa_t *faifa, const char *mac, u_int8_t *addr)
 void faifa_set_dst_addr(faifa_t *faifa, const u_int8_t *addr)
 {
 	memcpy(faifa->dst_addr, addr, ETHER_ADDR_LEN);
+}
+
+void faifa_set_verbose(faifa_t *faifa, int verbose)
+{
+	faifa->verbose = verbose;
 }

@@ -51,7 +51,6 @@
 int opt_help = 0;
 int opt_interactive = 0;
 int opt_key = 0;
-extern int opt_verbose;
 extern FILE *err_stream;
 extern FILE *out_stream;
 extern FILE *in_stream;
@@ -96,6 +95,7 @@ int main(int argc, char **argv)
 	char *opt_err_stream = NULL;
 	char *opt_out_stream = NULL;
 	char *opt_in_stream = NULL;
+	int opt_verbose = 0;
 	int c;
 	int ret = 0;
 	u_int8_t addr[ETHER_ADDR_LEN] = { 0 };
@@ -189,6 +189,8 @@ int main(int argc, char **argv)
 		faifa_free(faifa);
 		return -1;
 	}
+
+	faifa_set_verbose(faifa, opt_verbose);
 
 	if (opt_macaddr) {
 		ret = faifa_parse_mac_addr(faifa, opt_macaddr, addr);

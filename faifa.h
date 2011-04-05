@@ -149,6 +149,13 @@ extern int faifa_parse_mac_addr(faifa_t *faifa, const char *mac, u_int8_t *addr)
  */
 extern void faifa_set_dst_addr(faifa_t *faifa, const u_int8_t *addr);
 
+/**
+ * faifa_set_verbose - set the faifa verbosity
+ * @faifa: private handle
+ * @verbose: verbosity level
+ */
+extern void faifa_set_verbose(faifa_t *faifa, int verbose);
+
 #ifdef __cplusplus
 }
 #endif
