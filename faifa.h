@@ -156,6 +156,11 @@ extern void faifa_set_dst_addr(faifa_t *faifa, const u_int8_t *addr);
  */
 extern void faifa_set_verbose(faifa_t *faifa, int verbose);
 
+static inline int faifa_is_zero_ether_addr(const u_int8_t *addr)
+{
+	return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
+}
+
 #ifdef __cplusplus
 }
 #endif

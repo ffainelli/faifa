@@ -2287,7 +2287,7 @@ static int hpav_do_frame(void *frame_buf, int frame_len, u_int16_t mmtype, u_int
 	bzero(frame_buf, frame_len);
 
 	/* Check the destination MAC address */
-	if (da == NULL)
+	if (da == NULL || faifa_is_zero_ether_addr(da))
 		da = hpav_intellon_macaddr;
 
 	/* Set the ethernet frame header */
