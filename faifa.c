@@ -313,3 +313,32 @@ __error_socket:
 }
 
 #endif /* __IS_THIS_REALLY_NEEDED__ */
+
+int faifa_parse_mac_addr(faifa_t *faifa, const char *mac, u_int8_t *addr)
+{
+	int i;
+	long val;
+
+	if (strlen(mac) != 17) {
+		faifa_set_error(faifa, "macaddr: invalid address length");
+		return -1;
+	}
+
+	if (mac[2] != ':' || mac[5] != ':' || mac[8] != ':' ||
+		mac[11] != ':' || mac[14] != ':') {
+		faifa_set_error(faifa, "macaddr: invalid format");
+		return -1;
+	}
+
+	for (i = 0; i < ETHER_ADDR_LEN; i++) {
+		val = strtol(mac + (3 * i), NULL, 16);
+		addr[i] = val;
+	}
+
+	return 0;
+}
+
+void faifa_set_dst_addr(faifa_t *faifa, const u_int8_t *addr)
+{
+	memcpy(faifa->dst_addr, addr, ETHER_ADDR_LEN);
+}

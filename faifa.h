@@ -131,6 +131,24 @@ extern int faifa_loop(faifa_t *faifa, faifa_loop_handler_t handler, void *user);
 
 extern int faifa_sprint_hex(char *str, void *buf, int len, char *sep);
 
+/**
+ * faifa_parse_mac_addr - parses a MAC address
+ * @faifa: private handle
+ * @mac: mac address as a string
+ * @addr: mac address as a 6-bytes buffer
+ * @return
+ *	0 on success, -1 on error
+ */
+extern int faifa_parse_mac_addr(faifa_t *faifa, const char *mac, u_int8_t *addr);
+
+/**
+ * faifa_set_dst_addr - sets the destination MAC address
+ * @faifa: private handle
+ * @mac: destination MAC address
+ *
+ */
+extern void faifa_set_dst_addr(faifa_t *faifa, const u_int8_t *addr);
+
 #ifdef __cplusplus
 }
 #endif

@@ -68,6 +68,8 @@ struct ether_header
 	u_int16_t ether_type;                 /* packet type ID field */
 } __attribute__ ((__packed__));
 
+#else
+#include <net/ethernet.h>
 #endif
 
 #endif /* __FAIFA_COMPAT_H__ */

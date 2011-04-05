@@ -66,6 +66,7 @@ struct faifa {
 	char ifname[IFNAMSIZ];
 	pcap_t *pcap;
 	char error[256];
+	u_int8_t dst_addr[ETHER_ADDR_LEN];
 };
 
 extern void faifa_set_error(faifa_t *faifa, char *format, ...);

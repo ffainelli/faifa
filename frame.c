@@ -2583,7 +2583,7 @@ void menu(faifa_t *faifa)
 
 	/* Keep asking the user for a mmtype to send */
 	while (ask_for_frame(&mmtype)) {
-		do_frame(faifa, mmtype, NULL, NULL, NULL);
+		do_frame(faifa, mmtype, faifa->dst_addr, NULL, NULL);
 		sleep(1);
 	}
 

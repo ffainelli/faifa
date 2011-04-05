@@ -41,6 +41,7 @@
 #include <sys/types.h>
 
 #include "faifa.h"
+#include "faifa_compat.h"
 
 #ifndef FAIFA_PROG
 #define FAIFA_PROG "faifa"
@@ -91,11 +92,13 @@ int main(int argc, char **argv)
 {
 	faifa_t *faifa;
 	char *opt_ifname = NULL;
-	char *opt_macaddr;
+	char *opt_macaddr = NULL;
 	char *opt_err_stream = NULL;
 	char *opt_out_stream = NULL;
 	char *opt_in_stream = NULL;
 	int c;
+	int ret = 0;
+	u_int8_t addr[ETHER_ADDR_LEN] = { 0 };
 
 	fprintf(stdout, "Faifa for HomePlug AV (SVN revision %d)\n\n", SVN_REV);
 
@@ -187,11 +190,22 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	if (opt_macaddr) {
+		ret = faifa_parse_mac_addr(faifa, opt_macaddr, addr);
+		if (ret < 0) {
+			error(faifa_error(faifa));
+			goto out_error;
+		}
+
+		faifa_set_dst_addr(faifa, addr);
+	}
+
 	if (opt_interactive)
 		menu(faifa);
 
+out_error:
 	faifa_close(faifa);
 	faifa_free(faifa);
 
-	return 0;
+	return ret;
 }
