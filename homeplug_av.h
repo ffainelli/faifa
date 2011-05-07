@@ -727,6 +727,7 @@ struct get_devices_attrs_fmt {
 	u_int32_t	minor;
 	u_int32_t	subversion;
 	u_int32_t	build_number;
+	u_int8_t	rsvd[8];
 	u_int8_t	build_date[8];
 	u_int8_t	release_type[12];
 } __attribute__((__packed__));
