@@ -983,7 +983,7 @@ static void dump_rx_link_stats(struct rx_link_stats *rx)
 
 	for (i = 0; i < rx->num_rx_intervals; i++) {
 		faifa_printf(out_stream, "-- Rx interval %d --\n", i);
-		faifa_printf(out_stream, "Rx PHY rate.....................: %02hx\n", (short unsigned int)(rx->rx_interval_stats[i].phyrate));
+		faifa_printf(out_stream, "Rx PHY rate.....................: %02d\n", (short unsigned int)(rx->rx_interval_stats[i].phyrate));
 		faifa_printf(out_stream, "PB received successfully........: %llu\n", (long long unsigned)(rx->rx_interval_stats[i].pb_passed));
 		faifa_printf(out_stream, "PB received failed..............: %llu\n", (long long unsigned)(rx->rx_interval_stats[i].pb_failed));
 		faifa_printf(out_stream, "TBE errors over successfully....: %llu\n", (long long unsigned)(rx->rx_interval_stats[i].tbe_passed));
