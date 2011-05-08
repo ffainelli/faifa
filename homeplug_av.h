@@ -448,7 +448,7 @@ enum sniffer_state {
 };
 
 struct hpav_fc {
-	u_int8_t	del_type:2;
+	u_int8_t	del_type:3;
 	u_int8_t	access:1;
 	u_int8_t	snid:4;
 	u_int8_t	stei;
@@ -480,7 +480,7 @@ struct hpav_fc {
 } __attribute__((__packed__));
 
 struct hpav_bcn {
-	u_int8_t	del_type:2;
+	u_int8_t	del_type:3;
 	u_int8_t	access:1;
 	u_int8_t	snid:4;
 	u_int32_t	bts;
