@@ -122,6 +122,44 @@ struct hpav_frame_ops {
 	int		(*dump_frame)(void *buf, int len, struct ether_header *hdr);
 };
 
+/* Central Coordination Discover List MME */
+
+struct cc_sta_info {
+	u_int8_t	macaddr[6];
+	u_int8_t	tei;
+	u_int8_t	same_network;
+	u_int8_t	snid;
+	u_int8_t	rsvd;
+	u_int8_t	cco_cap;
+	u_int8_t	sig_level;
+} __attribute__((__packed__));
+
+struct cc_sta_infos {
+	u_int8_t		count;
+	struct cc_sta_info	infos[0];
+} __attribute__((__packed__));
+
+struct cc_net_info {
+	u_int8_t	nid[7];
+	u_int8_t	snid;
+	u_int8_t	hybrid_mode;
+	u_int8_t	num_bcn_slots;
+	u_int8_t	cco_status;
+	u_int16_t	bcn_offset;
+} __attribute__((__packed__));
+
+struct cc_net_infos {
+	u_int8_t		count;
+	struct cc_net_info	infos[0];
+} __attribute__((__packed__));
+
+/* 0014 - CC Discover List Request */
+
+/* 0015 - CC Discover List Confirm */
+struct cc_discover_list_confirm {
+	struct cc_sta_infos sta[0];
+	struct cc_net_infos net[0];
+} __attribute__((__packed__));
 
 /* Get Device/SW Version MME */
 
@@ -209,46 +247,6 @@ struct get_nvm_parameters_confirm {
 	u_int32_t	page_size;
 	u_int32_t	block_size;
 	u_int32_t	mem_size;
-} __attribute__((__packed__));
-
-
-/* Central Coordination Discover List MME */
-
-struct cc_sta_info {
-	u_int8_t	macaddr[6];
-	u_int8_t	tei;
-	u_int8_t	same_network;
-	u_int8_t	snid;
-	u_int8_t	rsvd;
-	u_int8_t	cco_cap;
-	u_int8_t	sig_level;
-} __attribute__((__packed__));
-
-struct cc_sta_infos {
-	u_int8_t		count;
-	struct cc_sta_info	infos[0];
-} __attribute__((__packed__));
-
-struct cc_net_info {
-	u_int8_t	nid[7];
-	u_int8_t	snid;
-	u_int8_t	hybrid_mode;
-	u_int8_t	num_bcn_slots;
-	u_int8_t	cco_status;
-	u_int16_t	bcn_offset;
-} __attribute__((__packed__));
-
-struct cc_net_infos {
-	u_int8_t		count;
-	struct cc_net_info	infos[0];
-} __attribute__((__packed__));
-
-/* A014 - CC Discover List Request */
-
-/* A015 - CC Discover List Confirm */
-struct cc_discover_list_confirm {
-	struct cc_sta_infos sta[0];
-	struct cc_net_infos net[0];
 } __attribute__((__packed__));
 
 
