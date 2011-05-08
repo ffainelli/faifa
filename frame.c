@@ -586,6 +586,40 @@ static int hpav_dump_write_mod_data_confirm(void *buf, int len, struct ether_hea
 	return (len - avail);
 }
 
+static int hpav_init_read_mod_data_request(void *buf, int len, void *UNUSED(buffer))
+{
+	int avail = len;
+	struct read_mod_data_request *mm = (struct read_mod_data_request *)buf;
+
+	faifa_printf(out_stream, "Module ID? ");
+	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
+	faifa_printf(out_stream, "Length? ");
+	fscanf(in_stream, "%d", (int *)&(mm->length));
+	faifa_printf(out_stream, "Offset? ");
+	fscanf(in_stream, "%d", (int *)&(mm->offset));
+
+	avail -= sizeof(*mm);
+	return (len - avail);
+}
+
+static int hpav_dump_read_mod_data_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
+{
+	int avail = len;
+	struct read_mod_data_confirm *mm = (struct read_mod_data_confirm *)buf;
+
+	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
+	faifa_printf(out_stream, "Module ID: 0x%02x\n", (short unsigned int)(mm->module_id));
+	faifa_printf(out_stream, "Length: %d\n", (short unsigned int)(mm->length));
+	faifa_printf(out_stream, "Offset: 0x%08x\n", (unsigned int)(mm->offset));
+	faifa_printf(out_stream, "Checksum: 0x%08x\n", (unsigned int)(mm->checksum));
+	faifa_printf(out_stream, "Data:\n");
+	dump_hex(mm->data + mm->offset, (unsigned int)(mm->length), " ");
+
+	avail -= sizeof(*mm);
+
+	return (len - avail);
+}
+
 static int hpav_dump_get_manuf_string_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
@@ -1887,10 +1921,11 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 	}, {
 		.mmtype = 0xA024,
 		.desc = "Read Module Data Request",
+		.init_frame = hpav_init_read_mod_data_request,
 	}, {
 		.mmtype = 0xA025,
 		.desc = "Read Module Data Confirm",
-		.dump_frame = hpav_dump_start_mac_confirm,
+		.dump_frame = hpav_dump_read_mod_data_confirm,
 	}, {
 		.mmtype = 0xA028,
 		.desc = "Write Module Data to NVM Request",
