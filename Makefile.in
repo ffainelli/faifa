@@ -108,7 +108,7 @@ uninstallman:
 uninstall: uninstallman
 	-rm -f $(DESTDIR)$(bindir)/$(APP)
 	-rm -f $(DESTDIR)$(libdir)/$(LIB_SONAME)
-	-rm -f $(DESTDIR)$(includedir)/faifa
+	-rm -rf $(DESTDIR)$(includedir)/faifa
 
 .PHONY:
 	clean
