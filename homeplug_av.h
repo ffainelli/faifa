@@ -468,7 +468,8 @@ struct hpav_fc {
 	u_int8_t	mpdu_cnt:2;
 	u_int8_t	burst_cnt:2;
 	u_int8_t	clst:3;
-	u_int8_t	rg_len:6;
+	u_int8_t	rg_len_lo:5;
+	u_int8_t	rg_len_hi:1;
 	u_int8_t	mfs_cmd_mgmt:3;
 	u_int8_t	mfs_cmd_data:3;
 	u_int8_t	rsr:1;

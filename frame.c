@@ -1168,6 +1168,8 @@ static int hpav_dump_sniffer_confirm(void *buf, int len, struct ether_header *UN
 
 static void dump_hpav_frame_ctl(struct hpav_fc *fc)
 {
+	u_int8_t rg_len;
+
 	faifa_printf(out_stream, "Delimiter type: %1hx\n", (short unsigned int)(fc->del_type));
 	faifa_printf(out_stream, "Access: %s\n", fc->access ? "Yes" : "No");
 	faifa_printf(out_stream, "SNID: %1hx\n", (short unsigned int)(fc->snid));
@@ -1188,7 +1190,8 @@ static void dump_hpav_frame_ctl(struct hpav_fc *fc)
 	faifa_printf(out_stream, "MPDU count: %1hx\n", (short unsigned int)(fc->mpdu_cnt));
 	faifa_printf(out_stream, "Burst count: %1hx\n", (short unsigned int)(fc->burst_cnt));
 	faifa_printf(out_stream, "Convergence layer SAP type: %1hx\n", (short unsigned int)(fc->clst));
-	faifa_printf(out_stream, "Reverse Grant length: %2hx\n", (short unsigned int)(fc->rg_len));
+	rg_len = (fc->rg_len_hi << 5) | fc->rg_len_lo;
+	faifa_printf(out_stream, "Reverse Grant length: %2hx\n", (short unsigned int)(rg_len));
 	faifa_printf(out_stream, "Management MAC Frame Stream Command: %1hx\n", (short unsigned int)(fc->mfs_cmd_mgmt));
 	faifa_printf(out_stream, "Data MAC Frame Stream Command: %1hx\n", (short unsigned int)(fc->mfs_cmd_data));
 	faifa_printf(out_stream, "Request SACK Retransmission: %s\n", fc->rsr ? "Yes" : "No");
