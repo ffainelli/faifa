@@ -148,7 +148,7 @@ static int init_empty_frame(void *UNUSED(buf), int UNUSED(len), void *UNUSED(use
 static int hpav_init_write_mac_memory_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct write_mac_memory_request *mm = (struct write_mac_memory_request *)buf;
+	struct write_mac_memory_request *mm = buf;
 
 	faifa_printf(out_stream, "Address? ");
 	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->address));
@@ -164,7 +164,7 @@ static int hpav_init_write_mac_memory_request(void *buf, int len, void *UNUSED(b
 static int hpav_dump_get_device_sw_version_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct get_device_sw_version_confirm *mm = (struct get_device_sw_version_confirm *)buf;
+	struct get_device_sw_version_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
 	faifa_printf(out_stream, "Device ID: %s, Version: %s, upgradeable: %d\n", (short unsigned int)(mm->device_id) ? "INT6300" : "INT6000" ,
@@ -177,7 +177,7 @@ static int hpav_dump_get_device_sw_version_confirm(void *buf, int len, struct et
 static int hpav_dump_write_mac_memory_request(void *buf, int len,  struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct write_mac_memory_request *mm = (struct write_mac_memory_request *)buf;
+	struct write_mac_memory_request *mm = buf;
 
 	faifa_printf(out_stream, "Address: 0x%08lx\n", (long unsigned int)(mm->address));
 	faifa_printf(out_stream, "Length: 0x%08lx\n", (long unsigned int)(mm->length));
@@ -192,7 +192,7 @@ static int hpav_dump_write_mac_memory_request(void *buf, int len,  struct ether_
 static int hpav_dump_write_mac_memory_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct write_mac_memory_confirm *mm = (struct write_mac_memory_confirm *)buf;
+	struct write_mac_memory_confirm *mm = buf;
 
 	switch (mm->mstatus) {
 	case 0x00:
@@ -218,7 +218,7 @@ out:
 static int hpav_init_read_mac_memory_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct read_mac_memory_request *mm = (struct read_mac_memory_request *)buf;
+	struct read_mac_memory_request *mm = buf;
 
 	faifa_printf(out_stream, "Address? ");
 	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->address));
@@ -232,7 +232,7 @@ static int hpav_init_read_mac_memory_request(void *buf, int len, void *UNUSED(bu
 static int hpav_dump_read_mac_memory_request(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct read_mac_memory_confirm *mm = (struct read_mac_memory_confirm *)buf;
+	struct read_mac_memory_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Address: 0x%08lx\n", (long unsigned int)(mm->address));
 	faifa_printf(out_stream, "Length: %lu (0x%08lx)\n", (long unsigned int)(mm->length), (long unsigned int)(mm->length));
@@ -244,7 +244,7 @@ static int hpav_dump_read_mac_memory_request(void *buf, int len, struct ether_he
 static int hpav_dump_read_mac_memory_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct read_mac_memory_confirm *mm = (struct read_mac_memory_confirm *)buf;
+	struct read_mac_memory_confirm *mm = buf;
 
 	switch (mm->mstatus) {
 	case 0x00:
@@ -378,7 +378,7 @@ static void dump_cc_net_info(struct cc_net_info *net_info)
 static int hpav_dump_cc_discover_list_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cc_discover_list_confirm *mm = (struct cc_discover_list_confirm *)buf;
+	struct cc_discover_list_confirm *mm = buf;
 	struct cc_sta_infos *sta = (struct cc_sta_infos *)&(mm->sta);
 	struct cc_net_infos *net = (struct cc_net_infos *)&(sta->infos[sta->count]);
 	int i;
@@ -403,7 +403,7 @@ static int hpav_dump_cc_discover_list_confirm(void *buf, int len, struct ether_h
 static int hpav_init_start_mac_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct start_mac_request *mm = (struct start_mac_request *)buf;
+	struct start_mac_request *mm = buf;
 
 	faifa_printf(out_stream, "Module ID? ");
 	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
@@ -423,7 +423,7 @@ static int hpav_init_start_mac_request(void *buf, int len, void *UNUSED(buffer))
 static int hpav_dump_start_mac_request(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct start_mac_request *mm = (struct start_mac_request *)buf;
+	struct start_mac_request *mm = buf;
 
 	faifa_printf(out_stream, "Module ID: %02hx\n", (short unsigned int)(mm->module_id));
 	faifa_printf(out_stream, "Image load address: %08lx\n", (long unsigned int)(mm->image_load));
@@ -438,7 +438,7 @@ static int hpav_dump_start_mac_request(void *buf, int len, struct ether_header *
 static int hpav_dump_start_mac_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct start_mac_confirm *mm = (struct start_mac_confirm *)buf;
+	struct start_mac_confirm *mm = buf;
 
 	switch (mm->mstatus) {
 	case 0x00:
@@ -475,7 +475,7 @@ out:
 static int hpav_dump_nvram_params_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct get_nvm_parameters_confirm *mm = (struct get_nvm_parameters_confirm *)buf;
+	struct get_nvm_parameters_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "NVRAM not present" : "Success");
 	faifa_printf(out_stream, "Manufacturer code: %08lx\n", (long unsigned int)(mm->manuf_code));
@@ -490,7 +490,7 @@ static int hpav_dump_nvram_params_confirm(void *buf, int len, struct ether_heade
 static int hpav_dump_reset_device_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct reset_device_confirm *mm = (struct reset_device_confirm *)buf;
+	struct reset_device_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status : %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
 	avail -= sizeof(*mm);
@@ -501,7 +501,7 @@ static int hpav_dump_reset_device_confirm(void *buf, int len, struct ether_heade
 static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct write_mod_data_request *mm = (struct write_mod_data_request *)buf;
+	struct write_mod_data_request *mm = buf;
 	char filename[256];
 	char *buffer;
 	FILE *fp;
@@ -589,7 +589,7 @@ static int hpav_dump_write_mod_data_confirm(void *buf, int len, struct ether_hea
 static int hpav_init_read_mod_data_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct read_mod_data_request *mm = (struct read_mod_data_request *)buf;
+	struct read_mod_data_request *mm = buf;
 
 	faifa_printf(out_stream, "Module ID? ");
 	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
@@ -605,7 +605,7 @@ static int hpav_init_read_mod_data_request(void *buf, int len, void *UNUSED(buff
 static int hpav_dump_read_mod_data_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct read_mod_data_confirm *mm = (struct read_mod_data_confirm *)buf;
+	struct read_mod_data_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
 	faifa_printf(out_stream, "Module ID: 0x%02x\n", (short unsigned int)(mm->module_id));
@@ -623,7 +623,7 @@ static int hpav_dump_read_mod_data_confirm(void *buf, int len, struct ether_head
 static int hpav_dump_get_manuf_string_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct get_manuf_string_confirm *mm = (struct get_manuf_string_confirm *)buf;
+	struct get_manuf_string_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->status) ? "Failure" : "Success");
 	faifa_printf(out_stream, "Length: %d (0x%02hx)\n", (short unsigned int)(mm->length), (short unsigned int)(mm->length));
@@ -659,7 +659,7 @@ static void dump_sdram_block(struct sdram_config *config)
 static int hpav_dump_read_config_block_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct read_config_block_confirm *mm = (struct read_config_block_confirm *)buf;
+	struct read_config_block_confirm *mm = buf;
 
 	switch (mm->mstatus) {
 	case 0x00:
@@ -709,7 +709,7 @@ static int hpav_dump_set_sdram_config_confirm(void *buf, int len, struct ether_h
 static int hpav_init_get_devices_attrs_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct get_devices_attrs_request *mm = (struct get_devices_attrs_request *)buf;
+	struct get_devices_attrs_request *mm = buf;
 
 	/* Generate a random number for the cookie */
 	srand(getpid());
@@ -723,7 +723,7 @@ static int hpav_init_get_devices_attrs_request(void *buf, int len, void *UNUSED(
 static int hpav_dump_get_devices_attrs_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct get_devices_attrs_confirm *mm = (struct get_devices_attrs_confirm *)buf;
+	struct get_devices_attrs_confirm *mm = buf;
 
 	switch (mm->status) {
 	case 0x00:
@@ -759,7 +759,7 @@ out:
 static int hpav_init_get_enet_phy_settings_request(void *buf, int len, void *UNUSED(user))
 {
 	int avail = len;
-	struct get_enet_phy_settings_request *mm = (struct get_enet_phy_settings_request *)buf;
+	struct get_enet_phy_settings_request *mm = buf;
 
 	avail -= sizeof(*mm);
 
@@ -769,7 +769,7 @@ static int hpav_init_get_enet_phy_settings_request(void *buf, int len, void *UNU
 static int hpav_dump_get_enet_phy_settings_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct get_enet_phy_settings_confirm *mm = (struct get_enet_phy_settings_confirm *)buf;
+	struct get_enet_phy_settings_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->status) ? "Failure" : "Success");
 	switch(mm->speed) {
@@ -794,7 +794,7 @@ static int hpav_init_get_tone_map_charac_request(void *buf, int len, void *UNUSE
 	int avail = len;
 	short unsigned macaddr[6];
 	int i;
-	struct get_tone_map_charac_request *mm = (struct get_tone_map_charac_request *)buf;
+	struct get_tone_map_charac_request *mm = buf;
 
 	faifa_printf(out_stream, "Address of peer node?\n");
 	fscanf(in_stream, "%2hx:%2hx:%2hx:%2hx:%2hx:%2hx",
@@ -880,7 +880,7 @@ static int hpav_dump_get_tone_map_charac_confirm(void *buf, int len, struct ethe
 {
 	int avail = len;
 	int i;
-	struct get_tone_map_charac_confirm *mm = (struct get_tone_map_charac_confirm *)buf;
+	struct get_tone_map_charac_confirm *mm = buf;
 	struct modulation_stats stats;
 
 	switch (mm->mstatus) {
@@ -918,7 +918,7 @@ out:
 static int hpav_init_watchdog_report_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct get_watchdog_report_request *mm = (struct get_watchdog_report_request *)buf;
+	struct get_watchdog_report_request *mm = buf;
 
 	srand(getpid());
 	mm->session_id = (unsigned int)(random());
@@ -932,7 +932,7 @@ static int hpav_init_watchdog_report_request(void *buf, int len, void *UNUSED(bu
 static int hpav_dump_watchdog_report_indicate(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct get_watchdog_report_indicate *mm = (struct get_watchdog_report_indicate *)buf;
+	struct get_watchdog_report_indicate *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
 	faifa_printf(out_stream, "Session ID: %d\n", (unsigned int)(mm->session_id));
@@ -948,7 +948,7 @@ static int hpav_dump_watchdog_report_indicate(void *buf, int len, struct ether_h
 static int hpav_init_link_stats_request(void *buf, int len, void *UNUSED(user))
 {
 	int avail = len;
-	struct link_statistics_request *mm = (struct link_statistics_request *)buf;
+	struct link_statistics_request *mm = buf;
 	short unsigned int link_id;
 	short unsigned int macaddr[6];
 	int i;
@@ -1028,7 +1028,7 @@ static void dump_rx_link_stats(struct rx_link_stats *rx)
 static int hpav_dump_link_stats_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct link_statistics_confirm *mm = (struct link_statistics_confirm *)buf;
+	struct link_statistics_confirm *mm = buf;
 
 	switch(mm->mstatus) {
 	case HPAV_SUC:
@@ -1099,7 +1099,7 @@ static char *get_sniffer_control_str(int control)
 static int hpav_init_sniffer_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct sniffer_request *mm = (struct sniffer_request *)buf;
+	struct sniffer_request *mm = buf;
 	int control;
 
 	faifa_printf(out_stream, "Sniffer mode?\n");
@@ -1126,7 +1126,7 @@ static int hpav_init_sniffer_request(void *buf, int len, void *UNUSED(buffer))
 static int hpav_dump_sniffer_request(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct sniffer_request *mm = (struct sniffer_request *)buf;
+	struct sniffer_request *mm = buf;
 
 	faifa_printf(out_stream, "Sniffer mode : 0x%02hx (%s)\n", mm->control, get_sniffer_control_str(mm->control));
 	avail -= sizeof(*mm);
@@ -1152,7 +1152,7 @@ static char *get_sniffer_state_str(int state)
 static int hpav_dump_sniffer_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct sniffer_confirm *mm = (struct sniffer_confirm *)buf;
+	struct sniffer_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: 0x%02hx\n", mm->mstatus);
 	faifa_printf(out_stream, "Sniffer State: 0x%02hx (%s)\n", mm->state, get_sniffer_state_str(mm->state));
@@ -1228,7 +1228,7 @@ static void dump_hpav_beacon(struct hpav_bcn *bcn)
 static int hpav_dump_sniffer_indicate(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct sniffer_indicate *mm = (struct sniffer_indicate *)buf;
+	struct sniffer_indicate *mm = buf;
 
 	faifa_printf(out_stream, "Type: %s\n", (short unsigned int)(mm->type) ? "Unknown" : "Regular");
 	faifa_printf(out_stream, "Direction: %s\n", (short unsigned int)(mm->direction) ? "Rx" : "Tx");
@@ -1245,7 +1245,7 @@ static int hpav_dump_sniffer_indicate(void *buf, int len, struct ether_header *U
 static int hpav_init_check_points_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct check_points_request *mm = (struct check_points_request *)buf;
+	struct check_points_request *mm = buf;
 
 	srand(getpid());
 	mm->session_id = (unsigned int)(random());
@@ -1279,7 +1279,7 @@ char *get_sta_role_str(u_int8_t sta_role)
 static int hpav_dump_network_info_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct network_info_confirm *mm = (struct network_info_confirm *)buf;
+	struct network_info_confirm *mm = buf;
 	int i;
 
 	faifa_printf(out_stream, "Network ID (NID): "); dump_hex(&(mm->nid), sizeof(mm->nid), " ");
@@ -1311,7 +1311,7 @@ static int hpav_dump_network_info_confirm(void *buf, int len, struct ether_heade
 static int hpav_dump_check_points_indicate(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct check_points_indicate *mm = (struct check_points_indicate *)buf;
+	struct check_points_indicate *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", mm->mstatus ? "Failure" : "Success");
 	faifa_printf(out_stream, "Major: %s\n", mm->major ? "< 1.4" : "> 1.4");
@@ -1337,7 +1337,7 @@ static int hpav_dump_check_points_indicate(void *buf, int len, struct ether_head
 static int hpav_dump_loopback_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
-	struct loopback_request *mm = (struct loopback_request *)buf;
+	struct loopback_request *mm = buf;
 	int duration;
 	u_int8_t eth_test_frame[512];
 
@@ -1359,7 +1359,7 @@ static int hpav_dump_loopback_request(void *buf, int len, void *UNUSED(buffer))
 static int hpav_dump_loopback_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct loopback_confirm *mm = (struct loopback_confirm *)buf;
+	struct loopback_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
 	faifa_printf(out_stream, "Duration: %d\n", (short unsigned int)(mm->duration));
@@ -1372,7 +1372,7 @@ static int hpav_dump_loopback_confirm(void *buf, int len, struct ether_header *U
 static int hpav_dump_loopback_status_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct loopback_status_confirm *mm = (struct loopback_status_confirm *)buf;
+	struct loopback_status_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
 	faifa_printf(out_stream, "State: %s\n", (short unsigned int)(mm->state) ? "Looping frame" : "Done");
@@ -1384,7 +1384,7 @@ static int hpav_dump_loopback_status_confirm(void *buf, int len, struct ether_he
 static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 {
 	int avail = len;
-	struct set_encryption_key_request *mm = (struct set_encryption_key_request *)buf;
+	struct set_encryption_key_request *mm = buf;
 	int i, local;
 	u_int8_t key[16], dak[16];
 	char nek[16], dek[16];
@@ -1557,7 +1557,7 @@ static char *get_pid_str(u_int8_t pid)
 static int hpav_dump_enc_payload_indicate(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_enc_payload_indicate *mm = (struct cm_enc_payload_indicate *)buf;
+	struct cm_enc_payload_indicate *mm = buf;
 	unsigned proto = 0;
 
 	if (mm->pid == HLE_PROTO)
@@ -1578,7 +1578,7 @@ static int hpav_dump_enc_payload_indicate(void *buf, int len, struct ether_heade
 static int hpav_dump_enc_payload_response(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_enc_payload_response *mm = (struct cm_enc_payload_response *)buf;
+	struct cm_enc_payload_response *mm = buf;
 
 	faifa_printf(out_stream, "Result: %s\n", (short unsigned int)(mm->result) ? "Failure/Abort" : "Success");
 	faifa_printf(out_stream, "PID: %s\n", get_pid_str(mm->pid));
@@ -1619,7 +1619,7 @@ static char *get_key_type_str(u_int8_t key_type)
 static int hpav_dump_cm_set_key_request(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_set_key_request *mm = (struct cm_set_key_request *)buf;
+	struct cm_set_key_request *mm = buf;
 
 	faifa_printf(out_stream, "Key type: %s\n", get_key_type_str(mm->key_type));
 	faifa_printf(out_stream, "My nonce: %08lx\n", (long unsigned int)(mm->my_nonce));
@@ -1639,7 +1639,7 @@ static int hpav_dump_cm_set_key_request(void *buf, int len, struct ether_header 
 static int hpav_dump_cm_set_key_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_set_key_confirm *mm = (struct cm_set_key_confirm *)buf;
+	struct cm_set_key_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Result: %s\n", mm->result ? "Failure" : "Success");
 	faifa_printf(out_stream, "My nonce: %08lx\n", (long unsigned int)(mm->my_nonce));
@@ -1656,7 +1656,7 @@ static int hpav_dump_cm_set_key_confirm(void *buf, int len, struct ether_header 
 static int hpav_dump_cm_get_key_request(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_get_key_request *mm = (struct cm_get_key_request *)buf;
+	struct cm_get_key_request *mm = buf;
 
 	faifa_printf(out_stream, "Request type: %s\n", mm->req_type ? "Relayed" : "Direct");
 	faifa_printf(out_stream, "Key type: %s\n", get_key_type_str(mm->req_key_type));
@@ -1696,7 +1696,7 @@ static char *get_key_result_str(u_int8_t result)
 static int hpav_dump_cm_get_key_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_get_key_confirm *mm = (struct cm_get_key_confirm *)buf;
+	struct cm_get_key_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Result :%s\n", get_key_result_str(mm->result));
 	faifa_printf(out_stream, "Key type: %s\n", get_key_type_str(mm->req_key_type));
@@ -1717,7 +1717,7 @@ static int hpav_dump_cm_get_key_confirm(void *buf, int len, struct ether_header 
 static int hpav_dump_cm_bridge_infos_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_brigde_infos_confirm *mm = (struct cm_brigde_infos_confirm *)buf;
+	struct cm_brigde_infos_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Bridging: %s\n", mm->bsf ? "Yes" : "No");
 	if (mm->bsf) {
@@ -1766,7 +1766,7 @@ static void dump_cm_net_info(struct cm_net_info *net_info)
 static int hpav_dump_cm_get_network_infos_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_get_network_infos_confirm *mm = (struct cm_get_network_infos_confirm *)buf;
+	struct cm_get_network_infos_confirm *mm = buf;
 	int i;
 
 	avail -= sizeof(*mm);
@@ -1788,7 +1788,7 @@ static void dump_cm_sta_info(struct cm_sta_info *sta_info)
 static int hpav_dump_cm_get_network_stats_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
-	struct cm_get_network_stats_confirm *mm = (struct cm_get_network_stats_confirm *)buf;
+	struct cm_get_network_stats_confirm *mm = buf;
 	int i;
 
 	avail -= sizeof(*mm);
@@ -2066,7 +2066,7 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 static int hp10_init_channel_estimation_request(void *buf, int len, void *UNUSED(user))
 {
 	int avail = len;
-	struct hp10_channel_estimation_request *mm = (struct hp10_channel_estimation_request *)buf;
+	struct hp10_channel_estimation_request *mm = buf;
 
 	mm->version = 0;
 
@@ -2078,7 +2078,7 @@ static int hp10_init_channel_estimation_request(void *buf, int len, void *UNUSED
 static int hp10_dump_parameters_stats_confirm(void *buf, int len)
 {
 	int avail = len;
-	struct hp10_parameters_stats_confirm *mm = (struct hp10_parameters_stats_confirm *)buf;
+	struct hp10_parameters_stats_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Tx ACK counter: %d\n", (short unsigned int)mm->tx_ack_cnt);
 	faifa_printf(out_stream, "Tx NACK counter: %d\n", (short unsigned int)mm->tx_nack_cnt);
@@ -2111,7 +2111,7 @@ static void hp10_dump_tonemap(struct hp10_tonemap *tonemap)
 static int hp10_dump_extended_network_stats(void *buf, int len)
 {
 	int avail = len;
-	struct hp10_network_stats_confirm *mm = (struct hp10_network_stats_confirm *)buf;
+	struct hp10_network_stats_confirm *mm = buf;
 
 	faifa_printf(out_stream, "AC flag: %s\n", mm->ac ? "Yes" : "No");
 	faifa_printf(out_stream, "Number of 40-symbol robo: %d\n", (short unsigned int)mm->bytes40_robo);
@@ -2267,7 +2267,7 @@ int set_dump_callback(u_int16_t mmtype, int (*callback)(void *buf, int len, stru
 int ether_init_header(void *buf, int len, u_int8_t *da, u_int8_t *sa, u_int16_t ethertype)
 {
 	int avail = len;
-	struct ether_header *header = (struct ether_header *)buf;
+	struct ether_header *header = buf;
 
 	/* set destination eth addr */
 	memcpy(header->ether_dhost, da, ETHER_ADDR_LEN);
@@ -2529,7 +2529,7 @@ static int hp10_dump_frame(u_int8_t *frame_ptr, int UNUSED(frame_len))
  */
 void do_receive_frame(faifa_t *faifa, void *buf, int len, void *UNUSED(user))
 {
-	struct ether_header *eth_header = (struct ether_header *)buf;
+	struct ether_header *eth_header = buf;
 	u_int16_t *eth_type = &(eth_header->ether_type);
 	u_int8_t *frame_ptr = (u_int8_t *)buf, *payload_ptr;
 	int frame_len = len, payload_len;
