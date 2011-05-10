@@ -47,8 +47,8 @@ faifa can configure any Intellon-based PowerLine Communication device using the 
 .TP
 .B "HomePlug AV protocol"
 
-The HomePlug AV protocol was developed by Intellon and specifies how the powerline PHY layer and HPAV MAC layer can converge to allow Ethernet framesto be sent on the medium. It handles all the low-level modulation and constellation building plus the Medium Access Control handling between devices.
-The HomePlug AV network topology consits of one coordinator (called CCo) for a given logical HPAV network (i.e: with the same Network Encryption Key) and none or several stations (called STAs). Other devices can have a specific role which is a bridge, between several logical networks.
+The HomePlug AV protocol was developed by Intellon and specifies how the powerline PHY layer and HPAV MAC layer can converge to allow Ethernet frames to be sent on the medium. It handles all the low-level modulation and constellation building plus the Medium Access Control handling between devices.
+The HomePlug AV network topology consists of one coordinator (called CCo) for a given logical HPAV network (i.e: with the same Network Encryption Key) and none or several stations (called STAs). Other devices can have a specific role which is a bridge, between several logical networks.
 
 
 ------------------------------------
@@ -88,7 +88,7 @@ A HomePlug AV management frame is described below :
 .br
 ---------------------------------------------------
 
-The payload is highly dependent on the implementation tough most vendors will try to define a common template for it. Such management frame should be encapsulated in standard ethernet frames with the 0x88e1 ethertype.
+The payload is highly dependent on the implementation though most vendors will try to define a common template for it. Such management frame should be encapsulated in standard ethernet frames with the 0x88e1 ethertype.
 
 
 .B
@@ -112,7 +112,7 @@ Faifa is also provided as shared library (so file) and static library so that yo
 .B
 Linking with faifa
 
-You should include faifa.h into your C source file and can directly call functions that are provided by the faifa library. When linking with the faifa library, make sure your linker flags include "\-lfaifa" or the absolute path of the shared object to make sure your program will successfully link.
+You should include faifa.h into your C source file and then you can directly call functions that are provided by the faifa library. When linking with the faifa library, make sure your linker flags include "\-lfaifa" or the absolute path of the shared object to make sure your program will successfully link.
 
 .B
 Sending frames using do_frame
@@ -150,5 +150,5 @@ You will probably want to set the network descriptor in reading mode non-blockin
 
 .SH SEE ALSO
 .BR ifconfig(8)
-.SH AUTHOR
+.SH AUTHORS
 Florian Fainelli <florian@openwrt.org>, Xavier Carcelle <xavier.carcelle@gmail.com>, Nicolas Thill <nico@openwrt.org>
