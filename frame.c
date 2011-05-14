@@ -270,60 +270,43 @@ out:
 	return (len - avail);
 }
 
-static char *get_signal_level_str(u_int8_t sig_level)
+static const char *get_signal_level_str(u_int8_t sig_level)
 {
 	switch (sig_level) {
 	case 0x00:
 		return "N/A";
-		break;
 	case 0x01:
 		return "> - 10 dB, but <= 0 dB";
-		break;
 	case 0x02:
 		return "> - 15 dB, but <= -10 dB";
-		break;
 	case 0x03:
 		return "> - 20 dB, but <= -15 dB";
-		break;
 	case 0x04:
 		return "> - 25 dB, but <= -20 dB";
-		break;
 	case 0x05:
 		return "> - 30 dB, but <= -25 dB";
-		break;
 	case 0x06:
 		return "> - 35 dB, but <= -30 dB";
-		break;
 	case 0x07:
 		return "> - 40 dB, but <= -35 dB";
-		break;
 	case 0x08:
 		return "> - 45 dB, but <= -40 dB";
-		break;
 	case 0x09:
 		return "> - 50 dB, but <= -45 dB";
-		break;
 	case 0x0A:
 		return "> - 55 dB, but <= -50 dB";
-		break;
 	case 0x0B:
 		return "> - 60 dB, but <= -55 dB";
-		break;
 	case 0x0C:
 		return "> - 65 dB, but <= -60 dB";
-		break;
 	case 0x0D:
 		return "> - 70 dB, but <= -65 dB";
-		break;
 	case 0x0E:
 		return "> - 75 dB, but <= -70 dB";
-		break;
 	case 0x0F:
 		return "<= -75 dB";
-		break;
 	default:
 		return "Unknown";
-		break;
 	}
 
 	return NULL;
@@ -339,27 +322,21 @@ static void dump_cc_sta_info(struct cc_sta_info *sta_info)
 	faifa_printf(out_stream, "Signal Level: %s\n", get_signal_level_str(sta_info->sig_level));
 }
 
-static char *get_cco_status_str(u_int8_t status)
+static const char *get_cco_status_str(u_int8_t status)
 {
 	switch (status) {
 	case 0x00:
 		return "Unknown";
-		break;
 	case 0x01:
 		return "Non-Coordinating network";
-		break;
 	case 0x02:
 		return "Coordinating, group status unknown";
-		break;
 	case 0x03:
 		return "Coordinating network, same group as CCo";
-		break;
 	case 0x04:
 		return "Coordinating network, not same group as CCo";
-		break;
 	default:
 		return "Unknown";
-		break;
 	}
 
 	return NULL;
@@ -821,39 +798,30 @@ char *get_carrier_modulation_str(short unsigned int modulation, struct modulatio
 	case NO:
 		stats->no++;
 		return "No";
-		break;
 	case BPSK:
 		stats->bpsk++;
 		return "BPSK";
-		break;
 	case QPSK:
 		stats->qpsk++;
 		return "QPSK";
-		break;
 	case QAM_8:
 		stats->qam8++;
 		return "QAM-8";
-		break;
 	case QAM_16:
 		stats->qam16++;
 		return "QAM-16";
-		break;
 	case QAM_64:
 		stats->qam64++;
 		return "QAM-64";
-		break;
 	case QAM_256:
 		stats->qam256++;
 		return "QAM-256";
-		break;
 	case QAM_1024:
 		stats->qam1024++;
 		return "QAM-1024";
-		break;
 	default:
 		stats->unknown++;
 		return "Unknown";
-		break;
 	}
 }
 
@@ -1080,10 +1048,10 @@ out:
 }
 
 
-static char *get_sniffer_control_str(int control)
+static const char *get_sniffer_control_str(int control)
 {
-	static char *control_unknown = "unknown";
-	static char *controls[] = {
+	static const char *control_unknown = "unknown";
+	static const char *controls[] = {
 		[HPAV_SC_DISABLE] = "disable",
 		[HPAV_SC_ENABLE] =  "enable",
 		[HPAV_SC_NO_CHANGE] =  "no change",
@@ -1134,10 +1102,10 @@ static int hpav_dump_sniffer_request(void *buf, int len, struct ether_header *UN
 	return (len - avail);
 }
 
-static char *get_sniffer_state_str(int state)
+static const char *get_sniffer_state_str(int state)
 {
-	static char *state_unknown = "unknown";
-	static char *states[] = {
+	static const char *state_unknown = "unknown";
+	static const char *states[] = {
 		[HPAV_ST_DISABLED] = "disabled",
 		[HPAV_ST_ENABLED] =  "enabled",
 	};
@@ -1262,13 +1230,10 @@ char *get_sta_role_str(u_int8_t sta_role)
 	switch (sta_role) {
 	case HPAV_SR_STA:
 		return "Station";
-		break;
 	case HPAV_SR_PROXY:
 		return "Proxy coordinator";
-		break;
 	case HPAV_SR_CCO:
 		return "Network coordinator";
-		break;
 	default:
 		return NULL;
 	}
@@ -1463,15 +1428,13 @@ static int hpav_dump_set_enc_key_confirm(void *buf, int len, struct ether_header
 	return (len - avail);
 }
 
-static char *get_peks_str(u_int8_t peks)
+static const char *get_peks_str(u_int8_t peks)
 {
 	switch (peks) {
 	case DST_STA_DAK:
 		return "Destination Station DAK";
-		break;
 	case NMK_KNOWN_STA:
 		return "NMK known to station";
-		break;
 	case ID_TEKS:
 	case 0x03:
 	case 0x04:
@@ -1486,69 +1449,53 @@ static char *get_peks_str(u_int8_t peks)
 	case 0x0D:
 	case 0x0E:
 		return "Identifies TEKs";
-		break;
 	case NO_KEY:
 	default:
 		return "No key";
-		break;
 	}
 
 	return NULL;
 }
 
-static char *get_avln_status_str(u_int8_t avln_status)
+static const char *get_avln_status_str(u_int8_t avln_status)
 {
 	switch (avln_status) {
 	case UN_ASSOC_LVL_0:
 		return "Unassociated and Level-0 CCo capable";
-		break;
 	case UN_ASSOC_LVL_1:
 		return "Unassociated and Level-1 CCo capable";
-		break;
 	case UN_ASSOC_LVL_2:
 		return "Unassociated and Level-2 CCo capable";
-		break;
 	case UN_ASSOC_LVL_3:
 		return "Unassociated and Level-3 CCo capable";
-		break;
 	case UN_ASSOC_NPCO:
 		return "Associated with AV LAN but not PCo capable";
-		break;
 	case UN_ASSOC_PCO:
 		return "Associated with AV LAN and PCo capable";
-		break;
 	case CCO_AVLN:
 		return "CCo of an AV LAN";
-		break;
 	default:
 		return NULL;
-		break;
 	}
 
 	return NULL;
 }
 
-static char *get_pid_str(u_int8_t pid)
+static const char *get_pid_str(u_int8_t pid)
 {
 	switch (pid) {
 	case AUTH_REQ_NEW:
 		return "Authentication request by new STA";
-		break;
 	case PROV_STA_NEW:
 		return "Provision authenticated STA with new NEK by CCo";
-		break;
 	case PROV_STA_DAK:
 		return "Provision STA with NMK using DAK";
-		break;
 	case PROV_STA_UKE:
 		return "Provision STA with NMK using UKE";
-		break;
 	case HLE_PROTO:
 		return "HLE protocol";
-		break;
 	default:
 		return NULL;
-		break;
 	}
 
 	return NULL;
@@ -1588,27 +1535,21 @@ static int hpav_dump_enc_payload_response(void *buf, int len, struct ether_heade
 	return (len - avail);
 }
 
-static char *get_key_type_str(u_int8_t key_type)
+static const char *get_key_type_str(u_int8_t key_type)
 {
 	switch (key_type) {
 	case DAK_AES_128:
 		return "DAK (AES-128)";
-		break;
 	case NMK_AES_128:
 		return "NMK (AES-128)";
-		break;
 	case NEK_AES_128:
 		return "NEK (AES-128)";
-		break;
 	case TEK_AES_128:
 		return "TEK (AES-128)";
-		break;
 	case HASH_KEY:
 		return "Hash key";
-		break;
 	case NONCE_ONLY:
 		return "Nonce only";
-		break;
 	default:
 		return NULL;
 	}
@@ -1673,21 +1614,17 @@ static int hpav_dump_cm_get_key_request(void *buf, int len, struct ether_header 
 	return (len - avail);
 }
 
-static char *get_key_result_str(u_int8_t result)
+static const char *get_key_result_str(u_int8_t result)
 {
 	switch (result) {
 	case 0x00:
 		return "Key granted";
-		break;
 	case 0x01:
 		return "Key refused";
-		break;
 	case 0x02:
 		return "Unsupported key/method";
-		break;
 	default:
 		return NULL;
-		break;
 	}
 
 	return NULL;
@@ -1736,18 +1673,15 @@ static int hpav_dump_cm_bridge_infos_confirm(void *buf, int len, struct ether_he
 	return (len - avail);
 }
 
-static char *get_net_access_str(u_int8_t access)
+static const char *get_net_access_str(u_int8_t access)
 {
 	switch (access) {
 	case 0x00:
 		return "In-Home network";
-		break;
 	case 0x01:
 		return "Access network";
-		break;
 	default:
 		return "Unknown";
-		break;
 
 	}
 	return NULL;
@@ -2289,7 +2223,7 @@ int ether_init_header(void *buf, int len, u_int8_t *da, u_int8_t *sa, u_int16_t 
 	return (len - avail);
 }
 
-static char *hpav_get_mmver_str(u_int8_t mmver)
+static const char *hpav_get_mmver_str(u_int8_t mmver)
 {
 	if( mmver == HPAV_VERSION_1_0 )
 		return "1.0";
