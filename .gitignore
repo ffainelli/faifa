@@ -1,0 +1,10 @@
+/config.h*
+/config.status
+/config.log
+/faifa
+/*.o
+/*.so*
+/*.a
+/*.la
+/Makefile
+/configure
