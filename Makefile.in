@@ -28,6 +28,9 @@ includedir	= @includedir@
 OS?=$(shell uname -s | tr a-z A-Z)
 APP:=faifa
 SVN_REV?=$(shell LC_ALL=C svn info | awk '/Revision/ { print $$2 }')
+ifeq ($(SVN_REV),)
+SVN_REV=99
+endif
 
 # Object files for the library
 LIB_OBJS:=faifa.o frame.o crypto.o
