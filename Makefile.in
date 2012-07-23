@@ -74,7 +74,7 @@ $(LIB_SONAME): $(LIB_OBJS) $(HEADERS)
 	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(APP) faifa-dump-devel-stdout \
+	rm -f $(APP) \
 		*.o \
 		*.a \
 		*.so* \
