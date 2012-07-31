@@ -1754,257 +1754,257 @@ static int hpav_dump_cm_get_network_stats_confirm(void *buf, int len, struct eth
  */
 struct hpav_frame_ops hpav_frame_ops[] = {
 	{
-		.mmtype = 0x0014,
+		.mmtype = HPAV_MMTYPE_CC_DISC_LIST_REQ,
 		.desc = "Central Coordination Discover List Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0x0015,
+		.mmtype = HPAV_MMTYPE_CC_DISC_LIST_CNF,
 		.desc = "Central Coordination Discover List Confirm",
 		.dump_frame = hpav_dump_cc_discover_list_confirm,
 	}, {
-		.mmtype = 0x6004,
+		.mmtype = HPAV_MMTYPE_CM_ENC_PLD_IND,
 		.desc = "Encrypted Payload Indicate",
 		.dump_frame = hpav_dump_enc_payload_indicate,
 	}, {
-		.mmtype = 0x6005,
+		.mmtype = HPAV_MMTYPE_CM_ENC_PLD_RSP,
 		.desc = "Encrypted Payload Response",
 		.dump_frame = hpav_dump_enc_payload_response,
 	}, {
-		.mmtype = 0x6008,
+		.mmtype = HPAV_MMTYPE_CM_SET_KEY_REQ,
 		.desc = "Set Key Request",
 		.dump_frame = hpav_dump_cm_set_key_request,
 	}, {
-		.mmtype = 0x6009,
+		.mmtype = HPAV_MMTYPE_CM_SET_KEY_CNF,
 		.desc = "Set Key Confirm",
 		.dump_frame = hpav_dump_cm_set_key_confirm,
 	}, {
-		.mmtype = 0x600C,
+		.mmtype = HPAV_MMTYPE_CM_GET_KEY_REQ,
 		.desc = "Get Key Request",
 		.dump_frame = hpav_dump_cm_get_key_request,
 	}, {
-		.mmtype = 0x600D,
+		.mmtype = HPAV_MMTYPE_CM_GET_KEY_CNF,
 		.desc = "Get Key Confirm",
 		.dump_frame = hpav_dump_cm_get_key_confirm,
 	}, {
-		.mmtype = 0x6020,
+		.mmtype = HPAV_MMTYPE_CM_BRG_INFO_REQ,
 		.desc = "Get Bridge Infos Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0x6021,
+		.mmtype = HPAV_MMTYPE_CM_BRG_INFO_CNF,
 		.desc = "Get Bridge Infos Confirm",
 		.dump_frame = hpav_dump_cm_bridge_infos_confirm,
 	}, {
-		.mmtype = 0x6038,
+		.mmtype = HPAV_MMTYPE_CM_NW_INFO_REQ,
 		.desc = "Get Network Infos Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0x6039,
+		.mmtype = HPAV_MMTYPE_CM_NW_INFO_CNF,
 		.desc = "Get Network Infos Confirm",
 		.dump_frame = hpav_dump_cm_get_network_infos_confirm,
 	}, {
-		.mmtype = 0x6048,
+		.mmtype = HPAV_MMTYPE_CM_NW_STATS_REQ,
 		.desc = "Get Network Stats Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0x6049,
+		.mmtype = HPAV_MMTYPE_CM_NW_STATS_CNF,
 		.desc = "Get Network Stats Confirm",
 		.dump_frame = hpav_dump_cm_get_network_stats_confirm,
 	}, {
-		.mmtype = 0xA000,
+		.mmtype = HPAV_MMTYPE_GET_SW_REQ,
 		.desc = "Get Device/SW Version Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0xA001,
+		.mmtype = HPAV_MMTYPE_GET_SW_CNF,
 		.desc = "Get Device/SW Version Confirm",
 		.dump_frame = hpav_dump_get_device_sw_version_confirm,
 	}, {
-		.mmtype = 0xA004,
+		.mmtype = HPAV_MMTYPE_WR_MEM_REQ,
 		.desc = "Write MAC Memory Request",
 		.init_frame = hpav_init_write_mac_memory_request,
 		.dump_frame = hpav_dump_write_mac_memory_request,
 	}, {
-		.mmtype = 0xA005,
+		.mmtype = HPAV_MMTYPE_WR_MEM_CNF,
 		.desc = "Write MAC Memory Confirm",
 		.dump_frame = hpav_dump_write_mac_memory_confirm,
 	}, {
-		.mmtype = 0xA008,
+		.mmtype = HPAV_MMTYPE_RD_MEM_REQ,
 		.desc = "Read MAC Memory Request",
 		.init_frame = hpav_init_read_mac_memory_request,
 		.dump_frame = hpav_dump_read_mac_memory_request,
 	}, {
-		.mmtype = 0xA009,
+		.mmtype = HPAV_MMTYPE_RD_MEM_CNF,
 		.desc = "Read MAC Memory Confirm",
 		.dump_frame = hpav_dump_read_mac_memory_confirm,
 	}, {
-		.mmtype = 0xA00C,
+		.mmtype = HPAV_MMTYPE_ST_MAC_REQ,
 		.desc = "Start MAC Request",
 		.init_frame = hpav_init_start_mac_request,
 		.dump_frame = hpav_dump_start_mac_request,
 	}, {
-		.mmtype = 0xA00D,
+		.mmtype = HPAV_MMTYPE_ST_MAC_CNF,
 		.desc = "Start MAC Confirm",
 		.dump_frame = hpav_dump_start_mac_confirm,
 	}, {
-		.mmtype = 0xA010,
+		.mmtype = HPAV_MMTYPE_GET_NVM_REQ,
 		.desc = "Get NVM parameters Request",
 	}, {
-		.mmtype = 0xA011,
+		.mmtype = HPAV_MMTYPE_GET_NVM_CNF,
 		.desc = "Get NVM parameters Confirm",
 		.dump_frame = hpav_dump_nvram_params_confirm,
 	}, {
-		.mmtype = 0xA01C,
+		.mmtype = HPAV_MMTYPE_RS_DEV_REQ,
 		.desc = "Reset Device Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0xA01D,
+		.mmtype = HPAV_MMTYPE_RS_DEV_CNF,
 		.desc = "Reset Device Confirm",
 		.dump_frame = hpav_dump_reset_device_confirm,
 	}, {
-		.mmtype = 0xA020,
+		.mmtype = HPAV_MMTYPE_WR_MOD_REQ,
 		.desc = "Write Module Data Request",
 		.init_frame = hpav_init_write_data_request,
 	}, {
-		.mmtype = 0xA021,
+		.mmtype = HPAV_MMTYPE_WR_MOD_CNF,
 		.desc = "Write Module Data Confirm",
 		.dump_frame = hpav_dump_write_mod_data_confirm,
 	}, {
-		.mmtype = 0xA022,
+		.mmtype = HPAV_MMTYPE_WR_MOD_IND,
 		.desc = "Write Module Data Indicate",
 	}, {
-		.mmtype = 0xA024,
+		.mmtype = HPAV_MMTYPE_RD_MOD_REQ,
 		.desc = "Read Module Data Request",
 		.init_frame = hpav_init_read_mod_data_request,
 	}, {
-		.mmtype = 0xA025,
+		.mmtype = HPAV_MMTYPE_RD_MOD_CNF,
 		.desc = "Read Module Data Confirm",
 		.dump_frame = hpav_dump_read_mod_data_confirm,
 	}, {
-		.mmtype = 0xA028,
+		.mmtype = HPAV_MMTYPE_NVM_MOD_REQ,
 		.desc = "Write Module Data to NVM Request",
 	}, {
-		.mmtype = 0xA029,
+		.mmtype = HPAV_MMTYPE_NVM_MOD_CNF,
 		.desc = "Write Module Data to NVM Confirm",
 		.dump_frame = hpav_dump_start_mac_confirm,
 	}, {
-		.mmtype = 0xA02C,
+		.mmtype = HPAV_MMTYPE_WD_RPT_REQ,
 		.desc = "Get Watchdog Report Request",
 		.init_frame = hpav_init_watchdog_report_request,
 	}, {
-		.mmtype = 0xA02E,
+		.mmtype = HPAV_MMTYPE_WD_RPT_IND,
 		.desc = "Get Watchdog Report Indicate",
 		.dump_frame = hpav_dump_watchdog_report_indicate,
 	}, {
-		.mmtype = 0xA030,
+		.mmtype = HPAV_MMTYPE_LNK_STATS_REQ,
 		.desc = "Get Link Statistics Request",
 		.init_frame = hpav_init_link_stats_request,
 	}, {
-		.mmtype = 0xA031,
+		.mmtype = HPAV_MMTYPE_LNK_STATS_CNF,
 		.desc = "Get Link Statistics Confirm",
 		.dump_frame = hpav_dump_link_stats_confirm,
 	}, {
-		.mmtype = 0xA034,
+		.mmtype = HPAV_MMTYPE_SNIFFER_REQ,
 		.desc = "Sniffer Mode Request",
 		.init_frame = hpav_init_sniffer_request,
 		.dump_frame = hpav_dump_sniffer_request,
 	}, {
-		.mmtype = 0xA035,
+		.mmtype = HPAV_MMTYPE_SNIFFER_CNF,
 		.desc = "Sniffer Mode Confirm",
 		.dump_frame = hpav_dump_sniffer_confirm,
 	}, {
-		.mmtype = 0xA036,
+		.mmtype = HPAV_MMTYPE_SNIFFER_IND,
 		.desc = "Sniffer Mode Indicate",
 		.dump_frame = hpav_dump_sniffer_indicate,
 	}, {
-		.mmtype = 0xA038,
+		.mmtype = HPAV_MMTYPE_NW_INFO_REQ,
 		.desc = "Network Info Request (Vendor-Specific)",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0xA039,
+		.mmtype = HPAV_MMTYPE_NW_INFO_CNF,
 		.desc = "Network Info Confirm (Vendor-Specific)",
 		.dump_frame = hpav_dump_network_info_confirm,
 	}, {
-		.mmtype = 0xA040,
+		.mmtype = HPAV_MMTYPE_CP_RPT_REQ,
 		.desc = "Check Points Request",
 		.init_frame = hpav_init_check_points_request,
 	}, {
-		.mmtype = 0xA042,
+		.mmtype = HPAV_MMTYPE_CP_RPT_IND,
 		.desc = "Check Points Indicate",
 		.dump_frame = hpav_dump_check_points_indicate,
 	}, {
-		.mmtype = 0xA048,
+		.mmtype = HPAV_MMTYPE_FR_LBK_REQ,
 		.desc = "Loopback Request",
 		.init_frame = hpav_dump_loopback_request,
 	}, {
-		.mmtype = 0xA049,
+		.mmtype = HPAV_MMTYPE_FR_LBK_CNF,
 		.desc = "Loopback Confirm",
 		.dump_frame = hpav_dump_loopback_confirm,
 	}, {
-		.mmtype = 0xA04C,
+		.mmtype = HPAV_MMTYPE_LBK_STAT_REQ,
 		.desc = "Loopback Status Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0xA04D,
+		.mmtype = HPAV_MMTYPE_LBK_STAT_CNF,
 		.desc = "Loopback Status Confirm",
 		.dump_frame = hpav_dump_loopback_status_confirm,
 	}, {
-		.mmtype = 0xA050,
+		.mmtype = HPAV_MMTYPE_SET_KEY_REQ,
 		.desc = "Set Encryption Key Request",
 		.init_frame = hpav_init_set_enc_key_request,
 	}, {
-		.mmtype = 0xA051,
+		.mmtype = HPAV_MMTYPE_SET_KEY_CNF,
 		.desc = "Set Encryption Key Confirm",
 		.dump_frame = hpav_dump_set_enc_key_confirm,
 	}, {
-		.mmtype = 0xA054,
+		.mmtype = HPAV_MMTYPE_MFG_STRING_REQ,
 		.desc = "Get Manufacturing String Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0xA055,
+		.mmtype = HPAV_MMTYPE_MFG_STRING_CNF,
 		.desc = "Get Manufacturing String Confirm",
 		.dump_frame = hpav_dump_get_manuf_string_confirm,
 	}, {
-		.mmtype = 0xA058,
+		.mmtype = HPAV_MMTYPE_RD_CBLOCK_REQ,
 		.desc = "Read Configuration Block Request",
 		.init_frame = init_empty_frame,
 	}, {
-		.mmtype = 0xA059,
+		.mmtype = HPAV_MMTYPE_RD_CBLOCK_CNF,
 		.desc = "Read Configuration Block Confirm",
 		.dump_frame = hpav_dump_read_config_block_confirm,
 	}, {
-		.mmtype = 0xA05C,
+		.mmtype = HPAV_MMTYPE_SET_SDRAM_REQ,
 		.desc = "Set SDRAM Configuration Request",
 	}, {
-		.mmtype = 0xA05D,
+		.mmtype = HPAV_MMTYPE_SET_SDRAM_CNF,
 		.desc = "Set SDRAM Configuration Confirm",
 		.dump_frame = hpav_dump_set_sdram_config_confirm,
 	}, {
-		.mmtype = 0xA062,
+		.mmtype = HPAV_MMTYPE_HOST_ACTION_IND,
 		.desc = "Embedded Host Action Required Indicate",
 	}, {
-		.mmtype = 0xA063,
+		.mmtype = HPAV_MMTYPE_HOST_ACTION_RSP,
 		.desc = "Embedded Host Action Required Response",
 	}, {
-		.mmtype = 0xA068,
+		.mmtype = HPAV_MMTYPE_OP_ATTR_REQ,
 		.desc = "Get Device Attributes Request",
 		.init_frame = hpav_init_get_devices_attrs_request,
 	}, {
-		.mmtype = 0xA069,
+		.mmtype = HPAV_MMTYPE_OP_ATTR_CNF,
 		.desc = "Get Device Attributes Confirm",
 		.dump_frame = hpav_dump_get_devices_attrs_confirm,
 	}, {
-		.mmtype = 0xA06C,
+		.mmtype = HPAV_MMTYPE_GET_ENET_PHY_REQ,
 		.desc = "Get Ethernet PHY Settings Request",
 		.init_frame = hpav_init_get_enet_phy_settings_request,
 	}, {
-		.mmtype = 0xA06D,
+		.mmtype = HPAV_MMTYPE_GET_ENET_PHY_CNF,
 		.desc = "Get Ethernet PHY Settings Confirm",
 		.dump_frame = hpav_dump_get_enet_phy_settings_confirm,
 	}, {
-		.mmtype = 0xA070,
+		.mmtype = HPAV_MMTYPE_TONE_MAP_REQ,
 		.desc = "Get Tone Map Caracteristics Request",
 		.init_frame = hpav_init_get_tone_map_charac_request,
 	}, {
-		.mmtype = 0xA071,
+		.mmtype = HPAV_MMTYPE_TONE_MAP_CNF,
 		.desc = "Get Tone Map Characteristics Confirm",
 		.dump_frame = hpav_dump_get_tone_map_charac_confirm,
 	}
