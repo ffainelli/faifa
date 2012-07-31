@@ -161,14 +161,29 @@ static int hpav_init_write_mac_memory_request(void *buf, int len, void *UNUSED(b
 	return (len - avail);
 }
 
+static const char *int6x00_device_id_str(uint8_t device_id)
+{
+	switch (device_id) {
+	case INT6000_DEVICE_ID:
+		return "INT6000";
+	case INT6300_DEVICE_ID:
+		return "INT6300";
+	case INT6400_DEVICE_ID:
+		return "INT6400";
+	default:
+		return "Unknown";
+	}
+}
+
 static int hpav_dump_get_device_sw_version_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
 	struct get_device_sw_version_confirm *mm = buf;
 
 	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
-	faifa_printf(out_stream, "Device ID: %s, Version: %s, upgradeable: %d\n", (short unsigned int)(mm->device_id) ? "INT6300" : "INT6000" ,
-									(char *)(mm->version), (int)(mm->upgradeable));
+	faifa_printf(out_stream, "Device ID: %s, Version: %s, upgradeable: %d\n",
+		int6x00_device_id_str(mm->device_id),
+		(char *)(mm->version), (int)(mm->upgradeable));
 	avail -= sizeof(*mm);
 
 	return (len - avail);

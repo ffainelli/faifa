@@ -174,6 +174,9 @@ struct get_device_sw_version_confirm {
 	u_int8_t	upgradeable;
 } __attribute__((__packed__));
 
+#define INT6000_DEVICE_ID	0x1
+#define INT6300_DEVICE_ID	0x2
+#define INT6400_DEVICE_ID	0x3
 
 /* Write MAC Memory MME */
 
