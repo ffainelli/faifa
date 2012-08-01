@@ -21,7 +21,6 @@ AC_CHECK_HEADERS(net/if.h)
 # Libraries provided headers
 AC_CHECK_HEADERS([pthread.h],,[AC_MSG_ERROR([You need libpthread development files])])
 AC_CHECK_HEADERS([pcap.h],,[AC_MSG_ERROR([You need libpcap development files])])
-AC_CHECK_HEADERS([openssl/sha.h],,[AC_MSG_ERROR([You need openssl development files])])
 
 # Check libraries
 AC_CHECK_LIB(pthread, pthread_create,
@@ -38,12 +37,6 @@ AC_CHECK_LIB(pcap, pcap_lookupdev,
 	AC_MSG_ERROR(You need pcap_next_ex check your libpcap))],
 	AC_MSG_ERROR(You need pcap_datalink check your libpcap))],
 	AC_MSG_ERROR(You need pcap_lookupdev check your libpcap))
-AC_CHECK_LIB([crypto], [SHA256_Init],
-	[AC_CHECK_LIB([crypto], [SHA256_Update],
-	[AC_CHECK_LIB([crypto], [SHA256_Final],LIBS="${LIBS} -lcrypto",
-		AC_MSG_ERROR(you need SHA256_Final check your libcrypto))],
-		AC_MSG_ERROR(you need SHA256_Update check your libcrypto))],
-		AC_MSG_ERROR(you need SHA256_Update check your libcrypto))
 
 AC_CONFIG_HEADER(config.h)
 AC_OUTPUT(Makefile)

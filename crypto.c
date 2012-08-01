@@ -1,5 +1,5 @@
 /*
- *  Cryptographic routines for faifa using OpenSSL
+ *  Cryptographic routines for faifa using standalone SHA2
  *
  *  Copyright (C) 2008 Florian Fainelli <florian@openwrt.org>
  *
@@ -37,9 +37,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <openssl/sha.h>
 
 #include "crypto.h"
+#include "sha2.h"
 
 #define HASH_SIZ	SHA256_DIGEST_LENGTH
 

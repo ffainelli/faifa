@@ -33,7 +33,7 @@ SVN_REV=99
 endif
 
 # Object files for the library
-LIB_OBJS:=faifa.o frame.o crypto.o
+LIB_OBJS:=faifa.o frame.o crypto.o sha2.o
 LIB_NAME:=lib$(APP).a
 LIB_SONAME:=lib$(APP).so.0
 

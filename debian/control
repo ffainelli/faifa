@@ -3,7 +3,7 @@ Section: net
 Priority: extra
 Maintainer: Florian Fainelli <florian@openwrt.org>
 Uploaders: Damien Raude-Morvan <drazzib@drazzib.com>
-Build-Depends: debhelper (>= 7), libpcap0.8-dev, libssl-dev (>= 0.9.7), quilt
+Build-Depends: debhelper (>= 7), libpcap0.8-dev, quilt
 Standards-Version: 3.8.3
 Vcs-Svn: http://svn.drazzib.com/debian-pkg/faifa/trunk/
 Vcs-Browser: http://svn.drazzib.com/wsvn/debian-pkg/faifa/trunk/
