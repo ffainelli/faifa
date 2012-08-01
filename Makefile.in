@@ -94,6 +94,7 @@ distclean: clean autoclean
 install: installman strip
 	$(INSTALL) -d $(DESTDIR)$(bindir)
 	$(INSTALL) -m0755 $(APP) $(DESTDIR)$(bindir)
+	$(INSTALL) -m0755 hpav_cfg $(DESTDIR)$(bindir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m0644 $(LIB_SONAME) $(DESTDIR)$(libdir)
 	$(INSTALL) -d $(DESTDIR)$(includedir)/faifa
@@ -116,6 +117,7 @@ uninstallman:
 
 uninstall: uninstallman
 	-rm -f $(DESTDIR)$(bindir)/$(APP)
+	-rm -f $(DESTDIR)$(bindir)/hpav_cfg
 	-rm -f $(DESTDIR)$(libdir)/$(LIB_SONAME)
 	-rm -rf $(DESTDIR)$(includedir)/faifa
 
