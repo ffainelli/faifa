@@ -35,7 +35,7 @@
  *
  * $PostgreSQL: pgsql/contrib/pgcrypto/sha2.c,v 1.8 2006/10/04 00:29:46 momjian Exp $
  */
-
+#include <stdlib.h>
 #include <stddef.h>
 #include <inttypes.h>
 #include <string.h>
