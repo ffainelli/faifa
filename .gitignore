@@ -2,6 +2,7 @@
 /config.status
 /config.log
 /faifa
+/hpav_cfg
 /*.o
 /*.so*
 /*.a
