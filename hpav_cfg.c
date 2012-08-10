@@ -1,6 +1,8 @@
 /*
  * Lightweight Homeplug AV configuration utility
  *
+ * Generates a NMK from a given passphrase
+ *
  * Copyright (C) 2012, Florian Fainelli <florian@openwrt.org>
  */
 
@@ -190,21 +192,39 @@ static int read_key_confirm(struct context *ctx)
 	return 0;
 }
 
+static int generate_passphrase(struct context *ctx, const char *pass)
+{
+	uint8_t key[16];
+	int i;
+
+	if (!pass) {
+		fprintf(stderr, "missing passphrase\n");
+		return 1;
+	}
+
+	gen_passphrase(pass, key, nmk_salt);
+	for (i = 0; i < sizeof(key); i++)
+		fprintf(stdout, "%02x", key[i]);
+
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	int opt;
 	int ret;
 	const char *mac_address = NULL;
-	const char *key = NULL;
+	const char *passphrase = NULL;
 	const char *iface = NULL;
 	struct context ctx;
+	unsigned int hash_only = 0;
 
 	memset(&ctx, 0, sizeof(ctx));
 
-	while ((opt = getopt(argc, argv, "k:a:i:h")) > 0) {
+	while ((opt = getopt(argc, argv, "p:a:i:kh")) > 0) {
 		switch (opt) {
-		case 'k':
-			key = optarg;
+		case 'p':
+			passphrase = optarg;
 			break;
 		case 'a':
 			mac_address = optarg;
@@ -212,9 +232,12 @@ int main(int argc, char **argv)
 		case 'i':
 			iface = optarg;
 			break;
+		case 'k':
+			hash_only = 1;
+			break;
 		case 'h':
 		default:
-			printf("hpav_cfg: -k passphrase -a address [iface]\n");
+			printf("hpav_cfg: -n passphrase -a address [iface]\n");
 			return 1;
 		}
 	}
@@ -222,9 +245,12 @@ int main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
+	if (hash_only)
+		return generate_passphrase(&ctx, passphrase);
+
 	iface = argv[0];
 
-	fprintf(stdout, "Key: %s\n", key);
+	fprintf(stdout, "Passphrase: %s\n", passphrase);
 	fprintf(stdout, "MAC: %s\n", mac_address);
 	fprintf(stdout, "Interface: %s\n", iface);
 
@@ -234,7 +260,7 @@ int main(int argc, char **argv)
 		return ret;
 	}
 
-	ret=  send_key(&ctx, key, mac_address);
+	ret=  send_key(&ctx, passphrase, mac_address);
 	if (ret) {
 		fprintf(stdout, "failed to send key\n");
 		return ret;
