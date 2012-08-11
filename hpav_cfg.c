@@ -209,6 +209,14 @@ static int generate_passphrase(struct context *ctx, const char *pass)
 	return 0;
 }
 
+static void usage(void)
+{
+	fprintf(stderr, "Usage: hpav_cfg [options] [iface]\n"
+			"-p:	passphrase (device NMK)\n"
+			"-a:	device MAC address\n"
+			"-k:	hash only\n");
+}
+
 int main(int argc, char **argv)
 {
 	int opt;
@@ -237,9 +245,14 @@ int main(int argc, char **argv)
 			break;
 		case 'h':
 		default:
-			printf("hpav_cfg: -n passphrase -a address [iface]\n");
+			usage();
 			return 1;
 		}
+	}
+
+	if (argc < 2) {
+		usage();
+		return 1;
 	}
 
 	argc -= optind;
