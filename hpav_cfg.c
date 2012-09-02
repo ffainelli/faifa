@@ -211,7 +211,7 @@ static int generate_passphrase(struct context *ctx, const char *pass)
 
 static void usage(void)
 {
-	fprintf(stderr, "Usage: hpav_cfg [options] [iface]\n"
+	fprintf(stderr, "Usage: hpav_cfg [options] interface\n"
 			"-p:	passphrase (device NMK)\n"
 			"-a:	device MAC address\n"
 			"-k:	hash only\n");
