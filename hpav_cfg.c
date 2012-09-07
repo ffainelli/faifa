@@ -140,7 +140,8 @@ out_close:
 
 static uint8_t bcast_hpav_mac[ETH_ALEN] = { 0x00, 0xB0, 0x52, 0x00, 0x00, 0x01 };
 
-static int send_key(struct context *ctx, const char *pass, const char *mac)
+static int send_key(struct context *ctx, const char *pass,
+			const char *mac, enum key_type key_type)
 {
 	struct set_encryption_key_request key_req;
 	uint8_t key[16];
@@ -155,10 +156,23 @@ static int send_key(struct context *ctx, const char *pass, const char *mac)
 	memset(&key_req, 0, sizeof(key_req));
 
 	key_req.peks = 0x01;
-	key_req.peks_payload = NO_KEY;
 
-	gen_passphrase(pass, key, nmk_salt);
-	memcpy(key_req.nmk, key, AES_KEY_SIZE);
+	switch (key_type) {
+	case NMK_AES_128:
+		gen_passphrase(pass, key, nmk_salt);
+		memcpy(key_req.nmk, key, AES_KEY_SIZE);
+		key_req.peks_payload = NO_KEY;
+		break;
+	case DAK_AES_128:
+		gen_passphrase(pass, key, dak_salt);
+		memcpy(key_req.nmk_payload, key, AES_KEY_SIZE);
+		key_req.peks_payload = DST_STA_DAK;
+		break;
+	default:
+		fprintf(stderr, "unknown key type: %02x\n", key_type);
+		return 1;
+	}
+
 	memcpy(key_req.rdra, to, ETH_ALEN);
 
 	return send_vendor_pkt(ctx, to, HPAV_MMTYPE_SET_KEY_REQ,
@@ -312,7 +326,7 @@ int main(int argc, char **argv)
 		return ret;
 	}
 
-	ret = send_key(&ctx, passphrase, mac_address);
+	ret = send_key(&ctx, passphrase, mac_address, key_type);
 	if (ret) {
 		fprintf(stdout, "failed to send key\n");
 		return ret;
