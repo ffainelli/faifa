@@ -202,12 +202,19 @@ static int read_key_confirm(struct context *ctx)
 		return 1;
 
 	status = hpav_frame->payload.vendor.data[0];
-	if (status) {
-		fprintf(stderr, "device replies: %02x\n", status);
+	switch (status) {
+	case KEY_SUCCESS:
+		fprintf(stdout, "Success!!\n");
+		return 0;
+	case KEY_INV_EKS:
+		fprintf(stderr, "Invalid EKS\n");
 		return 1;
+	case KEY_INV_PKS:
+		fprintf(stderr, "Invalid PKS\n");
+		return 1;
+	default:
+		fprintf(stderr, "unknown answer: 0x%02x\n", status);
 	}
-
-	fprintf(stdout, "Success!!\n");
 
 	return 0;
 }
