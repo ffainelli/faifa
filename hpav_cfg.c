@@ -15,6 +15,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <unistd.h>
+#include <signal.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -209,6 +210,14 @@ static int generate_passphrase(struct context *ctx, const char *pass)
 	return 0;
 }
 
+static void sighandler(int signo)
+{
+	if (signo == SIGALRM) {
+		fprintf(stdout, "timeout reading answer from sta, exiting\n");
+		exit(1);
+	}
+}
+
 static void usage(void)
 {
 	fprintf(stderr, "Usage: hpav_cfg [options] interface\n"
@@ -273,11 +282,22 @@ int main(int argc, char **argv)
 		return ret;
 	}
 
-	ret=  send_key(&ctx, passphrase, mac_address);
+	ret = send_key(&ctx, passphrase, mac_address);
 	if (ret) {
 		fprintf(stdout, "failed to send key\n");
 		return ret;
 	}
 
-	return read_key_confirm(&ctx);
+	ret = signal(SIGALRM, sighandler);
+	if (ret) {
+		fprintf(stdout, "failed to setup signal handler\n");
+		return ret;
+	}
+
+	/* catch answer or timeout */
+	alarm(3);
+
+	ret = read_key_confirm(&ctx);
+
+	return ret;
 }
