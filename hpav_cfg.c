@@ -332,8 +332,7 @@ int main(int argc, char **argv)
 		return ret;
 	}
 
-	ret = signal(SIGALRM, sighandler);
-	if (ret) {
+	if (signal(SIGALRM, sighandler) == SIG_ERR) {
 		fprintf(stdout, "failed to setup signal handler\n");
 		return ret;
 	}
