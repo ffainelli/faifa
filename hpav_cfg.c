@@ -154,7 +154,7 @@ static int send_key(struct context *ctx, const char *pass, const char *mac)
 
 	gen_passphrase(pass, key, nmk_salt);
 	memcpy(key_req.nmk, key, AES_KEY_SIZE);
-	memcpy(key_req.rdra, mac, ETH_ALEN);
+	memcpy(key_req.rdra, to, ETH_ALEN);
 
 	return send_vendor_pkt(ctx, to, HPAV_MMTYPE_SET_KEY_REQ,
 				&key_req, sizeof(key_req));
