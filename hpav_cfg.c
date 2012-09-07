@@ -193,7 +193,8 @@ static int read_key_confirm(struct context *ctx)
 	return 0;
 }
 
-static int generate_passphrase(struct context *ctx, const char *pass)
+static int generate_passphrase(struct context *ctx,
+				const char *pass, enum key_type key_type)
 {
 	uint8_t key[16];
 	int i;
@@ -203,7 +204,19 @@ static int generate_passphrase(struct context *ctx, const char *pass)
 		return 1;
 	}
 
-	gen_passphrase(pass, key, nmk_salt);
+	switch (key_type) {
+	case NMK_AES_128:
+		gen_passphrase(pass, key, nmk_salt);
+		break;
+	case DAK_AES_128:
+		gen_passphrase(pass, key, dak_salt);
+		break;
+	default:
+		fprintf(stderr, "unhandled key type: %02x\n", key_type);
+		return 1;
+		break;
+	}
+
 	for (i = 0; i < sizeof(key); i++)
 		fprintf(stdout, "%02x", key[i]);
 
@@ -221,7 +234,9 @@ static void sighandler(int signo)
 static void usage(void)
 {
 	fprintf(stderr, "Usage: hpav_cfg [options] interface\n"
-			"-p:	passphrase (device NMK)\n"
+			"-n:	NMK pasphrase\n"
+			"-d:	DAK passphrase\n"
+			"-p:	passphrase (default: NMK)\n"
 			"-a:	device MAC address\n"
 			"-k:	hash only\n");
 }
@@ -235,11 +250,18 @@ int main(int argc, char **argv)
 	const char *iface = NULL;
 	struct context ctx;
 	unsigned int hash_only = 0;
+	enum key_type key_type = NMK_AES_128;
 
 	memset(&ctx, 0, sizeof(ctx));
 
-	while ((opt = getopt(argc, argv, "p:a:i:kh")) > 0) {
+	while ((opt = getopt(argc, argv, "ndp:a:i:kh")) > 0) {
 		switch (opt) {
+		case 'n':
+			key_type = NMK_AES_128;
+			break;
+		case 'd':
+			key_type = DAK_AES_128;
+			break;
 		case 'p':
 			passphrase = optarg;
 			break;
@@ -268,7 +290,7 @@ int main(int argc, char **argv)
 	argv += optind;
 
 	if (hash_only)
-		return generate_passphrase(&ctx, passphrase);
+		return generate_passphrase(&ctx, passphrase, key_type);
 
 	iface = argv[0];
 
