@@ -690,7 +690,7 @@ struct set_encryption_key_request {
 	u_int8_t	nmk[AES_KEY_SIZE];
 	u_int8_t	peks_payload;
 	u_int8_t	rdra[6];
-	u_int8_t	nmk_payload[AES_KEY_SIZE];
+	u_int8_t	dak[AES_KEY_SIZE];
 } __attribute__((__packed__));
 
 /* A051 - Set Encryption Key Confirm */

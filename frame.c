@@ -1376,7 +1376,7 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 
 	/* Old versions should use 0x03 */
 	mm->peks = 0x01;
-	mm->peks_payload = 0x0f;
+	mm->peks_payload = NO_KEY;
 	faifa_printf(out_stream, "AES NMK key ?");
 	fscanf(in_stream, "%s", nek);
 
@@ -1391,8 +1391,8 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 
 		/* Generate the key from the DEK and DAK salt */
 		gen_passphrase(dek, dak, dak_salt);
-		memcpy(mm->nmk_payload, dak, AES_KEY_SIZE);
-		mm->peks_payload = 0x00;
+		memcpy(mm->dak, dak, AES_KEY_SIZE);
+		mm->peks_payload = DST_STA_DAK;
 
 		/* Broadcast the key */
 		for (i = 0; i < 6; i++)

@@ -165,7 +165,7 @@ static int send_key(struct context *ctx, const char *pass,
 		break;
 	case DAK_AES_128:
 		gen_passphrase(pass, key, dak_salt);
-		memcpy(key_req.nmk_payload, key, AES_KEY_SIZE);
+		memcpy(key_req.dak, key, AES_KEY_SIZE);
 		key_req.peks_payload = DST_STA_DAK;
 		break;
 	default:
