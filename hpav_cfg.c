@@ -1,7 +1,7 @@
 /*
  * Lightweight Homeplug AV configuration utility
  *
- * Generates a NMK from a given passphrase
+ * Generates a NMK/DAK given their NPW and DPW
  *
  * Copyright (C) 2012, Florian Fainelli <florian@openwrt.org>
  */
@@ -140,8 +140,8 @@ out_close:
 
 static uint8_t bcast_hpav_mac[ETH_ALEN] = { 0x00, 0xB0, 0x52, 0x00, 0x00, 0x01 };
 
-static int send_key(struct context *ctx, const char *pass,
-			const char *mac, enum key_type key_type)
+static int send_key(struct context *ctx, const char *npw,
+			const char *dpw, const char *mac)
 {
 	struct set_encryption_key_request key_req;
 	uint8_t key[16];
@@ -157,20 +157,14 @@ static int send_key(struct context *ctx, const char *pass,
 
 	key_req.peks = 0x01;
 
-	switch (key_type) {
-	case NMK_AES_128:
-		gen_passphrase(pass, key, nmk_salt);
-		memcpy(key_req.nmk, key, AES_KEY_SIZE);
-		key_req.peks_payload = NO_KEY;
-		break;
-	case DAK_AES_128:
-		gen_passphrase(pass, key, dak_salt);
+	gen_passphrase(npw, key, nmk_salt);
+	memcpy(key_req.nmk, key, AES_KEY_SIZE);
+	key_req.peks_payload = NO_KEY;
+
+	if (dpw) {
+		gen_passphrase(dpw, key, dak_salt);
 		memcpy(key_req.dak, key, AES_KEY_SIZE);
 		key_req.peks_payload = DST_STA_DAK;
-		break;
-	default:
-		fprintf(stderr, "unknown key type: %02x\n", key_type);
-		return 1;
 	}
 
 	memcpy(key_req.rdra, to, ETH_ALEN);
@@ -220,28 +214,20 @@ static int read_key_confirm(struct context *ctx)
 }
 
 static int generate_passphrase(struct context *ctx,
-				const char *pass, enum key_type key_type)
+				const char *npw, const char *dpw)
 {
 	uint8_t key[16];
 	int i;
 
-	if (!pass) {
-		fprintf(stderr, "missing passphrase\n");
+	if (!npw && !dpw) {
+		fprintf(stderr, "missing NPW and DPW\n");
 		return 1;
 	}
 
-	switch (key_type) {
-	case NMK_AES_128:
-		gen_passphrase(pass, key, nmk_salt);
-		break;
-	case DAK_AES_128:
-		gen_passphrase(pass, key, dak_salt);
-		break;
-	default:
-		fprintf(stderr, "unhandled key type: %02x\n", key_type);
-		return 1;
-		break;
-	}
+	if (npw)
+		gen_passphrase(npw, key, nmk_salt);
+	else
+		gen_passphrase(dpw, key, dak_salt);
 
 	for (i = 0; i < sizeof(key); i++)
 		fprintf(stdout, "%02x", key[i]);
@@ -260,9 +246,9 @@ static void sighandler(int signo)
 static void usage(void)
 {
 	fprintf(stderr, "Usage: hpav_cfg [options] interface\n"
-			"-n:	NMK pasphrase\n"
-			"-d:	DAK passphrase\n"
-			"-p:	passphrase (default: NMK)\n"
+			"-n:	NPW passphrase\n"
+			"-d:	DPW passphrase\n"
+			"-p:	same as -n (deprecated)\n"
 			"-a:	device MAC address\n"
 			"-k:	hash only\n");
 }
@@ -272,24 +258,22 @@ int main(int argc, char **argv)
 	int opt;
 	int ret;
 	const char *mac_address = NULL;
-	const char *passphrase = NULL;
+	const char *npw = NULL;
+	const char *dpw = NULL;
 	const char *iface = NULL;
 	struct context ctx;
 	unsigned int hash_only = 0;
-	enum key_type key_type = NMK_AES_128;
 
 	memset(&ctx, 0, sizeof(ctx));
 
-	while ((opt = getopt(argc, argv, "ndp:a:i:kh")) > 0) {
+	while ((opt = getopt(argc, argv, "n:d:p:a:i:kh")) > 0) {
 		switch (opt) {
 		case 'n':
-			key_type = NMK_AES_128;
+		case 'p':
+			npw = optarg;
 			break;
 		case 'd':
-			key_type = DAK_AES_128;
-			break;
-		case 'p':
-			passphrase = optarg;
+			dpw = optarg;
 			break;
 		case 'a':
 			mac_address = optarg;
@@ -316,11 +300,15 @@ int main(int argc, char **argv)
 	argv += optind;
 
 	if (hash_only)
-		return generate_passphrase(&ctx, passphrase, key_type);
+		return generate_passphrase(&ctx, npw, dpw);
 
 	iface = argv[0];
+	if (!iface) {
+		fprintf(stderr, "missing interface argument\n");
+		return 1;
+	}
 
-	fprintf(stdout, "Passphrase: %s\n", passphrase);
+	fprintf(stdout, "NPW: %s\n", npw);
 	if (mac_address)
 		fprintf(stdout, "MAC: %s\n", mac_address);
 	else
@@ -333,7 +321,7 @@ int main(int argc, char **argv)
 		return ret;
 	}
 
-	ret = send_key(&ctx, passphrase, mac_address, key_type);
+	ret = send_key(&ctx, npw, dpw, mac_address);
 	if (ret) {
 		fprintf(stdout, "failed to send key\n");
 		return ret;
