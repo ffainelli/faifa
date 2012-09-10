@@ -141,17 +141,11 @@ out_close:
 static uint8_t bcast_hpav_mac[ETH_ALEN] = { 0x00, 0xB0, 0x52, 0x00, 0x00, 0x01 };
 
 static int send_key(struct context *ctx, const char *npw,
-			const char *dpw, const char *mac)
+			const char *dpw, const uint8_t mac[ETH_ALEN])
 {
 	struct set_encryption_key_request key_req;
 	uint8_t key[16];
 	uint8_t to[ETH_ALEN];
-
-	if (mac)
-		sscanf(mac, "%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8"",
-			&to[0], &to[1], &to[2], &to[3], &to[4], &to[5]);
-	else
-		memcpy(to, bcast_hpav_mac, ETH_ALEN);
 
 	memset(&key_req, 0, sizeof(key_req));
 
@@ -167,7 +161,7 @@ static int send_key(struct context *ctx, const char *npw,
 		key_req.peks_payload = DST_STA_DAK;
 	}
 
-	memcpy(key_req.rdra, to, ETH_ALEN);
+	memcpy(key_req.rdra, mac, ETH_ALEN);
 
 	return send_vendor_pkt(ctx, to, HPAV_MMTYPE_SET_KEY_REQ,
 				&key_req, sizeof(key_req));
@@ -213,6 +207,12 @@ static int read_key_confirm(struct context *ctx)
 	return 0;
 }
 
+static int send_reset(struct context *ctx, uint8_t *mac)
+{
+	return send_vendor_pkt(ctx, mac, HPAV_MMTYPE_RS_DEV_REQ,
+					NULL, 0);
+}
+
 static int generate_passphrase(struct context *ctx,
 				const char *npw, const char *dpw)
 {
@@ -250,6 +250,7 @@ static void usage(void)
 			"-d:	DPW passphrase\n"
 			"-p:	same as -n (deprecated)\n"
 			"-a:	device MAC address\n"
+			"-r:	send a device reset\n"
 			"-k:	hash only\n");
 }
 
@@ -263,10 +264,12 @@ int main(int argc, char **argv)
 	const char *iface = NULL;
 	struct context ctx;
 	unsigned int hash_only = 0;
+	unsigned int reset_device = 0;
+	uint8_t mac[ETH_ALEN] = { 0 };
 
 	memset(&ctx, 0, sizeof(ctx));
 
-	while ((opt = getopt(argc, argv, "n:d:p:a:i:kh")) > 0) {
+	while ((opt = getopt(argc, argv, "n:d:p:a:i:krh")) > 0) {
 		switch (opt) {
 		case 'n':
 		case 'p':
@@ -283,6 +286,9 @@ int main(int argc, char **argv)
 			break;
 		case 'k':
 			hash_only = 1;
+			break;
+		case 'r':
+			reset_device = 1;
 			break;
 		case 'h':
 		default:
@@ -308,7 +314,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	fprintf(stdout, "NPW: %s\n", npw);
 	if (mac_address)
 		fprintf(stdout, "MAC: %s\n", mac_address);
 	else
@@ -321,7 +326,23 @@ int main(int argc, char **argv)
 		return ret;
 	}
 
-	ret = send_key(&ctx, npw, dpw, mac_address);
+	if (mac_address)
+		sscanf(mac_address,
+			"%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8"",
+			&mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
+	else
+		memcpy(mac, bcast_hpav_mac, sizeof(bcast_hpav_mac));
+
+	if (reset_device) {
+		ret = send_reset(&ctx, mac);
+		if (ret)
+			fprintf(stdout, "failed to send reset\n");
+
+		return ret;
+	}
+
+	fprintf(stdout, "NPW: %s\n", npw);
+	ret = send_key(&ctx, npw, dpw, mac);
 	if (ret) {
 		fprintf(stdout, "failed to send key\n");
 		return ret;
