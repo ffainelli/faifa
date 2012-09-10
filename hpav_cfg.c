@@ -145,7 +145,6 @@ static int send_key(struct context *ctx, const char *npw,
 {
 	struct set_encryption_key_request key_req;
 	uint8_t key[16];
-	uint8_t to[ETH_ALEN];
 
 	memset(&key_req, 0, sizeof(key_req));
 
@@ -163,7 +162,7 @@ static int send_key(struct context *ctx, const char *npw,
 
 	memcpy(key_req.rdra, mac, ETH_ALEN);
 
-	return send_vendor_pkt(ctx, to, HPAV_MMTYPE_SET_KEY_REQ,
+	return send_vendor_pkt(ctx, mac, HPAV_MMTYPE_SET_KEY_REQ,
 				&key_req, sizeof(key_req));
 }
 
