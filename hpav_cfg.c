@@ -313,24 +313,27 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (mac_address)
-		fprintf(stdout, "MAC: %s\n", mac_address);
-	else
-		fprintf(stdout, "MAC: using broadcast HPAV\n");
 	fprintf(stdout, "Interface: %s\n", iface);
+
+	if (mac_address) {
+		ret = sscanf(mac_address,
+			"%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8"",
+			&mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
+		if (ret != ETH_ALEN) {
+			fprintf(stdout, "invalid MAC address\n");
+			return ret;
+		}
+		fprintf(stdout, "MAC: %s\n", mac_address);
+	} else {
+		memcpy(mac, bcast_hpav_mac, sizeof(bcast_hpav_mac));
+		fprintf(stdout, "MAC: using broadcast HPAV\n");
+	}
 
 	ret = init_socket(&ctx, iface);
 	if (ret) {
 		fprintf(stdout, "failed to initialize raw socket\n");
 		return ret;
 	}
-
-	if (mac_address)
-		sscanf(mac_address,
-			"%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8"",
-			&mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
-	else
-		memcpy(mac, bcast_hpav_mac, sizeof(bcast_hpav_mac));
 
 	if (reset_device) {
 		ret = send_reset(&ctx, mac);
