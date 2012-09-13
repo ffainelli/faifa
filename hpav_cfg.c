@@ -166,7 +166,7 @@ static int send_key(struct context *ctx, const char *npw,
 				&key_req, sizeof(key_req));
 }
 
-static int read_key_confirm(struct context *ctx)
+static int read_key_confirm(struct context *ctx, const uint8_t mac[ETH_ALEN])
 {
 	uint8_t frame[ETH_DATA_LEN];
 	ssize_t len;
@@ -174,6 +174,7 @@ static int read_key_confirm(struct context *ctx)
 	struct sockaddr_ll ll;
 	struct hpav_frame *hpav_frame;
 	uint8_t status;
+	uint8_t *from;
 
 	sk_len = sizeof(ll);
 	len = recvfrom(ctx->sock_fd, frame, sizeof(frame), 0,
@@ -182,6 +183,17 @@ static int read_key_confirm(struct context *ctx)
 		if (errno != EAGAIN)
 			perror("recvfrom");
 		return len;
+	}
+
+	from = ll.sll_addr;
+
+	/* destination MAC is different from broadcast HomePlug AV MAC
+	 * and source MAC is different form destination MAC
+	 */
+	if (memcmp(mac, bcast_hpav_mac, ETH_ALEN) &&
+	    memcmp(mac, from, ETH_ALEN)) {
+		fprintf(stderr, "spurious reply from another station\n");
+		return 1;
 	}
 
 	hpav_frame = (struct hpav_frame *)frame;
@@ -358,7 +370,7 @@ int main(int argc, char **argv)
 	/* catch answer or timeout */
 	alarm(3);
 
-	ret = read_key_confirm(&ctx);
+	ret = read_key_confirm(&ctx, mac);
 
 	return ret;
 }
