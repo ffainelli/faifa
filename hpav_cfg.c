@@ -327,7 +327,7 @@ int main(int argc, char **argv)
 
 	if (mac_address)
 		sscanf(mac_address,
-			"%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8":%"SCNu8"",
+			"%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8"",
 			&mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
 	else
 		memcpy(mac, bcast_hpav_mac, sizeof(bcast_hpav_mac));
