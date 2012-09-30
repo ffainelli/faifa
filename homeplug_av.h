@@ -869,8 +869,6 @@ struct carrier {
 	u_int8_t	mod_carrier_hi:4;
 } __attribute__((__packed__));
 
-#define MAX_CARRIERS	(1156 / 2)
-
 /* A070 - Tone Map Characteristics Request */
 struct get_tone_map_charac_request {
 	u_int8_t	macaddr[6];
@@ -883,7 +881,7 @@ struct get_tone_map_charac_confirm {
 	u_int8_t	tmslot;
 	u_int8_t	num_tms;
 	u_int16_t	tm_num_act_carrier;
-	struct carrier	carriers[MAX_CARRIERS];
+	struct carrier	carriers[0];
 } __attribute__((__packed__));
 
 

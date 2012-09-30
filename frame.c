@@ -881,11 +881,11 @@ static int hpav_dump_get_tone_map_charac_confirm(void *buf, int len, struct ethe
 	}
 	faifa_printf(out_stream, "Tone map slot: %02d\n", (short unsigned int)(mm->tmslot));
 	faifa_printf(out_stream, "Number of tone map: %02d\n", (short unsigned int)(mm->num_tms));
-	faifa_printf(out_stream, "Tone map number of activer carriers: %d\n", (unsigned int)(mm->tm_num_act_carrier));
+	faifa_printf(out_stream, "Tone map number of active carriers: %d\n", (unsigned int)(mm->tm_num_act_carrier));
 
 	memset(&stats, 0, sizeof(stats));
 
-	for (i = 0; i < MAX_CARRIERS; i++) {
+	for (i = 0; i < mm->tm_num_act_carrier / 2; i++) {
 		faifa_printf(out_stream, "Modulation for carrier: %d : %s\n", i, get_carrier_modulation_str(mm->carriers[i].mod_carrier_lo, &stats));
 		faifa_printf(out_stream, "Modulation for carrier: %d : %s\n", i + 1, get_carrier_modulation_str(mm->carriers[i].mod_carrier_hi, &stats));
 	}
