@@ -865,6 +865,7 @@ static int hpav_dump_get_tone_map_charac_confirm(void *buf, int len, struct ethe
 	int i;
 	struct get_tone_map_charac_confirm *mm = buf;
 	struct modulation_stats stats;
+	uint16_t max_carriers;
 
 	switch (mm->mstatus) {
 	case 0x00:
@@ -885,7 +886,11 @@ static int hpav_dump_get_tone_map_charac_confirm(void *buf, int len, struct ethe
 
 	memset(&stats, 0, sizeof(stats));
 
-	for (i = 0; i < mm->tm_num_act_carrier / 2; i++) {
+	max_carriers = mm->tm_num_act_carrier / 2;
+	if (mm->tm_num_act_carrier & 1)
+		max_carriers += 1;
+
+	for (i = 0; i < max_carriers; i++) {
 		faifa_printf(out_stream, "Modulation for carrier: %d : %s\n", i, get_carrier_modulation_str(mm->carriers[i].mod_carrier_lo, &stats));
 		faifa_printf(out_stream, "Modulation for carrier: %d : %s\n", i + 1, get_carrier_modulation_str(mm->carriers[i].mod_carrier_hi, &stats));
 	}
