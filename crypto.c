@@ -67,7 +67,7 @@ void init_salted_secret(struct salted_secret *secret, const unsigned char *isecr
 		if (l > MAX_SECRET_SIZ)
 			l = MAX_SECRET_SIZ;
 
-		memcpy(secret->value, (unsigned char *)isecret, l);
+		memcpy(secret->value, isecret, l);
 	}
 
 	if (!isalt)
@@ -118,13 +118,13 @@ const unsigned char* hash_hpav(const unsigned char* isecret, const unsigned char
 
 int gen_passphrase(const char *password, u_int8_t *key, const unsigned char *salt)
 {
-	unsigned char password_cpy[MAX_SECRET_SIZ + 1];
+	u_int8_t password_cpy[MAX_SECRET_SIZ + 1];
 	const unsigned char *password_hash;
 
 	/* Use a local variable to store the input password */
-	memcpy((unsigned char *)password_cpy, password, MAX_SECRET_SIZ);
+	memcpy(password_cpy, password, MAX_SECRET_SIZ);
 
-	password_hash = (const unsigned char *)malloc(HASH_SIZ);
+	password_hash = malloc(HASH_SIZ);
 	if (!password_hash) {
 		perror("malloc");
 		return -1;

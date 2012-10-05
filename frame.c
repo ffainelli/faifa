@@ -46,6 +46,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "faifa.h"
 #include "faifa_compat.h"
@@ -151,9 +152,9 @@ static int hpav_init_write_mac_memory_request(void *buf, int len, void *UNUSED(b
 	struct write_mac_memory_request *mm = buf;
 
 	faifa_printf(out_stream, "Address? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->address));
+	fscanf(in_stream, "%8x", &(mm->address));
 	faifa_printf(out_stream, "Length? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->length));
+	fscanf(in_stream, "%8x", &(mm->length));
 	avail -= sizeof(*mm);
 	faifa_printf(out_stream, "Data?\n");
 	avail -= init_hex(mm->data, mm->length);
@@ -161,7 +162,7 @@ static int hpav_init_write_mac_memory_request(void *buf, int len, void *UNUSED(b
 	return (len - avail);
 }
 
-static const char *int6x00_device_id_str(uint8_t device_id)
+static const char *int6x00_device_id_str(u_int8_t device_id)
 {
 	switch (device_id) {
 	case INT6000_DEVICE_ID:
@@ -180,10 +181,10 @@ static int hpav_dump_get_device_sw_version_confirm(void *buf, int len, struct et
 	int avail = len;
 	struct get_device_sw_version_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
-	faifa_printf(out_stream, "Device ID: %s, Version: %s, upgradeable: %d\n",
+	faifa_printf(out_stream, "Status: %s\n", mm->mstatus ? "Failure" : "Success");
+	faifa_printf(out_stream, "Device ID: %s, Version: %s, upgradeable: %hhd\n",
 		int6x00_device_id_str(mm->device_id),
-		(char *)(mm->version), (int)(mm->upgradeable));
+		(char *)(mm->version), mm->upgradeable);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -194,8 +195,8 @@ static int hpav_dump_write_mac_memory_request(void *buf, int len,  struct ether_
 	int avail = len;
 	struct write_mac_memory_request *mm = buf;
 
-	faifa_printf(out_stream, "Address: 0x%08lx\n", (long unsigned int)(mm->address));
-	faifa_printf(out_stream, "Length: 0x%08lx\n", (long unsigned int)(mm->length));
+	faifa_printf(out_stream, "Address: 0x%08x\n", mm->address);
+	faifa_printf(out_stream, "Length: 0x%08x\n", mm->length);
 	avail -= sizeof(*mm);
 	faifa_printf(out_stream, "Data: ");
 	avail -= dump_hex(mm->data, mm->length, " ");
@@ -222,8 +223,8 @@ static int hpav_dump_write_mac_memory_confirm(void *buf, int len, struct ether_h
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Address: 0x%08lx\n", (long unsigned int)(mm->address));
-	faifa_printf(out_stream, "Length: 0x%08lx\n", (long unsigned int)(mm->length));
+	faifa_printf(out_stream, "Address: 0x%08x\n", mm->address);
+	faifa_printf(out_stream, "Length: 0x%08x\n", mm->length);
 out:
 	avail -= sizeof(*mm);
 
@@ -236,9 +237,9 @@ static int hpav_init_read_mac_memory_request(void *buf, int len, void *UNUSED(bu
 	struct read_mac_memory_request *mm = buf;
 
 	faifa_printf(out_stream, "Address? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->address));
+	fscanf(in_stream, "%8x", &(mm->address));
 	faifa_printf(out_stream, "Length? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->length));
+	fscanf(in_stream, "%8x", &(mm->length));
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -249,8 +250,8 @@ static int hpav_dump_read_mac_memory_request(void *buf, int len, struct ether_he
 	int avail = len;
 	struct read_mac_memory_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Address: 0x%08lx\n", (long unsigned int)(mm->address));
-	faifa_printf(out_stream, "Length: %lu (0x%08lx)\n", (long unsigned int)(mm->length), (long unsigned int)(mm->length));
+	faifa_printf(out_stream, "Address: 0x%08x\n", mm->address);
+	faifa_printf(out_stream, "Length: %u (0x%08x)\n", mm->length, mm->length);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -274,8 +275,8 @@ static int hpav_dump_read_mac_memory_confirm(void *buf, int len, struct ether_he
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Address: 0x%08lx\n", (long unsigned int)(mm->address));
-	faifa_printf(out_stream, "Length: %lu (0x%08lx)\n", (long unsigned int)(mm->length), (long unsigned int)(mm->length));
+	faifa_printf(out_stream, "Address: 0x%08x\n", mm->address);
+	faifa_printf(out_stream, "Length: %u (0x%08x)\n", mm->length, mm->length);
 	faifa_printf(out_stream, "Data: ");
 	avail -= dump_hex(mm->data, mm->length, " ");
 	faifa_printf(out_stream, "\n");
@@ -329,11 +330,13 @@ static const char *get_signal_level_str(u_int8_t sig_level)
 
 static void dump_cc_sta_info(struct cc_sta_info *sta_info)
 {
-	faifa_printf(out_stream, "MAC address: "); dump_hex(sta_info->macaddr, 6, ":"); faifa_printf(out_stream, "\n");
+	faifa_printf(out_stream, "MAC address: ");
+	dump_hex(sta_info->macaddr, ETHER_ADDR_LEN, ":");
+	faifa_printf(out_stream, "\n");
 	faifa_printf(out_stream, "TEI: %d\n", sta_info->tei);
 	faifa_printf(out_stream, "Same network: %s\n", sta_info->same_network ? "Yes" : "No");
 	faifa_printf(out_stream, "SNID: %d\n", sta_info->snid);
-	faifa_printf(out_stream, "CCo caps: %02hx\n", (short unsigned int)(sta_info->cco_cap));
+	faifa_printf(out_stream, "CCo caps: %02hhx\n", sta_info->cco_cap);
 	faifa_printf(out_stream, "Signal Level: %s\n", get_signal_level_str(sta_info->sig_level));
 }
 
@@ -364,7 +367,7 @@ static void dump_cc_net_info(struct cc_net_info *net_info)
 	faifa_printf(out_stream, "Hybrid mode: %d\n", net_info->hybrid_mode);
 	faifa_printf(out_stream, "Number of BCN slots: %d\n", net_info->num_bcn_slots);
 	faifa_printf(out_stream, "CCo status: %s\n", get_cco_status_str(net_info->cco_status));
-	faifa_printf(out_stream, "Beacon offset: %04hx\n", (unsigned int)(net_info->bcn_offset));
+	faifa_printf(out_stream, "Beacon offset: %04hx\n", net_info->bcn_offset);
 }
 
 static int hpav_dump_cc_discover_list_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
@@ -398,15 +401,15 @@ static int hpav_init_start_mac_request(void *buf, int len, void *UNUSED(buffer))
 	struct start_mac_request *mm = buf;
 
 	faifa_printf(out_stream, "Module ID? ");
-	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
+	fscanf(in_stream, "%2hhx", &(mm->module_id));
 	faifa_printf(out_stream, "Image load address? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->image_load));
+	fscanf(in_stream, "%8x", &(mm->image_load));
 	faifa_printf(out_stream, "Image length? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->image_length));
+	fscanf(in_stream, "%8x", &(mm->image_length));
 	faifa_printf(out_stream, "Image checksum? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->image_chksum));
+	fscanf(in_stream, "%8x", &(mm->image_chksum));
 	faifa_printf(out_stream, "Image start address? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->image_saddr));
+	fscanf(in_stream, "%8x", &(mm->image_saddr));
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -417,11 +420,11 @@ static int hpav_dump_start_mac_request(void *buf, int len, struct ether_header *
 	int avail = len;
 	struct start_mac_request *mm = buf;
 
-	faifa_printf(out_stream, "Module ID: %02hx\n", (short unsigned int)(mm->module_id));
-	faifa_printf(out_stream, "Image load address: %08lx\n", (long unsigned int)(mm->image_load));
-	faifa_printf(out_stream, "Image length: %lu (0x%08lx)\n", (long unsigned int)(mm->image_length), (long unsigned int)(mm->image_length));
-	faifa_printf(out_stream, "Image checksum: %08lx\n", (long unsigned int)(mm->image_chksum));
-	faifa_printf(out_stream, "Image start address: %08lx\n", (long unsigned int)(mm->image_saddr));
+	faifa_printf(out_stream, "Module ID: %02hhx\n", mm->module_id);
+	faifa_printf(out_stream, "Image load address: %08x\n", mm->image_load);
+	faifa_printf(out_stream, "Image length: %u (0x%08x)\n", mm->image_length, mm->image_length);
+	faifa_printf(out_stream, "Image checksum: %08x\n", mm->image_chksum);
+	faifa_printf(out_stream, "Image start address: %08x\n", mm->image_saddr);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -457,7 +460,7 @@ static int hpav_dump_start_mac_confirm(void *buf, int len, struct ether_header *
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Module ID: %02hx\n", (short unsigned int)(mm->module_id));
+	faifa_printf(out_stream, "Module ID: %02hhx\n", mm->module_id);
 out:
 	avail -= sizeof(*mm);
 
@@ -469,11 +472,11 @@ static int hpav_dump_nvram_params_confirm(void *buf, int len, struct ether_heade
 	int avail = len;
 	struct get_nvm_parameters_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "NVRAM not present" : "Success");
-	faifa_printf(out_stream, "Manufacturer code: %08lx\n", (long unsigned int)(mm->manuf_code));
-	faifa_printf(out_stream, "Page size: %lu (0x%08lx)\n", (long unsigned int)(mm->page_size), (long unsigned int)(mm->page_size));
-	faifa_printf(out_stream, "Block size: %lu (0x%08lx)\n", (long unsigned int)(mm->block_size), (long unsigned int)(mm->block_size));
-	faifa_printf(out_stream, "Memory size: %lu (0x%08lx)\n", (long unsigned int)(mm->mem_size), (long unsigned int)(mm->mem_size));
+	faifa_printf(out_stream, "Status: %s\n", mm->mstatus ? "NVRAM not present" : "Success");
+	faifa_printf(out_stream, "Manufacturer code: %08x\n", mm->manuf_code);
+	faifa_printf(out_stream, "Page size: %u (0x%08x)\n", mm->page_size, mm->page_size);
+	faifa_printf(out_stream, "Block size: %u (0x%08x)\n", mm->block_size, mm->block_size);
+	faifa_printf(out_stream, "Memory size: %u (0x%08x)\n", mm->mem_size, mm->mem_size);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -484,7 +487,7 @@ static int hpav_dump_reset_device_confirm(void *buf, int len, struct ether_heade
 	int avail = len;
 	struct reset_device_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status : %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
+	faifa_printf(out_stream, "Status : %s\n", mm->mstatus ? "Failure" : "Success");
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -501,9 +504,9 @@ static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer)
 	uint32_t crc32;
 
 	faifa_printf(out_stream, "Module ID? ");
-	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
+	fscanf(in_stream, "%2hhx", &(mm->module_id));
 	faifa_printf(out_stream, "Offset? ");
-	fscanf(in_stream, "%8lx", (long unsigned int *)&(mm->offset));
+	fscanf(in_stream, "%8x", &(mm->offset));
 	faifa_printf(out_stream, "Firmware file? ");
 	fscanf(in_stream, "%s", (char *)filename);
 	fp = fopen(filename, "rb");
@@ -527,7 +530,7 @@ static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer)
 		avail = -1;
 		goto out;
 	}
-	fread(buffer, size, 1, fp); 
+	fread(buffer, size, 1, fp);
 	/* Compute crc on the file */
 	crc32 = crc32buf(buffer, size);
 	memcpy(&(mm->data), buffer, size);
@@ -571,8 +574,8 @@ static int hpav_dump_write_mod_data_confirm(void *buf, int len, struct ether_hea
 	default:
 		break;
 	}
-	faifa_printf(out_stream, "Length: %d\n", (unsigned int)(mm->length));
-	faifa_printf(out_stream, "Offset: %08lx\n", (long unsigned int)(mm->offset));
+	faifa_printf(out_stream, "Length: %d\n", mm->length);
+	faifa_printf(out_stream, "Offset: %08x\n", mm->offset);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -584,11 +587,11 @@ static int hpav_init_read_mod_data_request(void *buf, int len, void *UNUSED(buff
 	struct read_mod_data_request *mm = buf;
 
 	faifa_printf(out_stream, "Module ID? ");
-	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->module_id));
+	fscanf(in_stream, "%2hhx", &(mm->module_id));
 	faifa_printf(out_stream, "Length? ");
-	fscanf(in_stream, "%d", (int *)&(mm->length));
+	fscanf(in_stream, "%hu", &(mm->length));
 	faifa_printf(out_stream, "Offset? ");
-	fscanf(in_stream, "%d", (int *)&(mm->offset));
+	fscanf(in_stream, "%u", &(mm->offset));
 
 	avail -= sizeof(*mm);
 	return (len - avail);
@@ -599,11 +602,11 @@ static int hpav_dump_read_mod_data_confirm(void *buf, int len, struct ether_head
 	int avail = len;
 	struct read_mod_data_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
-	faifa_printf(out_stream, "Module ID: 0x%02x\n", (short unsigned int)(mm->module_id));
-	faifa_printf(out_stream, "Length: %d\n", (short unsigned int)(mm->length));
-	faifa_printf(out_stream, "Offset: 0x%08x\n", (unsigned int)(mm->offset));
-	faifa_printf(out_stream, "Checksum: 0x%08x\n", (unsigned int)(mm->checksum));
+	faifa_printf(out_stream, "Status: %s\n", mm->mstatus ? "Failure" : "Success");
+	faifa_printf(out_stream, "Module ID: 0x%02hhx\n", mm->module_id);
+	faifa_printf(out_stream, "Length: %d\n", mm->length);
+	faifa_printf(out_stream, "Offset: 0x%08x\n", mm->offset);
+	faifa_printf(out_stream, "Checksum: 0x%08x\n", mm->checksum);
 	faifa_printf(out_stream, "Data:\n");
 	dump_hex(mm->data + mm->offset, (unsigned int)(mm->length), " ");
 
@@ -617,8 +620,8 @@ static int hpav_dump_get_manuf_string_confirm(void *buf, int len, struct ether_h
 	int avail = len;
 	struct get_manuf_string_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->status) ? "Failure" : "Success");
-	faifa_printf(out_stream, "Length: %d (0x%02hx)\n", (short unsigned int)(mm->length), (short unsigned int)(mm->length));
+	faifa_printf(out_stream, "Status: %s\n", mm->status ? "Failure" : "Success");
+	faifa_printf(out_stream, "Length: %hhd (0x%02hhx)\n", mm->length, mm->length);
 	faifa_printf(out_stream, "Manufacturer string: %s\n", (char *)(mm->data));
 	avail -= sizeof(*mm);
 
@@ -627,25 +630,25 @@ static int hpav_dump_get_manuf_string_confirm(void *buf, int len, struct ether_h
 
 static void dump_conf_block(struct block_header *hdr)
 {
-	faifa_printf(out_stream, "Version: %08lx\n", (long unsigned int)(hdr->version));
-	faifa_printf(out_stream, "Image address in NVRAM: 0x%08lx\n", (long unsigned int)(hdr->img_rom_addr));
-	faifa_printf(out_stream, "Image address in SDRAM: 0x%08lx\n", (long unsigned int)(hdr->img_sdram_addr));
-	faifa_printf(out_stream, "Image length: %lu (0x%08lx)\n", (long unsigned int)(hdr->img_length), (long unsigned int)(hdr->img_length));
-	faifa_printf(out_stream, "Image checksum: %08lx\n", (long unsigned int)(hdr->img_checksum));
-	faifa_printf(out_stream, "Image SDRAM entry point: 0x%08lx\n", (long unsigned int)(hdr->entry_point));
-	faifa_printf(out_stream, "Address of next header: 0x%08lx\n", (long unsigned int)(hdr->next_header));
-	faifa_printf(out_stream, "Header checksum: 0x%08lx\n", (long unsigned int)(hdr->hdr_checksum));
+	faifa_printf(out_stream, "Version: %08x\n", hdr->version);
+	faifa_printf(out_stream, "Image address in NVRAM: 0x%08x\n", hdr->img_rom_addr);
+	faifa_printf(out_stream, "Image address in SDRAM: 0x%08x\n", hdr->img_sdram_addr);
+	faifa_printf(out_stream, "Image length: %u (0x%08x)\n", hdr->img_length, hdr->img_length);
+	faifa_printf(out_stream, "Image checksum: %08x\n", hdr->img_checksum);
+	faifa_printf(out_stream, "Image SDRAM entry point: 0x%08x\n", hdr->entry_point);
+	faifa_printf(out_stream, "Address of next header: 0x%08x\n", hdr->next_header);
+	faifa_printf(out_stream, "Header checksum: 0x%08x\n", hdr->hdr_checksum);
 }
 
 static void dump_sdram_block(struct sdram_config *config)
 {
-	faifa_printf(out_stream, "Size : %lu (0x%08lx)\n", (long unsigned int)(config->size), (long unsigned int)(config->size));
-	faifa_printf(out_stream, "Configuration reg: 0x%08lx\n", (long unsigned int)(config->conf_reg));
-	faifa_printf(out_stream, "Timing reg0: 0x%08lx\n", (long unsigned int)(config->timing0));
-	faifa_printf(out_stream, "Timing reg1: 0x%08lx\n", (long unsigned int)(config->timing1));
-	faifa_printf(out_stream, "Control reg: 0x%08lx\n", (long unsigned int)(config->ctl_reg));	
-	faifa_printf(out_stream, "Refresh reg: 0x%08lx\n", (long unsigned int)(config->ref_reg));
-	faifa_printf(out_stream, "MAC clock reg : %lu (0x%08lx)\n", (long unsigned int)(config->clk_reg_val), (long unsigned int)(config->clk_reg_val));
+	faifa_printf(out_stream, "Size : %u (0x%08x)\n", config->size, config->size);
+	faifa_printf(out_stream, "Configuration reg: 0x%08x\n", config->conf_reg);
+	faifa_printf(out_stream, "Timing reg0: 0x%08x\n", config->timing0);
+	faifa_printf(out_stream, "Timing reg1: 0x%08x\n", config->timing1);
+	faifa_printf(out_stream, "Control reg: 0x%08x\n", config->ctl_reg);
+	faifa_printf(out_stream, "Refresh reg: 0x%08x\n", config->ref_reg);
+	faifa_printf(out_stream, "MAC clock reg : %u (0x%08x)\n", config->clk_reg_val, config->clk_reg_val);
 }
 
 static int hpav_dump_read_config_block_confirm(void *buf, int len, struct ether_header *UNUSED(hdr))
@@ -666,7 +669,7 @@ static int hpav_dump_read_config_block_confirm(void *buf, int len, struct ether_
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Config length: %d\n", (short unsigned int)(mm->config_length));
+	faifa_printf(out_stream, "Config length: %d\n", mm->config_length);
 	dump_conf_block(&(mm->hdr));
 	dump_sdram_block(&(mm->config));
 out:
@@ -730,15 +733,15 @@ static int hpav_dump_get_devices_attrs_confirm(void *buf, int len, struct ether_
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Cookie: %lu\n", (long unsigned int)(mm->cookie));
-	faifa_printf(out_stream, "Report type: %s\n", (short unsigned int)(mm->rtype) ? "XML" : "Binary");
-	faifa_printf(out_stream, "Size: %d\n", (unsigned int)(mm->size));
+	faifa_printf(out_stream, "Cookie: %u\n", mm->cookie);
+	faifa_printf(out_stream, "Report type: %s\n", mm->rtype ? "XML" : "Binary");
+	faifa_printf(out_stream, "Size: %d\n", mm->size);
 	faifa_printf(out_stream, "Hardware: %s\n", mm->fmt.hardware);
 	faifa_printf(out_stream, "Software: %s\n", mm->fmt.software);
-	faifa_printf(out_stream, "Major: %lu\n", (long unsigned int)(mm->fmt.major));
-	faifa_printf(out_stream, "Minor: %lu\n", (long unsigned int)(mm->fmt.minor));
-	faifa_printf(out_stream, "Subversion: %lu\n", (long unsigned int)(mm->fmt.subversion));
-	faifa_printf(out_stream, "Build number: %lu\n", (long unsigned int)(mm->fmt.build_number));
+	faifa_printf(out_stream, "Major: %u\n", mm->fmt.major);
+	faifa_printf(out_stream, "Minor: %u\n", mm->fmt.minor);
+	faifa_printf(out_stream, "Subversion: %u\n", mm->fmt.subversion);
+	faifa_printf(out_stream, "Build number: %u\n", mm->fmt.build_number);
 	faifa_printf(out_stream, "Build date: %s\n", mm->fmt.build_date);
 	faifa_printf(out_stream, "Release type: %s\n", mm->fmt.release_type);
 
@@ -763,7 +766,7 @@ static int hpav_dump_get_enet_phy_settings_confirm(void *buf, int len, struct et
 	int avail = len;
 	struct get_enet_phy_settings_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->status) ? "Failure" : "Success");
+	faifa_printf(out_stream, "Status: %s\n", mm->status ? "Failure" : "Success");
 	switch(mm->speed) {
 	case ENET:
 		faifa_printf(out_stream, "Speed: Ethernet (10Mbits)\n");
@@ -775,7 +778,7 @@ static int hpav_dump_get_enet_phy_settings_confirm(void *buf, int len, struct et
 		faifa_printf(out_stream, "Speed : Gigabit Ethernet (1Gbits)\n");
 		break;
 	}
-	faifa_printf(out_stream, "Duplex: %s\n", (short unsigned int)(mm->duplex) ? "Full duplex" : "Half duplex");
+	faifa_printf(out_stream, "Duplex: %s\n", mm->duplex ? "Full duplex" : "Half duplex");
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -784,24 +787,17 @@ static int hpav_dump_get_enet_phy_settings_confirm(void *buf, int len, struct et
 static int hpav_init_get_tone_map_charac_request(void *buf, int len, void *UNUSED(user))
 {
 	int avail = len;
-	short unsigned macaddr[6];
-	int i;
+	u_int8_t macaddr[ETHER_ADDR_LEN];
 	struct get_tone_map_charac_request *mm = buf;
 
 	faifa_printf(out_stream, "Address of peer node?\n");
-	fscanf(in_stream, "%2hx:%2hx:%2hx:%2hx:%2hx:%2hx",
-		(short unsigned int *)&macaddr[0],
-		(short unsigned int *)&macaddr[1],
-		(short unsigned int *)&macaddr[2],
-		(short unsigned int *)&macaddr[3],
-		(short unsigned int *)&macaddr[4],
-		(short unsigned int *)&macaddr[5]);
-
-	for (i = 0; i < 6; i++)
-		mm->macaddr[i] = macaddr[i];
+	fscanf(in_stream, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
+		&macaddr[0], &macaddr[1], &macaddr[2],
+		&macaddr[3], &macaddr[4], &macaddr[5]);
+	memcpy(mm->macaddr, macaddr, ETHER_ADDR_LEN);
 
 	faifa_printf(out_stream, "Tone map slot?\n0 -> slot 0\n1 -> slot 1 ...\n");
-	fscanf(in_stream, "%2hx", (short unsigned int *)&(mm->tmslot));
+	fscanf(in_stream, "%2hhx", &(mm->tmslot));
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -880,9 +876,9 @@ static int hpav_dump_get_tone_map_charac_confirm(void *buf, int len, struct ethe
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Tone map slot: %02d\n", (short unsigned int)(mm->tmslot));
-	faifa_printf(out_stream, "Number of tone map: %02d\n", (short unsigned int)(mm->num_tms));
-	faifa_printf(out_stream, "Tone map number of active carriers: %d\n", (unsigned int)(mm->tm_num_act_carrier));
+	faifa_printf(out_stream, "Tone map slot: %02hhd\n", mm->tmslot);
+	faifa_printf(out_stream, "Number of tone map: %02hhd\n", mm->num_tms);
+	faifa_printf(out_stream, "Tone map number of active carriers: %d\n", mm->tm_num_act_carrier);
 
 	memset(&stats, 0, sizeof(stats));
 
@@ -922,12 +918,12 @@ static int hpav_dump_watchdog_report_indicate(void *buf, int len, struct ether_h
 	int avail = len;
 	struct get_watchdog_report_indicate *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
-	faifa_printf(out_stream, "Session ID: %d\n", (unsigned int)(mm->session_id));
-	faifa_printf(out_stream, "Number of parts: %d\n", (short unsigned int)(mm->num_parts));
-	faifa_printf(out_stream, "Current part: %d\n", (short unsigned int)(mm->cur_part));
-	faifa_printf(out_stream, "Data length: %d\n", (unsigned int)(mm->data_length));
-	faifa_printf(out_stream, "Data offset: 0x%02hx\n", (short unsigned int)(mm->data_offset));
+	faifa_printf(out_stream, "Status: %s\n", mm->mstatus ? "Failure" : "Success");
+	faifa_printf(out_stream, "Session ID: %d\n", mm->session_id);
+	faifa_printf(out_stream, "Number of parts: %d\n", mm->num_parts);
+	faifa_printf(out_stream, "Current part: %d\n", mm->cur_part);
+	faifa_printf(out_stream, "Data length: %d\n", mm->data_length);
+	faifa_printf(out_stream, "Data offset: 0x%02hhx\n", mm->data_offset);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -937,20 +933,19 @@ static int hpav_init_link_stats_request(void *buf, int len, void *UNUSED(user))
 {
 	int avail = len;
 	struct link_statistics_request *mm = buf;
-	short unsigned int link_id;
-	short unsigned int macaddr[6];
-	int i;
+	u_int8_t link_id;
+	u_int8_t macaddr[ETHER_ADDR_LEN];
 	int direction;
 
 	faifa_printf(out_stream, "Direction ?\n0: TX\n1: RX\n2: TX and RX\n");
 	fscanf(in_stream, "%2d", &direction);
 
 	if (direction >= 0 || direction <= 2)
-		mm->direction = (short unsigned int)(direction);
+		mm->direction = direction;
 
 	faifa_printf(out_stream, "Link ID ?\n");
 
-	fscanf(in_stream, "%2hx", &link_id);
+	fscanf(in_stream, "%2hhx", &link_id);
 	switch(link_id) {
 	case HPAV_LID_CSMA_CAP_0:
 	case HPAV_LID_CSMA_CAP_1:
@@ -968,15 +963,10 @@ static int hpav_init_link_stats_request(void *buf, int len, void *UNUSED(user))
 
 	if (link_id != HPAV_LID_CSMA_SUM_ANY) {
 		faifa_printf(out_stream, "Address of peer node?\n");
-		fscanf(in_stream, "%2hx:%2hx:%2hx:%2hx:%2hx:%2hx",
-			(short unsigned int *)&macaddr[0],
-			(short unsigned int *)&macaddr[1],
-			(short unsigned int *)&macaddr[2],
-			(short unsigned int *)&macaddr[3],
-			(short unsigned int *)&macaddr[4],
-			(short unsigned int *)&macaddr[5]);
-		for (i = 0; i < 6; i++)
-			mm->macaddr[i] = macaddr[i];
+		fscanf(in_stream, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+			&macaddr[0], &macaddr[1], &macaddr[2],
+			&macaddr[3], &macaddr[4], &macaddr[5]);
+		memcpy(mm->macaddr, macaddr, ETHER_ADDR_LEN);
 	}
 	avail -= sizeof(*mm);
 
@@ -985,31 +975,36 @@ static int hpav_init_link_stats_request(void *buf, int len, void *UNUSED(user))
 
 static void dump_tx_link_stats(struct tx_link_stats *tx)
 {
-	faifa_printf(out_stream, "MPDU acked......................: %llu\n", (long long unsigned)(tx->mpdu_ack));
-	faifa_printf(out_stream, "MPDU collisions.................: %llu\n", (long long unsigned)(tx->mpdu_coll));
-	faifa_printf(out_stream, "MPDU failures...................: %llu\n", (long long unsigned)(tx->mpdu_fail));
-	faifa_printf(out_stream, "PB transmitted successfully.....: %llu\n", (long long unsigned)(tx->pb_passed));
-	faifa_printf(out_stream, "PB transmitted unsuccessfully...: %llu\n", (long long unsigned)(tx->pb_failed));
+	faifa_printf(out_stream, "MPDU acked......................: %"SCNu64"\n", tx->mpdu_ack);
+	faifa_printf(out_stream, "MPDU collisions.................: %"SCNu64"\n", tx->mpdu_coll);
+	faifa_printf(out_stream, "MPDU failures...................: %"SCNu64"\n", tx->mpdu_fail);
+	faifa_printf(out_stream, "PB transmitted successfully.....: %"SCNu64"\n", tx->pb_passed);
+	faifa_printf(out_stream, "PB transmitted unsuccessfully...: %"SCNu64"\n", tx->pb_failed);
 }
 
 static void dump_rx_link_stats(struct rx_link_stats *rx)
 {
 	int i;
 
-	faifa_printf(out_stream, "MPDU acked......................: %llu\n", (long long unsigned)(rx->mpdu_ack));
-	faifa_printf(out_stream, "MPDU failures...................: %llu\n", (long long unsigned)(rx->mpdu_fail));
-	faifa_printf(out_stream, "PB received successfully........: %llu\n", (long long unsigned)(rx->pb_passed));
-	faifa_printf(out_stream, "PB received unsuccessfully......: %llu\n", (long long unsigned)(rx->pb_failed));
-	faifa_printf(out_stream, "Turbo Bit Errors passed.........: %llu\n", (long long unsigned)(rx->tbe_passed));
-	faifa_printf(out_stream, "Turbo Bit Errors failed.........: %llu\n", (long long unsigned)(rx->tbe_failed));
+	faifa_printf(out_stream, "MPDU acked......................: %"SCNu64"\n", rx->mpdu_ack);
+	faifa_printf(out_stream, "MPDU failures...................: %"SCNu64"\n", rx->mpdu_fail);
+	faifa_printf(out_stream, "PB received successfully........: %"SCNu64"\n", rx->pb_passed);
+	faifa_printf(out_stream, "PB received unsuccessfully......: %"SCNu64"\n", rx->pb_failed);
+	faifa_printf(out_stream, "Turbo Bit Errors passed.........: %"SCNu64"\n", rx->tbe_passed);
+	faifa_printf(out_stream, "Turbo Bit Errors failed.........: %"SCNu64"\n", rx->tbe_failed);
 
 	for (i = 0; i < rx->num_rx_intervals; i++) {
 		faifa_printf(out_stream, "-- Rx interval %d --\n", i);
-		faifa_printf(out_stream, "Rx PHY rate.....................: %02d\n", (short unsigned int)(rx->rx_interval_stats[i].phyrate));
-		faifa_printf(out_stream, "PB received successfully........: %llu\n", (long long unsigned)(rx->rx_interval_stats[i].pb_passed));
-		faifa_printf(out_stream, "PB received failed..............: %llu\n", (long long unsigned)(rx->rx_interval_stats[i].pb_failed));
-		faifa_printf(out_stream, "TBE errors over successfully....: %llu\n", (long long unsigned)(rx->rx_interval_stats[i].tbe_passed));
-		faifa_printf(out_stream, "TBE errors over failed..........: %llu\n", (long long unsigned)(rx->rx_interval_stats[i].tbe_failed));
+		faifa_printf(out_stream, "Rx PHY rate.....................: %02hhd\n",
+				rx->rx_interval_stats[i].phyrate);
+		faifa_printf(out_stream, "PB received successfully........: %"SCNu64"n",
+				rx->rx_interval_stats[i].pb_passed);
+		faifa_printf(out_stream, "PB received failed..............: %"SCNu64"\n",
+				rx->rx_interval_stats[i].pb_failed);
+		faifa_printf(out_stream, "TBE errors over successfully....: %"SCNu64"\n",
+				rx->rx_interval_stats[i].tbe_passed);
+		faifa_printf(out_stream, "TBE errors over failed..........: %"SCNu64"\n",
+				rx->rx_interval_stats[i].tbe_failed);
 	}
 }
 
@@ -1040,8 +1035,8 @@ static int hpav_dump_link_stats_confirm(void *buf, int len, struct ether_header 
 		break;
 	}
 
-	faifa_printf(out_stream, "Link ID: %02hx\n", (short unsigned int)(mm->link_id));
-	faifa_printf(out_stream, "TEI: %02hx\n", (short unsigned int)(mm->tei));
+	faifa_printf(out_stream, "Link ID: %02hhx\n", mm->link_id);
+	faifa_printf(out_stream, "TEI: %02hhx\n", mm->tei);
 
 	switch (mm->direction) {
 	case HPAV_SD_TX:
@@ -1116,7 +1111,7 @@ static int hpav_dump_sniffer_request(void *buf, int len, struct ether_header *UN
 	int avail = len;
 	struct sniffer_request *mm = buf;
 
-	faifa_printf(out_stream, "Sniffer mode : 0x%02hx (%s)\n", mm->control, get_sniffer_control_str(mm->control));
+	faifa_printf(out_stream, "Sniffer mode : 0x%02hhx (%s)\n", mm->control, get_sniffer_control_str(mm->control));
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1142,8 +1137,8 @@ static int hpav_dump_sniffer_confirm(void *buf, int len, struct ether_header *UN
 	int avail = len;
 	struct sniffer_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: 0x%02hx\n", mm->mstatus);
-	faifa_printf(out_stream, "Sniffer State: 0x%02hx (%s)\n", mm->state, get_sniffer_state_str(mm->state));
+	faifa_printf(out_stream, "Status: 0x%02hhx\n", mm->mstatus);
+	faifa_printf(out_stream, "Sniffer State: 0x%02hhx (%s)\n", mm->state, get_sniffer_state_str(mm->state));
 	avail -= sizeof(*mm);
 	faifa_printf(out_stream, "Destination MAC Address: ");
 	avail -= dump_hex(mm->da, sizeof(mm->da), ":");
@@ -1158,59 +1153,55 @@ static void dump_hpav_frame_ctl(struct hpav_fc *fc)
 {
 	u_int8_t rg_len;
 
-	faifa_printf(out_stream, "Delimiter type: %1hx\n", (short unsigned int)(fc->del_type));
+	faifa_printf(out_stream, "Delimiter type: %1hhx\n", fc->del_type);
 	faifa_printf(out_stream, "Access: %s\n", fc->access ? "Yes" : "No");
-	faifa_printf(out_stream, "SNID: %1hx\n", (short unsigned int)(fc->snid));
-	faifa_printf(out_stream, "STEI: %02hx\n", (short unsigned int)(fc->stei));
-	faifa_printf(out_stream, "DTEI: %02hx\n", (short unsigned int)(fc->dtei));
-	faifa_printf(out_stream, "Link ID: %02hx\n", (short unsigned int)(fc->lid));
+	faifa_printf(out_stream, "SNID: %1hhx\n", fc->snid);
+	faifa_printf(out_stream, "STEI: %02hhx\n", fc->stei);
+	faifa_printf(out_stream, "DTEI: %02hhx\n", fc->dtei);
+	faifa_printf(out_stream, "Link ID: %02hhx\n", fc->lid);
 	faifa_printf(out_stream, "Contention free session: %s\n", fc->cfs ? "Yes" : "No");
 	faifa_printf(out_stream, "Beacon detect flag: %s\n", fc->bdf ? "Yes" : "No");
 	faifa_printf(out_stream, "HPAV version 1.0: %s\n", fc->hp10df ? "Yes" : "No");
 	faifa_printf(out_stream, "HPAV version 1.1: %s\n", fc->hp11df ? "Yes" : "No");
-	faifa_printf(out_stream, "EKS: %1hx\n", (short unsigned int)(fc->eks));
-	faifa_printf(out_stream, "Pending PHY blocks: %02hx\n", (short unsigned int)(fc->ppb));
-	faifa_printf(out_stream, "Bit loading estimate: %02hx\n", (short unsigned int)(fc->ble));
+	faifa_printf(out_stream, "EKS: %1hhx\n", fc->eks);
+	faifa_printf(out_stream, "Pending PHY blocks: %02hhx\n", fc->ppb);
+	faifa_printf(out_stream, "Bit loading estimate: %02hhx\n", fc->ble);
 	faifa_printf(out_stream, "PHY block size: %s\n", fc->pbsz ? "Yes" : "No");
-	faifa_printf(out_stream, "Number of symbols: %1hx\n", (short unsigned int)(fc->num_sym));
-	faifa_printf(out_stream, "Tonemap index: %1hx\n", (short unsigned int)(fc->tmi_av));
-	faifa_printf(out_stream, "HPAV frame length: %3hx\n", (short unsigned int)(fc->fl_av));
-	faifa_printf(out_stream, "MPDU count: %1hx\n", (short unsigned int)(fc->mpdu_cnt));
-	faifa_printf(out_stream, "Burst count: %1hx\n", (short unsigned int)(fc->burst_cnt));
-	faifa_printf(out_stream, "Convergence layer SAP type: %1hx\n", (short unsigned int)(fc->clst));
+	faifa_printf(out_stream, "Number of symbols: %1hhx\n", fc->num_sym);
+	faifa_printf(out_stream, "Tonemap index: %1hhx\n", fc->tmi_av);
+	faifa_printf(out_stream, "HPAV frame length: %3hx\n", fc->fl_av);
+	faifa_printf(out_stream, "MPDU count: %1hhx\n", fc->mpdu_cnt);
+	faifa_printf(out_stream, "Burst count: %1hhx\n", fc->burst_cnt);
+	faifa_printf(out_stream, "Convergence layer SAP type: %1hhx\n", fc->clst);
 	rg_len = (fc->rg_len_hi << 5) | fc->rg_len_lo;
-	faifa_printf(out_stream, "Reverse Grant length: %2hx\n", (short unsigned int)(rg_len));
-	faifa_printf(out_stream, "Management MAC Frame Stream Command: %1hx\n", (short unsigned int)(fc->mfs_cmd_mgmt));
-	faifa_printf(out_stream, "Data MAC Frame Stream Command: %1hx\n", (short unsigned int)(fc->mfs_cmd_data));
+	faifa_printf(out_stream, "Reverse Grant length: %2hhd\n", rg_len);
+	faifa_printf(out_stream, "Management MAC Frame Stream Command: %1hhx\n", fc->mfs_cmd_mgmt);
+	faifa_printf(out_stream, "Data MAC Frame Stream Command: %1hhx\n", fc->mfs_cmd_data);
 	faifa_printf(out_stream, "Request SACK Retransmission: %s\n", fc->rsr ? "Yes" : "No");
 	faifa_printf(out_stream, "Multicast: %s\n", fc->mcf ? "Yes" : "No");
 	faifa_printf(out_stream, "Different CP PHY Clock: %s\n", fc->mcf ? "Yes" : "No");
 	faifa_printf(out_stream, "Multinetwork Broadcast: %s\n", fc->mnbf ? "Yes" : "No");
-	faifa_printf(out_stream, "Frame control check sequence: %2hx%2hx%2hx\n",
-		(unsigned int)(fc->fccs_av[0]),
-		(unsigned int)(fc->fccs_av[1]),
-		(unsigned int)(fc->fccs_av[2]));
+	faifa_printf(out_stream, "Frame control check sequence: 0x%2hhx%2hhx%2hhx\n",
+		fc->fccs_av[0], fc->fccs_av[1], fc->fccs_av[2]);
 }
 
 static void dump_hpav_beacon(struct hpav_bcn *bcn)
 {
-	faifa_printf(out_stream, "Delimiter type: %1hx\n", bcn->del_type);
+	faifa_printf(out_stream, "Delimiter type: %1hhx\n", bcn->del_type);
 	faifa_printf(out_stream, "Access: %s\n", bcn->access ? "Yes" : "No");
-	faifa_printf(out_stream, "SNID: %1hx\n", bcn->snid);
-	faifa_printf(out_stream, "Beacon timestamp: %lu (0x%08lx)\n", 
-		(long unsigned int)(bcn->bts), (long unsigned int)(bcn->bts));
+	faifa_printf(out_stream, "SNID: %1hhx\n", bcn->snid);
+	faifa_printf(out_stream, "Beacon timestamp: %u (0x%08x)\n",
+		bcn->bts, bcn->bts);
 	faifa_printf(out_stream, "Beacon transmission offset 0: %d (0x%04hx)\n",
-		bcn->bto_0, (unsigned int)(bcn->bto_0));
+		bcn->bto_0, bcn->bto_0);
 	faifa_printf(out_stream, "Beacon transmission offset 1: %d (0x%04hx)\n",
-		bcn->bto_1, (unsigned int)(bcn->bto_1));
+		bcn->bto_1, bcn->bto_1);
 	faifa_printf(out_stream, "Beacon transmission offset 2: %d (0x%04hx)\n",
-		bcn->bto_2, (unsigned int)(bcn->bto_2));
+		bcn->bto_2, bcn->bto_2);
 	faifa_printf(out_stream, "Beacon transmission offset 3: %d (0x%04hx)\n",
-		bcn->bto_3, (unsigned int)(bcn->bto_3));
-	faifa_printf(out_stream, "Frame control check sequence: %2hx%2hx%2hx\n",
-		(unsigned int)(bcn->fccs_av[0]),
-		(unsigned int)(bcn->fccs_av[1]),
-		(unsigned int)(bcn->fccs_av[2]));
+		bcn->bto_3, bcn->bto_3);
+	faifa_printf(out_stream, "Frame control check sequence: 0x%2hhx%2hhx%2hhx\n",
+		bcn->fccs_av[0], bcn->fccs_av[1], bcn->fccs_av[2]);
 }
 
 static int hpav_dump_sniffer_indicate(void *buf, int len, struct ether_header *UNUSED(hdr))
@@ -1218,10 +1209,10 @@ static int hpav_dump_sniffer_indicate(void *buf, int len, struct ether_header *U
 	int avail = len;
 	struct sniffer_indicate *mm = buf;
 
-	faifa_printf(out_stream, "Type: %s\n", (short unsigned int)(mm->type) ? "Unknown" : "Regular");
-	faifa_printf(out_stream, "Direction: %s\n", (short unsigned int)(mm->direction) ? "Rx" : "Tx");
-	faifa_printf(out_stream, "System time: %llu\n", (long long unsigned int)(mm->systime));
-	faifa_printf(out_stream, "Beacon time: %lu\n", (long unsigned)(mm->beacontime));
+	faifa_printf(out_stream, "Type: %s\n", mm->type ? "Unknown" : "Regular");
+	faifa_printf(out_stream, "Direction: %s\n", mm->direction ? "Rx" : "Tx");
+	faifa_printf(out_stream, "System time: %"SCNu64"n", mm->systime);
+	faifa_printf(out_stream, "Beacon time: %u\n", mm->beacontime);
 	dump_hpav_frame_ctl(&(mm->fc));
 	dump_hpav_beacon(&(mm->bcn));
 
@@ -1304,14 +1295,14 @@ static int hpav_dump_check_points_indicate(void *buf, int len, struct ether_head
 	faifa_printf(out_stream, "Auto-lock on reset supported: %s\n", mm->auto_lock ? "Yes" : "No");
 	faifa_printf(out_stream, "Unsollicited update supported: %s\n", mm->unsoc_upd ? "Yes" : "No");
 	faifa_printf(out_stream, "Unsollicited: %s\n", mm->unsoc ? "Yes" : "No");
-	faifa_printf(out_stream, "Session: %04hx\n", (unsigned int)(mm->session_id));
-	faifa_printf(out_stream, "Length: %lu (0x%08lx)\n", (long unsigned)(mm->length), (long unsigned)(mm->length));
-	faifa_printf(out_stream, "Offset: 0x%08lx\n", (long unsigned)(mm->offset));
-	faifa_printf(out_stream, "Next index: 0x%08lx\n", (long unsigned)(mm->index));
-	faifa_printf(out_stream, "Number of parts: %d\n", (short unsigned int)(mm->num_parts));
-	faifa_printf(out_stream, "Current part: %d\n", (short unsigned int)(mm->cur_part));
-	faifa_printf(out_stream, "Data length: %d (0x%04hx)\n", (unsigned int)(mm->data_length), (unsigned int)(mm->data_length));
-	faifa_printf(out_stream, "Data offset: 0x%04hx\n", (unsigned int)(mm->data_offset));
+	faifa_printf(out_stream, "Session: %04hx\n", mm->session_id);
+	faifa_printf(out_stream, "Length: %u (0x%08x)\n", mm->length, mm->length);
+	faifa_printf(out_stream, "Offset: 0x%08x\n", mm->offset);
+	faifa_printf(out_stream, "Next index: 0x%08x\n", mm->index);
+	faifa_printf(out_stream, "Number of parts: %d\n", mm->num_parts);
+	faifa_printf(out_stream, "Current part: %d\n", mm->cur_part);
+	faifa_printf(out_stream, "Data length: %d (0x%04hx)\n", mm->data_length, mm->data_length);
+	faifa_printf(out_stream, "Data offset: 0x%04hx\n", mm->data_offset);
 	/* FIXME: we should probably move the offset */
 	//dump_hex(mm->data + mm->data_offset, (unsigned int)(mm->data_length), " ");
 	avail -= sizeof(*mm);
@@ -1329,7 +1320,7 @@ static int hpav_dump_loopback_request(void *buf, int len, void *UNUSED(buffer))
 	faifa_printf(out_stream, "Duration ?\n");
 	fscanf(in_stream, "%2d", &duration);
 	if (duration >= 0 || duration <= 60)
-		mm->duration = (short unsigned int)(duration);
+		mm->duration = duration;
 
 	/* FIXME: building a static test frame */
 	ether_init_header(eth_test_frame, 512, broadcast_macaddr, broadcast_macaddr, ETHERTYPE_HOMEPLUG_AV);
@@ -1346,9 +1337,9 @@ static int hpav_dump_loopback_confirm(void *buf, int len, struct ether_header *U
 	int avail = len;
 	struct loopback_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
-	faifa_printf(out_stream, "Duration: %d\n", (short unsigned int)(mm->duration));
-	faifa_printf(out_stream, "Length: %d\n", (unsigned int)(mm->length));
+	faifa_printf(out_stream, "Status: %s\n", mm->mstatus ? "Failure" : "Success");
+	faifa_printf(out_stream, "Duration: %d\n", mm->duration);
+	faifa_printf(out_stream, "Length: %d\n", mm->length);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1359,8 +1350,8 @@ static int hpav_dump_loopback_status_confirm(void *buf, int len, struct ether_he
 	int avail = len;
 	struct loopback_status_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Status: %s\n", (short unsigned int)(mm->mstatus) ? "Failure" : "Success");
-	faifa_printf(out_stream, "State: %s\n", (short unsigned int)(mm->state) ? "Looping frame" : "Done");
+	faifa_printf(out_stream, "Status: %s\n", mm->mstatus ? "Failure" : "Success");
+	faifa_printf(out_stream, "State: %s\n", mm->state ? "Looping frame" : "Done");
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1370,10 +1361,10 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 {
 	int avail = len;
 	struct set_encryption_key_request *mm = buf;
-	int i, local;
+	int local;
 	u_int8_t key[16], dak[16];
 	char nek[16], dek[16];
-	short unsigned int macaddr[6];
+	u_int8_t macaddr[ETHER_ADDR_LEN];
 
 	faifa_printf(out_stream, "Local or distant setting ?\n");
 	faifa_printf(out_stream, "0: distant\n1: local\n");
@@ -1400,23 +1391,16 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 		mm->peks_payload = DST_STA_DAK;
 
 		/* Broadcast the key */
-		for (i = 0; i < 6; i++)
-			mm->rdra[i] = 0xFF;
+		memset(mm->rdra, 0xFF, ETHER_ADDR_LEN);
 	} else {
 		/* Ask for the station MAC address */
 		faifa_printf(out_stream, "Destination MAC address ?");
-		fscanf(in_stream, "%2hx:%2hx:%2hx:%2hx:%2hx:%2hx",
-			(short unsigned int *)&macaddr[0],
-			(short unsigned int *)&macaddr[1],
-			(short unsigned int *)&macaddr[2],
-			(short unsigned int *)&macaddr[3],
-			(short unsigned int *)&macaddr[4],
-			(short unsigned int *)&macaddr[5]);
+		fscanf(in_stream, "%02hhx:%02hhx:%02hhx:%2hhx:%2hhx:%2hhx",
+			&macaddr[0], &macaddr[1], &macaddr[2],
+			&macaddr[3], &macaddr[4], &macaddr[5]);
 
 		/* Set the desination address */
-		for (i = 0; i < 6; i++)
-			mm->rdra[i] = macaddr[i];
-
+		memcpy(mm->rdra, macaddr, ETHER_ADDR_LEN);
 	}
 
 	avail -= sizeof(*mm);
@@ -1533,9 +1517,11 @@ static int hpav_dump_enc_payload_indicate(void *buf, int len, struct ether_heade
 	faifa_printf(out_stream, "PEKS: %s\n", get_peks_str(mm->peks));
 	faifa_printf(out_stream, "HPAV Lan status: %s\n", get_avln_status_str(mm->avln_status));
 	faifa_printf(out_stream, "PID: %s\n", get_pid_str(mm->pid));
-	faifa_printf(out_stream, "PRN: %02hx\n", (short unsigned int)(mm->prn));
-	faifa_printf(out_stream, "PMN: %02hx\n", (short unsigned int)(mm->pmn));
-	faifa_printf(out_stream, "%s: ", proto ? "UUID" : "AES IV"); dump_hex(mm->aes_iv_uuid, AES_KEY_SIZE, " "); faifa_printf(out_stream, "\n");
+	faifa_printf(out_stream, "PRN: %02hhx\n", mm->prn);
+	faifa_printf(out_stream, "PMN: %02hhx\n", mm->pmn);
+	faifa_printf(out_stream, "%s: ", proto ? "UUID" : "AES IV");
+	dump_hex(mm->aes_iv_uuid, AES_KEY_SIZE, " ");
+	faifa_printf(out_stream, "\n");
 
 	avail -= sizeof(*mm);
 
@@ -1547,9 +1533,9 @@ static int hpav_dump_enc_payload_response(void *buf, int len, struct ether_heade
 	int avail = len;
 	struct cm_enc_payload_response *mm = buf;
 
-	faifa_printf(out_stream, "Result: %s\n", (short unsigned int)(mm->result) ? "Failure/Abort" : "Success");
+	faifa_printf(out_stream, "Result: %s\n", mm->result ? "Failure/Abort" : "Success");
 	faifa_printf(out_stream, "PID: %s\n", get_pid_str(mm->pid));
-	faifa_printf(out_stream, "PRN: %02hx\n", (short unsigned int)(mm->prn));
+	faifa_printf(out_stream, "PRN: %02hx\n", mm->prn);
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -1583,14 +1569,18 @@ static int hpav_dump_cm_set_key_request(void *buf, int len, struct ether_header 
 	struct cm_set_key_request *mm = buf;
 
 	faifa_printf(out_stream, "Key type: %s\n", get_key_type_str(mm->key_type));
-	faifa_printf(out_stream, "My nonce: %08lx\n", (long unsigned int)(mm->my_nonce));
-	faifa_printf(out_stream, "Your nonce: %08lx\n", (long unsigned int)(mm->your_nonce));
+	faifa_printf(out_stream, "My nonce: %08x\n", mm->my_nonce);
+	faifa_printf(out_stream, "Your nonce: %08x\n", mm->your_nonce);
 	faifa_printf(out_stream, "PID: %s\n", get_pid_str(mm->pid));
-	faifa_printf(out_stream, "PRN: %02hx\n", (short unsigned int)(mm->prn));
-	faifa_printf(out_stream, "CCo cap: %02hx\n", (short unsigned int)(mm->cco_cap));
-	faifa_printf(out_stream, "NID "); dump_hex(mm->nid, sizeof(mm->nid), "");faifa_printf(out_stream, "\n");
-	faifa_printf(out_stream, "New EKS: %02hx\n", (short unsigned int)(mm->new_eks));
-	faifa_printf(out_stream, "New Key: "); dump_hex(mm->new_key, AES_KEY_SIZE, ""); faifa_printf(out_stream, "\n");
+	faifa_printf(out_stream, "PRN: %02hhx\n", mm->prn);
+	faifa_printf(out_stream, "CCo cap: %02hhx\n", mm->cco_cap);
+	faifa_printf(out_stream, "NID ");
+	dump_hex(mm->nid, sizeof(mm->nid), "");
+	faifa_printf(out_stream, "\n");
+	faifa_printf(out_stream, "New EKS: %02hhx\n", mm->new_eks);
+	faifa_printf(out_stream, "New Key: ");
+	dump_hex(mm->new_key, AES_KEY_SIZE, "");
+	faifa_printf(out_stream, "\n");
 
 	avail -= sizeof(*mm);
 
@@ -1622,10 +1612,10 @@ static int hpav_dump_cm_get_key_request(void *buf, int len, struct ether_header 
 	faifa_printf(out_stream, "Request type: %s\n", mm->req_type ? "Relayed" : "Direct");
 	faifa_printf(out_stream, "Key type: %s\n", get_key_type_str(mm->req_key_type));
 	faifa_printf(out_stream, "NID "); dump_hex(mm->nid, sizeof(mm->nid), "");faifa_printf(out_stream, "\n");
-	faifa_printf(out_stream, "My nonce: %08lx\n", (long unsigned int)(mm->my_nonce));
+	faifa_printf(out_stream, "My nonce: %08x\n", mm->my_nonce);
 	faifa_printf(out_stream, "PID: %s\n", get_pid_str(mm->pid));
-	faifa_printf(out_stream, "PRN: %02hx\n", (short unsigned int)(mm->prn));
-	faifa_printf(out_stream, "PMN: %02hx\n", (short unsigned int)(mm->pmn));
+	faifa_printf(out_stream, "PRN: %02hhx\n", mm->prn);
+	faifa_printf(out_stream, "PMN: %02hhx\n", mm->pmn);
 	if (mm->req_key_type == HASH_KEY)
 		faifa_printf(out_stream, "Hash key: ");dump_hex(mm->hash_key, len, "");faifa_printf(out_stream, "\n");
 
@@ -1657,13 +1647,13 @@ static int hpav_dump_cm_get_key_confirm(void *buf, int len, struct ether_header 
 
 	faifa_printf(out_stream, "Result :%s\n", get_key_result_str(mm->result));
 	faifa_printf(out_stream, "Key type: %s\n", get_key_type_str(mm->req_key_type));
-	faifa_printf(out_stream, "My nonce: %08lx\n", (long unsigned int)(mm->my_nonce));
-	faifa_printf(out_stream, "Your nonce: %08lx\n", (long unsigned int)(mm->your_nonce));
+	faifa_printf(out_stream, "My nonce: %08x\n", mm->my_nonce);
+	faifa_printf(out_stream, "Your nonce: %08x\n", mm->your_nonce);
 	faifa_printf(out_stream, "NID "); dump_hex(mm->nid, sizeof(mm->nid), "");faifa_printf(out_stream, "\n");
-	faifa_printf(out_stream, "EKS: %02hx\n", (short unsigned int)(mm->eks));
+	faifa_printf(out_stream, "EKS: %02hhx\n", mm->eks);
 	faifa_printf(out_stream, "PID: %s\n", get_pid_str(mm->pid));
-	faifa_printf(out_stream, "PRN: %02hx\n", (short unsigned int)(mm->prn));
-	faifa_printf(out_stream, "PMN: %02hx\n", (short unsigned int)(mm->pmn));
+	faifa_printf(out_stream, "PRN: %02hhx\n", mm->prn);
+	faifa_printf(out_stream, "PMN: %02hhx\n", mm->pmn);
 	faifa_printf(out_stream, "Hash key: ");dump_hex(mm->key, len, "");faifa_printf(out_stream, "\n");
 
 	avail -= sizeof(*mm);
@@ -1680,11 +1670,12 @@ static int hpav_dump_cm_bridge_infos_confirm(void *buf, int len, struct ether_he
 	if (mm->bsf) {
 		int i;
 
-		faifa_printf(out_stream, "Bridge TEI: %02hx\n", (short unsigned int)(mm->bridge_infos.btei));
+		faifa_printf(out_stream, "Bridge TEI: %02hhx\n", mm->bridge_infos.btei);
 		faifa_printf(out_stream, "Number of stations: %d\n", mm->bridge_infos.nbda);
 		for (i = 0; i < mm->bridge_infos.nbda; i++) {
 			faifa_printf(out_stream, "Bridged station %d", i);
-			dump_hex(mm->bridge_infos.bri_addr[i], 6, ":");faifa_printf(out_stream, "\n");
+			dump_hex(mm->bridge_infos.bri_addr[i], ETHER_ADDR_LEN, ":");
+			faifa_printf(out_stream, "\n");
 		}
 	}
 
@@ -1709,11 +1700,17 @@ static const char *get_net_access_str(u_int8_t access)
 
 static void dump_cm_net_info(struct cm_net_info *net_info)
 {
-	faifa_printf(out_stream, "NID: "); dump_hex(net_info->nid, sizeof(net_info->nid), " "); faifa_printf(out_stream, "\n");
+	faifa_printf(out_stream, "NID: ");
+	dump_hex(net_info->nid, sizeof(net_info->nid), " ");
+	faifa_printf(out_stream, "\n");
 	faifa_printf(out_stream, "TEI: 0x%02hX (%d)\n", net_info->tei, net_info->tei);
-	faifa_printf(out_stream, "STA Role: 0x%02hX (%s)\n", net_info->sta_role, get_sta_role_str(net_info->sta_role));
-	faifa_printf(out_stream, "MAC address: "); dump_hex(net_info->macaddr, 6, ":"); faifa_printf(out_stream, "\n");
-	faifa_printf(out_stream, "Access: 0x%02hX (%s)\n", net_info->access, get_net_access_str(net_info->access));
+	faifa_printf(out_stream, "STA Role: 0x%02hX (%s)\n",
+		net_info->sta_role, get_sta_role_str(net_info->sta_role));
+	faifa_printf(out_stream, "MAC address: ");
+	dump_hex(net_info->macaddr, ETHER_ADDR_LEN, ":");
+	faifa_printf(out_stream, "\n");
+	faifa_printf(out_stream, "Access: 0x%02hX (%s)\n",
+		net_info->access, get_net_access_str(net_info->access));
 	faifa_printf(out_stream, "Number of neighbors: %d\n", net_info->num_cord);
 }
 
@@ -1734,7 +1731,9 @@ static int hpav_dump_cm_get_network_infos_confirm(void *buf, int len, struct eth
 
 static void dump_cm_sta_info(struct cm_sta_info *sta_info)
 {
-	faifa_printf(out_stream, "MAC address: "); dump_hex(sta_info->macaddr, 6, ":"); faifa_printf(out_stream, "\n");
+	faifa_printf(out_stream, "MAC address: ");
+	dump_hex(sta_info->macaddr, ETHER_ADDR_LEN, ":");
+	faifa_printf(out_stream, "\n");
 	faifa_printf(out_stream, "Average data rate from STA to DA: %d\n", sta_info->avg_phy_dr_tx);
 	faifa_printf(out_stream, "Average data rate from DA to STA: %d\n", sta_info->avg_phy_dr_rx);
 }
@@ -2034,16 +2033,17 @@ static int hp10_dump_parameters_stats_confirm(void *buf, int len)
 	int avail = len;
 	struct hp10_parameters_stats_confirm *mm = buf;
 
-	faifa_printf(out_stream, "Tx ACK counter: %d\n", (short unsigned int)mm->tx_ack_cnt);
-	faifa_printf(out_stream, "Tx NACK counter: %d\n", (short unsigned int)mm->tx_nack_cnt);
-	faifa_printf(out_stream, "Tx FAIL counter: %d\n", (short unsigned int)mm->tx_fail_cnt);
-	faifa_printf(out_stream, "Tx Contention loss counter: %d\n", (short unsigned int)mm->tx_cont_loss_cnt);
-	faifa_printf(out_stream, "Tx Collision counter: %d\n", (short unsigned int)mm->tx_coll_cnt);
-	faifa_printf(out_stream, "Tx CA3 counter: %d\n", (short unsigned int)mm->tx_ca3_cnt);
-	faifa_printf(out_stream, "Tx CA2 counter: %d\n", (short unsigned int)mm->tx_ca2_cnt);
-	faifa_printf(out_stream, "Tx CA1 counter: %d\n", (short unsigned int)mm->tx_ca1_cnt);
-	faifa_printf(out_stream, "Tx CA0 counter: %d\n", (short unsigned int)mm->tx_ca0_cnt);
-	faifa_printf(out_stream, "Rx cumul (bytes per 40-symbol packet counter: %d\n", (short unsigned int)mm->rx_cumul);
+	faifa_printf(out_stream, "Tx ACK counter: %d\n", mm->tx_ack_cnt);
+	faifa_printf(out_stream, "Tx NACK counter: %d\n", mm->tx_nack_cnt);
+	faifa_printf(out_stream, "Tx FAIL counter: %d\n", mm->tx_fail_cnt);
+	faifa_printf(out_stream, "Tx Contention loss counter: %d\n", mm->tx_cont_loss_cnt);
+	faifa_printf(out_stream, "Tx Collision counter: %d\n", mm->tx_coll_cnt);
+	faifa_printf(out_stream, "Tx CA3 counter: %d\n", mm->tx_ca3_cnt);
+	faifa_printf(out_stream, "Tx CA2 counter: %d\n", mm->tx_ca2_cnt);
+	faifa_printf(out_stream, "Tx CA1 counter: %d\n", mm->tx_ca1_cnt);
+	faifa_printf(out_stream, "Tx CA0 counter: %d\n", mm->tx_ca0_cnt);
+	faifa_printf(out_stream, "Rx cumul (bytes per 40-symbol packet counter: %d\n",
+		mm->rx_cumul);
 
 	avail -= sizeof(*mm);
 
@@ -2055,10 +2055,11 @@ static void hp10_dump_tonemap(struct hp10_tonemap *tonemap)
 	int i;
 
 	for (i = 0; i < HP10_NUM_TONE_MAP; i++) {
-		faifa_printf(out_stream, "Network DA"); dump_hex(tonemap->netw_da, 6, " "); faifa_printf(out_stream, "\n");
-		faifa_printf(out_stream, "Number of 40-bytes symbols: %d\n", (short unsigned int)tonemap->bytes40);
-		faifa_printf(out_stream, "Number of failed symbols: %d\n", (short unsigned int)tonemap->fails);
-		faifa_printf(out_stream, "Number of droppe symbols: %d\n", (short unsigned int)tonemap->drops);
+		faifa_printf(out_stream, "Network DA");
+		dump_hex(tonemap->netw_da, ETHER_ADDR_LEN, " "); faifa_printf(out_stream, "\n");
+		faifa_printf(out_stream, "Number of 40-bytes symbols: %d\n", tonemap->bytes40);
+		faifa_printf(out_stream, "Number of failed symbols: %d\n", tonemap->fails);
+		faifa_printf(out_stream, "Number of droppe symbols: %d\n", tonemap->drops);
 	}
 }
 
@@ -2068,9 +2069,9 @@ static int hp10_dump_extended_network_stats(void *buf, int len)
 	struct hp10_network_stats_confirm *mm = buf;
 
 	faifa_printf(out_stream, "AC flag: %s\n", mm->ac ? "Yes" : "No");
-	faifa_printf(out_stream, "Number of 40-symbol robo: %d\n", (short unsigned int)mm->bytes40_robo);
-	faifa_printf(out_stream, "Number of failed robo: %d\n", (short unsigned int)mm->fails_robo);
-	faifa_printf(out_stream, "Number of dropped robo: %d\n", (short unsigned int)mm->drops_robo);
+	faifa_printf(out_stream, "Number of 40-symbol robo: %d\n", mm->bytes40_robo);
+	faifa_printf(out_stream, "Number of failed robo: %d\n", mm->fails_robo);
+	faifa_printf(out_stream, "Number of dropped robo: %d\n", mm->drops_robo);
 	hp10_dump_tonemap(mm->nstone);
 
 	avail -= sizeof(*mm);
@@ -2271,7 +2272,7 @@ static int hpav_do_frame(void *frame_buf, int frame_len, u_int16_t mmtype, u_int
 	/* Lookup for the index from the mmtype */
 	i = hpav_mmtype2index(mmtype);
 	if (i < 0) {
-		faifa_printf(err_stream, "Invalid MM Type %04x\n", (unsigned int)mmtype);
+		faifa_printf(err_stream, "Invalid MM Type %04hx\n", mmtype);
 		return -1;
 	}
 
@@ -2301,7 +2302,7 @@ static int hpav_do_frame(void *frame_buf, int frame_len, u_int16_t mmtype, u_int
 	frame_len -= n;
 	frame_ptr += n;
 
-	faifa_printf(out_stream, "Frame: %s (0x%04X)\n", hpav_frame_ops[i].desc,
+	faifa_printf(out_stream, "Frame: %s (0x%04hX)\n", hpav_frame_ops[i].desc,
 						hpav_frame_ops[i].mmtype);
 
 	/* Call the frame specific setup callback */
@@ -2331,7 +2332,7 @@ static int hp10_do_frame(u_int8_t *frame_buf, int frame_len, u_int8_t mmtype, u_
 	/* Lookup for the index from the mmtype */
 	i = hp10_mmtype2index(mmtype);
 	if (i < 0) {
-		faifa_printf(err_stream, "Invalid MM Type %04x\n", (unsigned int)mmtype);
+		faifa_printf(err_stream, "Invalid MM Type %04hx\n", mmtype);
 		return -1;
 	}
 
@@ -2418,11 +2419,11 @@ static int hpav_dump_frame(u_int8_t *frame_ptr, int frame_len, struct ether_head
 	int i;
 
 	if( (i = hpav_mmtype2index(STORE16_LE(frame->header.mmtype))) < 0 ) {
-		faifa_printf(out_stream, "\nUnknow MM type : %04X\n", frame->header.mmtype);
+		faifa_printf(out_stream, "\nUnknow MM type : %04hX\n", frame->header.mmtype);
 		return 0;
 	}
 
-	faifa_printf(out_stream, "Frame: %s (%04X), HomePlug-AV Version: %s\n", 
+	faifa_printf(out_stream, "Frame: %s (%04hX), HomePlug-AV Version: %s\n",
 		hpav_frame_ops[i].desc, hpav_frame_ops[i].mmtype,
 		hpav_get_mmver_str(frame->header.mmver));
 
@@ -2458,8 +2459,8 @@ static int hp10_dump_frame(u_int8_t *frame_ptr, int UNUSED(frame_len))
 
 	for (mmeindex = 0; mmeindex < mmecount; mmeindex++) {
 		mmentry = (struct hp10_mmentry *)frame_ptr;
-		faifa_printf(out_stream, "Frame: 0x%02hX (",
-			(unsigned short int)(mmentry->mmetype));
+		faifa_printf(out_stream, "Frame: 0x%02hhX (",
+			mmentry->mmetype);
 		frame_ptr += sizeof(struct hp10_mmentry);
 		if ((i = hp10_mmtype2index(mmentry->mmetype)) >= 0) {
 			faifa_printf(out_stream, "%s)\n", hp10_frame_ops[i].desc);
@@ -2536,7 +2537,7 @@ static int ask_for_frame(u_int16_t *mmtype)
 	faifa_printf(out_stream, "------ -----------\n");
 	for (i = 0; i < ARRAY_SIZE(hpav_frame_ops); i++) {
 		if (hpav_frame_ops[i].init_frame != NULL) {
-			faifa_printf(out_stream, "0x%04X %s\n", hpav_frame_ops[i].mmtype, hpav_frame_ops[i].desc);
+			faifa_printf(out_stream, "0x%04hX %s\n", hpav_frame_ops[i].mmtype, hpav_frame_ops[i].desc);
 		}
 	}
 	faifa_printf(out_stream, "\nSupported HomePlug 1.0 frames\n\n");
@@ -2544,7 +2545,7 @@ static int ask_for_frame(u_int16_t *mmtype)
 	faifa_printf(out_stream, "------ -----------\n");
 	for (i = 0; i < ARRAY_SIZE(hp10_frame_ops); i++) {
 		if (hp10_frame_ops[i].init_frame != NULL) {
-			faifa_printf(out_stream, "0x%04X %s\n", (unsigned int)hp10_frame_ops[i].mmtype, hp10_frame_ops[i].desc);
+			faifa_printf(out_stream, "0x%04hX %s\n", hp10_frame_ops[i].mmtype, hp10_frame_ops[i].desc);
 		}
 	}
 	faifa_printf(out_stream, "\nChoose the frame type (Ctrl-C to exit): 0x");
