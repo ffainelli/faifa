@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 	int ret = 0;
 	u_int8_t addr[ETHER_ADDR_LEN] = { 0 };
 
-	fprintf(stdout, "Faifa for HomePlug AV (SVN revision %d)\n\n", SVN_REV);
+	fprintf(stdout, "Faifa for HomePlug AV (GIT revision %s)\n\n", GIT_REV);
 
 	if (argc < 2) {
 		usage();

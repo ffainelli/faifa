@@ -27,9 +27,9 @@ includedir	= @includedir@
 
 OS?=$(shell uname -s | tr a-z A-Z)
 APP:=faifa
-SVN_REV?=$(shell LC_ALL=C svn info | awk '/Revision/ { print $$2 }')
-ifeq ($(SVN_REV),)
-SVN_REV=99
+GIT_REV?=$(shell git describe --exact-match 2> /dev/null || echo "`git symbolic-ref HEAD 2> /dev/null | cut -b 12-`-`git log --pretty=format:\"%h\" -1`")
+ifeq ($(GIT_REV),)
+GIT_REV=HEAD
 endif
 
 # Object files for the library
@@ -68,7 +68,7 @@ hpav_cfg: $(HPAV_CFG_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(HPAV_CFG_OBJS)
 
 $(APP): $(OBJS) $(HEADERS) $(LIB_SONAME)
-	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_SONAME)
+	$(CC) -D$(OS) -DGIT_REV="\"$(GIT_REV)\"" $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LIB_SONAME)
 
 $(LIB_NAME): $(LIB_OBJS) $(HEADERS)
 	$(AR) rcs $(LIB_NAME)	$(LIB_OBJS)
@@ -77,7 +77,7 @@ $(LIB_SONAME): $(LIB_OBJS) $(HEADERS)
 	$(CC) -shared -Wl,-soname,$(LIB_SONAME) -o $(LIB_SONAME) $(LIB_OBJS) $(LIBS)
 
 %.o: %.c $(HEADERS)
-	$(CC) -D$(OS) -DSVN_REV=$(SVN_REV) $(CFLAGS) -c $<
+	$(CC) -D$(OS) -DGIT_REV="\"$(GIT_REV)\"" $(CFLAGS) -c $<
 
 clean:
 	rm -f $(APP) \
