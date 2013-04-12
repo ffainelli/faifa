@@ -337,6 +337,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	if (!npw) {
+		fprintf(stderr, "missing NPW argument\n");
+		return 1;
+	}
+
 	fprintf(stdout, "Interface: %s\n", iface);
 
 	if (mac_address) {
