@@ -19,7 +19,7 @@ LIBS	= @LIBS@
 
 prefix		= @prefix@
 exec_prefix	= @exec_prefix@
-bindir		= @bindir@
+sbindir		= @sbindir@
 mandir		= @mandir@
 libdir		= @libdir@
 datarootdir	= @datarootdir@
@@ -92,9 +92,9 @@ autoclean:
 distclean: clean autoclean
 
 install: installman strip
-	$(INSTALL) -d $(DESTDIR)$(bindir)
-	$(INSTALL) -m0755 $(APP) $(DESTDIR)$(bindir)
-	$(INSTALL) -m0755 hpav_cfg $(DESTDIR)$(bindir)
+	$(INSTALL) -d $(DESTDIR)$(sbindir)
+	$(INSTALL) -m0755 $(APP) $(DESTDIR)$(sbindir)
+	$(INSTALL) -m0755 hpav_cfg $(DESTDIR)$(sbindir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m0644 $(LIB_SONAME) $(DESTDIR)$(libdir)
 	$(INSTALL) -d $(DESTDIR)$(includedir)/faifa
@@ -116,8 +116,8 @@ uninstallman:
 	-rm -f $(DESTDIR)$(man8dir)/$(MANFIL)
 
 uninstall: uninstallman
-	-rm -f $(DESTDIR)$(bindir)/$(APP)
-	-rm -f $(DESTDIR)$(bindir)/hpav_cfg
+	-rm -f $(DESTDIR)$(sbindir)/$(APP)
+	-rm -f $(DESTDIR)$(sbindir)/hpav_cfg
 	-rm -f $(DESTDIR)$(libdir)/$(LIB_SONAME)
 	-rm -rf $(DESTDIR)$(includedir)/faifa
 
