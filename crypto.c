@@ -124,12 +124,6 @@ int gen_passphrase(const char *password, u_int8_t *key, const unsigned char *sal
 	/* Use a local variable to store the input password */
 	memcpy(password_cpy, password, MAX_SECRET_SIZ);
 
-	password_hash = malloc(HASH_SIZ);
-	if (!password_hash) {
-		perror("malloc");
-		return -1;
-	}
-
 	password_hash = hash_hpav(password_cpy, salt);
 	memcpy(key, password_hash, 16);
 
