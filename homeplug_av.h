@@ -172,7 +172,7 @@ struct hpav_frame_vendor_payload {
 struct hpav_frame {
 	struct hpav_frame_header header;
 	union {
-		struct hpav_frame_public_payload public;
+		struct hpav_frame_public_payload pub;
 		struct hpav_frame_vendor_payload vendor;
 	} __attribute__((__packed__)) payload;
 } __attribute__((__packed__));

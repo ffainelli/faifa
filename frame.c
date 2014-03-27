@@ -2297,7 +2297,7 @@ static int hpav_do_frame(void *frame_buf, int frame_len, u_int16_t mmtype, u_int
 		n += sizeof(frame->payload.vendor);
 	} else {
 		frame->header.mmver = HPAV_VERSION_1_1;
-		n += sizeof(frame->payload.public);
+		n += sizeof(frame->payload.pub);
 	}
 	frame_len -= n;
 	frame_ptr += n;
@@ -2431,8 +2431,8 @@ static int hpav_dump_frame(u_int8_t *frame_ptr, int frame_len, struct ether_head
 		frame_ptr = frame->payload.vendor.data;
 		frame_len -= sizeof(frame->payload.vendor);
 	} else {
-		frame_ptr = frame->payload.public.data;
-		frame_len -= sizeof(frame->payload.public);
+		frame_ptr = frame->payload.pub.data;
+		frame_len -= sizeof(frame->payload.pub);
 	}
 
 	/* Call the frame specific dump callback */
