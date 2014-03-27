@@ -35,7 +35,8 @@ endif
 # Object files for the library
 LIB_OBJS:=faifa.o frame.o crypto.o sha2.o
 LIB_NAME:=lib$(APP).a
-LIB_SONAME:=lib$(APP).so.0
+LIB_SHARED_SO:=lib$(APP).so
+LIB_SONAME:=$(LIB_SHARED_SO).0
 
 # Object files for the program
 OBJS:= main.o
@@ -97,6 +98,7 @@ install: installman strip
 	$(INSTALL) -m0755 hpav_cfg $(DESTDIR)$(sbindir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m0644 $(LIB_SONAME) $(DESTDIR)$(libdir)
+	ln -sf $(DESTDIR)$(libdir)/$(LIB_SONAME) $(DESTDIR)$(libdir)/$(LIB_SHARED_SO)
 	$(INSTALL) -d $(DESTDIR)$(includedir)/faifa
 	cp $(HEADERS) $(DESTDIR)$(includedir)/faifa
 
@@ -119,6 +121,7 @@ uninstall: uninstallman
 	-rm -f $(DESTDIR)$(sbindir)/$(APP)
 	-rm -f $(DESTDIR)$(sbindir)/hpav_cfg
 	-rm -f $(DESTDIR)$(libdir)/$(LIB_SONAME)
+	-rm -f $(DESTDIR)$(libdir)/$(LIB_SHARED_SO)
 	-rm -rf $(DESTDIR)$(includedir)/faifa
 
 .PHONY:
