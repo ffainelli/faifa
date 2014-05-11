@@ -176,7 +176,11 @@ static int send_key(struct context *ctx, const char *npw,
 
 	return send_vendor_pkt(ctx, mac, HPAV_MMTYPE_SET_KEY_REQ,
 				&key_req, sizeof(key_req));
+
 }
+
+
+
 
 static int read_key_confirm(struct context *ctx, const uint8_t mac[ETH_ALEN])
 {
@@ -229,6 +233,17 @@ static int read_key_confirm(struct context *ctx, const uint8_t mac[ETH_ALEN])
 
 	return 0;
 }
+
+
+
+static int pushbutton_request(struct context *ctx, uint8_t mac)
+{
+
+
+	return send_vendor_pkt(ctx, mac, HPAV_MMTYPE_MS_PB_ENC, NULL, 0);
+
+}
+
 
 static int send_reset(struct context *ctx, uint8_t *mac)
 {
