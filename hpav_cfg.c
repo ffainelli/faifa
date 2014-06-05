@@ -289,6 +289,7 @@ static void usage(void)
 			"-p:	same as -n (deprecated)\n"
 			"-a:	device MAC address\n"
 			"-r:	send a device reset\n"
+			"-u:	PusbButton request\n"
 			"-k:	hash only\n");
 }
 
@@ -303,11 +304,12 @@ int main(int argc, char **argv)
 	struct context ctx;
 	unsigned int hash_only = 0;
 	unsigned int reset_device = 0;
+	unsigned int push_button = 0;
 	uint8_t mac[ETH_ALEN] = { 0 };
 
 	memset(&ctx, 0, sizeof(ctx));
 
-	while ((opt = getopt(argc, argv, "n:d:p:a:i:krh")) > 0) {
+	while ((opt = getopt(argc, argv, "n:d:p:a:i:u:krh")) > 0) {
 		switch (opt) {
 		case 'n':
 		case 'p':
@@ -327,6 +329,9 @@ int main(int argc, char **argv)
 			break;
 		case 'r':
 			reset_device = 1;
+			break;
+		case 'u':
+			push_button = 1;
 			break;
 		case 'h':
 		default:
@@ -383,6 +388,15 @@ int main(int argc, char **argv)
 		ret = send_reset(&ctx, mac);
 		if (ret)
 			fprintf(stdout, "failed to send reset\n");
+
+		return ret;
+	}
+
+
+	if (push_button) {
+		ret = pushbutton_request(&ctx, mac);
+		if (ret)
+			fprintf(stdout, "failed to send push_button\n");
 
 		return ret;
 	}
