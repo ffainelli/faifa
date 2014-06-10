@@ -5,19 +5,33 @@
  *		    	    Florian Fainelli <florian@openwrt.org>
  *			    Nicolas Thill <nico@openwrt.org>
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ *  The BSD License
+ *  ===============
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  1. Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *  3. Neither the name of OpenLink Software Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL OPENLINK OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ *  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 /*
@@ -119,10 +133,10 @@ static u_int32_t dump_hex_blob(faifa_t *UNUSED(faifa), u_int8_t *buf, u_int32_t 
 	faifa_printf(out_stream, "Binary Data, %lu bytes", (unsigned long int)len);
 	for (i = 0; i < len; i += HEX_BLOB_BYTES_PER_ROW) {
 		d = (len - i) / HEX_BLOB_BYTES_PER_ROW;
-		faifa_printf(out_stream, "\n%08lu: ", (unsigned long int)i); 
+		faifa_printf(out_stream, "\n%08lu: ", (unsigned long int)i);
 		dump_hex((u_int8_t *)buf + i, (d > 0) ? HEX_BLOB_BYTES_PER_ROW : m, " ");
 	}
-	faifa_printf(out_stream, "\n"); 
+	faifa_printf(out_stream, "\n");
 
 	return len;
 }
@@ -2359,7 +2373,7 @@ static int hp10_do_frame(u_int8_t *frame_buf, int frame_len, u_int8_t mmtype, u_
 	frame->mmentries[0].mmeversion = 0;
 	frame->mmentries[0].mmelength = 0;
 
-	faifa_printf(out_stream, "Frame: 0x%02hX (%s)\n", 
+	faifa_printf(out_stream, "Frame: 0x%02hX (%s)\n",
 		hp10_frame_ops[i].mmtype, hp10_frame_ops[i].desc);
 
 	/* Call the frame specific setup callback */
@@ -2403,7 +2417,7 @@ int do_frame(faifa_t *faifa, u_int16_t mmtype, u_int8_t *da, u_int8_t *sa, void 
 
 	frame_len = faifa_send(faifa, frame_buf, frame_len);
 	if (frame_len == -1)
-		faifa_printf(err_stream, "Init: error sending frame (%s)\n", faifa_error(faifa)); 
+		faifa_printf(err_stream, "Init: error sending frame (%s)\n", faifa_error(faifa));
 
 	return frame_len;
 }
@@ -2445,7 +2459,7 @@ static int hpav_dump_frame(u_int8_t *frame_ptr, int frame_len, struct ether_head
 /**
  * hp10_dump_frame - Parse an HomePlug 1.0 frame
  * @frame_ptr:	packet data
- * @frame_len:	packet length 
+ * @frame_len:	packet length
  */
 static int hp10_dump_frame(u_int8_t *frame_ptr, int UNUSED(frame_len))
 {
