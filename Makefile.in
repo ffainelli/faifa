@@ -13,7 +13,7 @@
 
 CC	= @CC@
 STRIP	?= $(CROSS)strip
-CFLAGS	= @CFLAGS@ -Wno-unused-result
+CFLAGS	= @CFLAGS@
 INSTALL	= @INSTALL@
 LIBS	= @LIBS@
 
