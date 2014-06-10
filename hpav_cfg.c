@@ -238,10 +238,8 @@ static int read_key_confirm(struct context *ctx, const uint8_t mac[ETH_ALEN])
 
 static int pushbutton_request(struct context *ctx, uint8_t mac)
 {
-
-
-	return send_vendor_pkt(ctx, mac, HPAV_MMTYPE_MS_PB_ENC, NULL, 0);
-
+	return send_vendor_pkt(ctx, mac, HPAV_MMTYPE_MS_PB_ENC,
+					NULL, 0);
 }
 
 
@@ -309,7 +307,7 @@ int main(int argc, char **argv)
 
 	memset(&ctx, 0, sizeof(ctx));
 
-	while ((opt = getopt(argc, argv, "n:d:p:a:i:u:krh")) > 0) {
+	while ((opt = getopt(argc, argv, "n:d:p:a:i:ukrh")) > 0) {
 		switch (opt) {
 		case 'n':
 		case 'p':
@@ -357,10 +355,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (!npw) {
-		fprintf(stderr, "missing NPW argument\n");
-		return 1;
-	}
 
 	fprintf(stdout, "Interface: %s\n", iface);
 
@@ -395,10 +389,16 @@ int main(int argc, char **argv)
 
 	if (push_button) {
 		ret = pushbutton_request(&ctx, mac);
+		fprintf(stdout, "sending PushButton request on the local link\n");
 		if (ret)
 			fprintf(stdout, "failed to send push_button\n");
-
 		return ret;
+	}
+
+
+	if (!npw) {
+		fprintf(stderr, "missing NPW argument\n");
+		return 1;
 	}
 
 	fprintf(stdout, "NPW: %s\n", npw);
