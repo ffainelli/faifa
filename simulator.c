@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netpacket/packet.h>
+#include <net/if.h>
 #include <net/ethernet.h>
 
 #include <linux/if_ether.h>
