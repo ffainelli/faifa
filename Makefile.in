@@ -109,7 +109,7 @@ install: installman strip
 	cp $(HEADERS) $(DESTDIR)$(includedir)/faifa
 	cd $(DESTDIR)$(libdir) && ln -sf $(LIB_SONAME) $(LIB_SHARED_SO)
 
-strip:
+strip: $(APP) $(LIB_SONAME)
 	$(STRIP) $(APP)
 	$(STRIP) $(LIB_SONAME)
 
