@@ -253,7 +253,7 @@ static int read_key_confirm(struct context *ctx, const uint8_t mac[ETH_ALEN])
 
 
 
-static int pushbutton_request(struct context *ctx, uint8_t mac)
+static int pushbutton_request(struct context *ctx, uint8_t *mac)
 {
 	return send_vendor_pkt(ctx, mac, HPAV_MMTYPE_MS_PB_ENC,
 					NULL, 0);
