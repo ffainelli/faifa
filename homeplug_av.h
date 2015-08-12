@@ -5,6 +5,10 @@
  *		    	    Florian Fainelli <florian@openwrt.org>
  *			    Nicolas Thill <nico@openwrt.org>
  *
+ *	Modifications by Andrew Margolis (c) 2015 to produce human-readable MPDU frame 
+ *	control fields and Beacon MPDU payload fields in accordance with the IEEE 
+ *   1901-2010 Powerline standard.
+ *							 
  *  The BSD License
  *  ===============
  *  Redistribution and use in source and binary forms, with or without
@@ -534,10 +538,13 @@ enum sniffer_state {
 	HPAV_ST_ENABLED		= 0x01,
 };
 
+/*
+Structure amended by Andrew Margolis to better conform to IEEE 1901-2010 Table 6.10 for start-of-frame fields
+Now used only when start-of-frame 001 delimiter detected
+Struct is 15 octets in length - octet 1 now part of sniffer_indicate
+*/
+
 struct hpav_fc {
-	u_int8_t	del_type:3;
-	u_int8_t	access:1;
-	u_int8_t	snid:4;
 	u_int8_t	stei;
 	u_int8_t	dtei;
 	u_int8_t	lid;
@@ -554,23 +561,29 @@ struct hpav_fc {
 	u_int16_t	fl_av:12;
 	u_int8_t	mpdu_cnt:2;
 	u_int8_t	burst_cnt:2;
-	u_int8_t	clst:3;
-	u_int8_t	rg_len_lo:5;
-	u_int8_t	rg_len_hi:1;
+	u_int8_t	bbf:1;
+	u_int8_t	mrtfl:4;
+	u_int8_t	dcppcf:1;
+	u_int8_t	mcf:1;
+	u_int8_t	mnbf:1;
+	u_int8_t	rsr:1;
+	u_int8_t	mst:1;
 	u_int8_t	mfs_cmd_mgmt:3;
 	u_int8_t	mfs_cmd_data:3;
-	u_int8_t	rsr:1;
-	u_int8_t	mcf:1;
-	u_int8_t	dccpcf:1;
-	u_int8_t	mnbf:1;
-	u_int8_t	rsvd:5;
+	u_int8_t	mfs_rsp_mgmt:2;
+	u_int8_t	mfs_rsp_data:2;
+	u_int8_t	bm_sack1:4;
 	u_int8_t	fccs_av[3];
 } __attribute__((__packed__));
 
+
+/*
+Structure amended by Andrew Margolis to conform to IEEE 1901-2010 Table 6.10
+Now used only when beacon 000 delimiter detected
+Struct is 15 octets in length - octet 1 now part of sniffer_indicate
+*/
+
 struct hpav_bcn {
-	u_int8_t	del_type:3;
-	u_int8_t	access:1;
-	u_int8_t	snid:4;
 	u_int32_t	bts;
 	u_int16_t	bto_0;
 	u_int16_t	bto_1;
@@ -578,6 +591,131 @@ struct hpav_bcn {
 	u_int16_t	bto_3;
 	u_int8_t	fccs_av[3];
 } __attribute__((__packed__));
+
+/*
+Following four structs are for delimiter types 101, 011, 100  and 101 -  all added by Andrew Margolis
+All structs are 15 octets in length - octet 1 now part of sniffer_indicate
+*/
+
+struct hpav_sack {
+	u_int8_t	dtei;
+	u_int8_t	cfs:1;
+	u_int8_t	bdf:1;
+	u_int8_t	svn:1;
+	u_int8_t	rrtf:1;
+	u_int8_t	mfs_rsp_data:2;
+	u_int8_t	mfs_rsp_mgmt:2;
+	u_int8_t	variable_fields[10]; // See Section 6.4.1.1.5.3 and Table 6-28 of IEEE 1901-2010 
+//	u_int8_t	sackd:1;
+//	u_int8_t	bitpad:1;
+//	u_int8_t	rxwsz:1;
+//	u_int8_t	rrtl:1;
+	u_int8_t	fccs_av[3];
+} __attribute__((__packed__));
+
+struct hpav_rtscts {
+	u_int8_t	stei;
+	u_int8_t	dtei;
+	u_int8_t	lid;
+	u_int8_t	cfs:1;
+	u_int8_t	bdf:1;
+	u_int8_t	hp10df:1;
+	u_int8_t	hp11df:1;
+	u_int8_t	rtsf:1;
+	u_int8_t	igf:1; 
+	u_int8_t	mnbf:1;
+	u_int8_t	mcf:1;
+	u_int8_t	duration_and_reserved[8]; // See Section 6.4.1.1.5.4 and Table 6-37 of IEEE 1901-2010 
+//	u_int8_t	dur:14;
+//	u_int8_t	rsvd:50;
+	u_int8_t	fccs_av[3];
+} __attribute__((__packed__));
+
+struct hpav_sound {
+	u_int8_t	stei;
+	u_int8_t	dtei;
+	u_int8_t	lid;
+	u_int8_t	cfs:1;
+	u_int8_t	pbsz:1;
+	u_int8_t	bdf:1;
+	u_int8_t	saf:1;
+	u_int8_t	scf:1;
+	u_int8_t	req_tm:3;
+	u_int16_t	fl_av:12;
+	u_int8_t	mpducnt:2;
+	u_int8_t	rsvd_1:2;
+	u_int8_t	ppb;
+	u_int8_t	src;
+	u_int8_t	add_req_tm:3;
+	u_int8_t	max_pb_sym:3;
+	u_int8_t	ecsf:1;
+	u_int8_t	ecuf:1;
+	u_int8_t	ems:2;
+	u_int8_t	esgisf:1;
+	u_int8_t	elgisf:1;
+	u_int8_t	efrs:2;
+	u_int8_t	rsvd_2:2;
+	u_int8_t	rsvd_3[2];
+	u_int8_t	fccs_av[3];
+} __attribute__((__packed__));
+
+struct hpav_rsof {
+	u_int8_t	dtei;
+	u_int8_t	cfs:1;
+	u_int8_t	bdf:1;
+	u_int8_t	svn:1;
+	u_int8_t	rrtf:1;
+	u_int8_t	mfs_rsp_data:2;
+	u_int8_t	mfs_rsp_mgmt:2;
+	u_int8_t	variable_fields[7]; // See Section 6.4.1.1.5.6 and Table 6-46 of IEEE 1901-2010 
+//	u_int8_t	sackd:1;
+//	u_int8_t	bitpad:1;
+//	u_int8_t	rxwsz:1;
+//	u_int8_t	rrtl:1;
+	u_int16_t	rsof_fl:10;
+	u_int8_t	tmi:5;
+	u_int8_t	pbsz:1;
+	u_int8_t	numsym:2;
+	u_int8_t	mfscmdmg:3;
+	u_int8_t	mfscmdd:3;
+	u_int8_t	fccs_av[3];
+} __attribute__((__packed__));
+
+/*
+Following struct added by Andrew Margolis
+It follows IEEE 1901 Table 6-63 for 136 octets of the Beacon Payload Fields 
+*/
+
+struct beacon_mpdu_payload
+	{
+	u_int8_t	nid0;
+	u_int8_t	nid1;
+	u_int8_t	nid2;
+	u_int8_t	nid3;
+	u_int8_t	nid4;
+	u_int8_t	nid5;			// 0-5 octet
+	u_int8_t	nid6:6;
+	u_int8_t 	hm:2;			// 6 octet
+	u_int8_t	stei:8;			// 7 octet
+	u_int8_t	bt:3;
+	u_int8_t	ucnr:1;
+	u_int8_t	npsm:1;
+	u_int8_t	numslots:3;		// 8 octet
+	u_int8_t	slotusage;		// 9 octet
+	u_int8_t	slotid:3;
+	u_int8_t	aclss:3;
+	u_int8_t	hoip:1;
+	u_int8_t	rtsbf:1;		// 10 octet
+	u_int8_t	nm:2;
+	u_int8_t	bmcap:2;
+	u_int8_t	rsf:1;
+	u_int8_t	plevel:3;		// 11 octet
+	u_int8_t	bmi_opad [120];	// 12-131 octet
+	u_int32_t	bpcs;			// 132-135 octet
+	} __attribute__((__packed__));
+
+
+
 
 /* 0xA034 - Sniffer Request */
 struct sniffer_request {
@@ -592,15 +730,33 @@ struct sniffer_confirm {
 	u_int8_t	da[6];
 } __attribute__((__packed__));
 
-/* 0xA036 - Sniffer Indicate */
-struct sniffer_indicate {
+/* 0xA036 - Sniffer Indicate
+
+struct amended by Andrew Margolis 23/7/2015 to make faifa conform better to IEEE 1901-2010 standard
+sniffer_indicate struct amended to include first octet of TIA-1113 frame
+six separate sub-structs added as a union for decoding the six different IEEE 1901-2010 delimiters
+See also comments in frame.c
+*/
+
+struct sniffer_indicate 
+	{
 	u_int8_t	type;
 	u_int8_t	direction;
 	u_int64_t	systime;
 	u_int32_t	beacontime;
-	struct hpav_fc	fc;
-	struct hpav_bcn	bcn;
-} __attribute__((__packed__));
+	u_int8_t	del_type:3;
+	u_int8_t	access:1;
+	u_int8_t	snid:4;
+	union
+		{
+		struct hpav_bcn	bcn;  		// delimiter 000 beacon
+		struct hpav_fc	fc;			// delimiter 001 start of frame
+		struct hpav_sack sack;		// delimiter 010 selective acknowledge
+		struct hpav_rtscts rtscts;	// delimiter 011 request to send or clear to send
+		struct hpav_sound sound;	// delimiter 100 sound
+		struct hpav_rsof rsof;		// delimiter 101 reverse start of frame
+		} __attribute__((__packed__));
+	} __attribute__((__packed__));
 
 
 /* Network Info MME */
