@@ -5,6 +5,10 @@
  *		    	    Florian Fainelli <florian@openwrt.org>
  *			    Nicolas Thill <nico@openwrt.org>
  *
+ *	Modifications by Andrew Margolis (c) 2015 to produce human-readable MPDU frame 
+ *	control fields and Beacon MPDU payload fields in accordance with the IEEE 
+ *   1901-2010 Powerline standard - changes made to modules frame.c and homepluf_av.h.
+ *
  *  The BSD License
  *  ===============
  *  Redistribution and use in source and binary forms, with or without
@@ -115,6 +119,7 @@ int main(int argc, char **argv)
 	u_int8_t addr[ETHER_ADDR_LEN] = { 0 };
 
 	fprintf(stdout, "Faifa for HomePlug AV (GIT revision %s)\n\n", GIT_REV);
+	fprintf(stdout, "Modifications for better IEEE-1901-2010 conformance by Andrew Margolis\n\n");
 
 	if (argc < 2) {
 		usage();
