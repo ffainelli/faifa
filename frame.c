@@ -5,6 +5,10 @@
  *		    	    Florian Fainelli <florian@openwrt.org>
  *			    Nicolas Thill <nico@openwrt.org>
  *
+ *	Modifications by Andrew Margolis (c) 2015 to produce human-readable MPDU frame 
+ *	control fields and Beacon MPDU payload fields in accordance with the IEEE 
+ *   1901-2010 Powerline standard.
+ *							 
  *  The BSD License
  *  ===============
  *  Redistribution and use in source and binary forms, with or without
@@ -605,7 +609,7 @@ static int hpav_init_read_mod_data_request(void *buf, int len, void *UNUSED(buff
 	faifa_printf(out_stream, "Length? ");
 	fscanf(in_stream, "%hu", &(mm->length));
 	faifa_printf(out_stream, "Offset? ");
-	fscanf(in_stream, "%u", &(mm->offset));
+	fscanf(in_stream, "%u ", &(mm->offset));
 
 	avail -= sizeof(*mm);
 	return (len - avail);
@@ -747,15 +751,15 @@ static int hpav_dump_get_devices_attrs_confirm(void *buf, int len, struct ether_
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Cookie: %u\n", mm->cookie);
+	faifa_printf(out_stream, "Cookie: %u \n", mm->cookie);
 	faifa_printf(out_stream, "Report type: %s\n", mm->rtype ? "XML" : "Binary");
 	faifa_printf(out_stream, "Size: %d\n", mm->size);
 	faifa_printf(out_stream, "Hardware: %s\n", mm->fmt.hardware);
 	faifa_printf(out_stream, "Software: %s\n", mm->fmt.software);
-	faifa_printf(out_stream, "Major: %u\n", mm->fmt.major);
-	faifa_printf(out_stream, "Minor: %u\n", mm->fmt.minor);
-	faifa_printf(out_stream, "Subversion: %u\n", mm->fmt.subversion);
-	faifa_printf(out_stream, "Build number: %u\n", mm->fmt.build_number);
+	faifa_printf(out_stream, "Major: %u \n", mm->fmt.major);
+	faifa_printf(out_stream, "Minor: %u \n", mm->fmt.minor);
+	faifa_printf(out_stream, "Subversion: %u \n", mm->fmt.subversion);
+	faifa_printf(out_stream, "Build number: %u \n", mm->fmt.build_number);
 	faifa_printf(out_stream, "Build date: %s\n", mm->fmt.build_date);
 	faifa_printf(out_stream, "Release type: %s\n", mm->fmt.release_type);
 
@@ -1011,7 +1015,7 @@ static void dump_rx_link_stats(struct rx_link_stats *rx)
 		faifa_printf(out_stream, "-- Rx interval %d --\n", i);
 		faifa_printf(out_stream, "Rx PHY rate.....................: %02hhd\n",
 				rx->rx_interval_stats[i].phyrate);
-		faifa_printf(out_stream, "PB received successfully........: %"SCNu64"n",
+		faifa_printf(out_stream, "PB received successfully........: %"SCNu64"\n",
 				rx->rx_interval_stats[i].pb_passed);
 		faifa_printf(out_stream, "PB received failed..............: %"SCNu64"\n",
 				rx->rx_interval_stats[i].pb_failed);
@@ -1163,72 +1167,385 @@ static int hpav_dump_sniffer_confirm(void *buf, int len, struct ether_header *UN
 	return (len - avail);
 }
 
+/* The following six functions (c) Andrew Margolis were added or amended to make 
+faifa conform better to IEEE 1901-2010 standard by decoding all delimiters properly.
+
+The seventh added function was added to decode the important beacon MPDU payload.
+
+See also additions and amendents to homeplug_av.h 
+*/
+
+
+/*
+1. Function for decoding delimiter = start of frame - IEEE 1910-2010 Table 6-10
+*/
+
 static void dump_hpav_frame_ctl(struct hpav_fc *fc)
 {
-	u_int8_t rg_len;
-
-	faifa_printf(out_stream, "Delimiter type: %1hhx\n", fc->del_type);
-	faifa_printf(out_stream, "Access: %s\n", fc->access ? "Yes" : "No");
-	faifa_printf(out_stream, "SNID: %1hhx\n", fc->snid);
-	faifa_printf(out_stream, "STEI: %02hhx\n", fc->stei);
-	faifa_printf(out_stream, "DTEI: %02hhx\n", fc->dtei);
-	faifa_printf(out_stream, "Link ID: %02hhx\n", fc->lid);
-	faifa_printf(out_stream, "Contention free session: %s\n", fc->cfs ? "Yes" : "No");
-	faifa_printf(out_stream, "Beacon detect flag: %s\n", fc->bdf ? "Yes" : "No");
-	faifa_printf(out_stream, "HPAV version 1.0: %s\n", fc->hp10df ? "Yes" : "No");
-	faifa_printf(out_stream, "HPAV version 1.1: %s\n", fc->hp11df ? "Yes" : "No");
-	faifa_printf(out_stream, "EKS: %1hhx\n", fc->eks);
-	faifa_printf(out_stream, "Pending PHY blocks: %02hhx\n", fc->ppb);
-	faifa_printf(out_stream, "Bit loading estimate: %02hhx\n", fc->ble);
-	faifa_printf(out_stream, "PHY block size: %s\n", fc->pbsz ? "Yes" : "No");
-	faifa_printf(out_stream, "Number of symbols: %1hhx\n", fc->num_sym);
-	faifa_printf(out_stream, "Tonemap index: %1hhx\n", fc->tmi_av);
-	faifa_printf(out_stream, "HPAV frame length: %3hx\n", fc->fl_av);
-	faifa_printf(out_stream, "MPDU count: %1hhx\n", fc->mpdu_cnt);
-	faifa_printf(out_stream, "Burst count: %1hhx\n", fc->burst_cnt);
-	faifa_printf(out_stream, "Convergence layer SAP type: %1hhx\n", fc->clst);
-	rg_len = (fc->rg_len_hi << 5) | fc->rg_len_lo;
-	faifa_printf(out_stream, "Reverse Grant length: %2hhd\n", rg_len);
-	faifa_printf(out_stream, "Management MAC Frame Stream Command: %1hhx\n", fc->mfs_cmd_mgmt);
-	faifa_printf(out_stream, "Data MAC Frame Stream Command: %1hhx\n", fc->mfs_cmd_data);
-	faifa_printf(out_stream, "Request SACK Retransmission: %s\n", fc->rsr ? "Yes" : "No");
-	faifa_printf(out_stream, "Multicast: %s\n", fc->mcf ? "Yes" : "No");
-	faifa_printf(out_stream, "Different CP PHY Clock: %s\n", fc->mcf ? "Yes" : "No");
-	faifa_printf(out_stream, "Multinetwork Broadcast: %s\n", fc->mnbf ? "Yes" : "No");
-	faifa_printf(out_stream, "Frame control check sequence: 0x%2hhx%2hhx%2hhx\n",
-		fc->fccs_av[0], fc->fccs_av[1], fc->fccs_av[2]);
+	faifa_printf (out_stream, "STEI: %u (0x0%02hx)\n", (short unsigned int)(fc->stei),(short unsigned int)(fc->stei));
+	faifa_printf (out_stream, "DTEI: %u (0x0%02hx)\n", (short unsigned int)(fc->dtei),(short unsigned int)(fc->dtei));
+	faifa_printf (out_stream, "Link ID: %u (0x0%02hx)\n", (short unsigned int)(fc->lid),(short unsigned int)(fc->lid));
+	faifa_printf (out_stream, "Contention free session: %s\n", fc->cfs ? "Yes" : "No (CSMA)");
+	faifa_printf (out_stream, "Beacon detected: %s\n", fc->bdf ? "Yes" : "No");
+	faifa_printf (out_stream, "TIA-1113 Detected: %s\n", fc->hp10df ? "Yes" : "No");
+	faifa_printf (out_stream, "1901-aware-TIA-1113 Detected: %s\n", fc->hp11df ? "Yes" : "No");
+	faifa_printf (out_stream, "Encryption Key Select: %u (0x0%1hx) = ", (short unsigned int)(fc->eks),(short unsigned int)(fc->eks));
+	faifa_printf (out_stream, "%s", (fc->eks & 8) ? "1" : "0");
+	faifa_printf (out_stream, "%s", (fc->eks & 4) ? "1" : "0");
+	faifa_printf (out_stream, "%s", (fc->eks & 2) ? "1" : "0");
+	faifa_printf (out_stream, "%s\n", (fc->eks & 1) ? "1" : "0");
+	faifa_printf (out_stream, "Pending PHY blocks: %u (0x0%02hx)\n", (short unsigned int)(fc->ppb),(short unsigned int)(fc->ppb));
+	faifa_printf (out_stream, "Bit loading estimate: %u (0x0%02hx)\n", (short unsigned int)(fc->ble),(short unsigned int)(fc->ble));
+	faifa_printf (out_stream, "PHY block size: %s octets\n", fc->pbsz ? "136" : "520");
+	faifa_printf (out_stream, "Number of symbols: %u (0x0%1hx)\n", (short unsigned int)(fc->num_sym),(short unsigned int)(fc->num_sym));
+	faifa_printf (out_stream, "1901 Tonemap index: %u (0x0%1hx)\n", (short unsigned int)(fc->tmi_av),(short unsigned int)(fc->tmi_av));
+	faifa_printf (out_stream, "1901 frame length in multiples of 1.28 usec: %u (0x0%3hx) = ", fc->fl_av,fc->fl_av);
+	if (fc->fl_av > 0x3d) 
+		{
+		faifa_printf (out_stream, "%g usec\n", ((float)(fc->fl_av*128/100)));
+		}
+	else
+		{
+		faifa_printf (out_stream, "Reserved\n");
+		}
+	faifa_printf (out_stream, "Count of MPDUs to follow: %u (0x0%1hx)\n", (short unsigned int)(fc->mpdu_cnt),(short unsigned int)(fc->mpdu_cnt));
+	faifa_printf (out_stream, "Burst count: %u (0x0%1hx)\n", (short unsigned int)(fc->burst_cnt),(short unsigned int)(fc->burst_cnt));
+	faifa_printf (out_stream, "Bidirectional Burst: %s after this MPDU\n", fc->bbf ? "Continue" : "Terminate");
+	faifa_printf (out_stream, "Max Reverse Transmission Frame Length: %u (0x0%1hx)\n", (short unsigned int)(fc->mrtfl),(short unsigned int)(fc->mrtfl));
+	faifa_printf (out_stream, "Different CP PHY Clock Flag: %s\n", fc->dcppcf ? "Yes" : "No");
+	faifa_printf (out_stream, "Long MPDU multicast: %s\n", fc->mcf ? "Yes" : "No (unicast)");
+	faifa_printf (out_stream, "Multi-network Broadcast: %s\n", fc->mnbf ? "Yes" : "No");
+	faifa_printf (out_stream, "Request SACK Retransmission: %s\n", fc->rsr ? "Yes" : "No");
+	faifa_printf (out_stream, "MAC SAP Type: %s\n", fc->mst ? "Reserved" : "Ethernet II");
+	faifa_printf (out_stream, "Management MAC Frame Stream Command: %u (0x0%1hx)\n", (short unsigned int)(fc->mfs_cmd_mgmt),(short unsigned int)(fc->mfs_cmd_mgmt));
+	faifa_printf (out_stream, "Data MAC Frame Stream Command: %u (0x0%1hx)\n", (short unsigned int)(fc->mfs_cmd_data),(short unsigned int)(fc->mfs_cmd_data));
+	faifa_printf (out_stream, "Management MAC Frame Stream Response: %u (0x0%1hx)\n", (short unsigned int)(fc->mfs_rsp_mgmt),(short unsigned int)(fc->mfs_rsp_mgmt));
+	faifa_printf (out_stream, "Data MAC Frame Stream Response: %u (0x0%1hx)\n", (short unsigned int)(fc->mfs_rsp_data),(short unsigned int)(fc->mfs_rsp_data));
+	faifa_printf (out_stream, "Bit Map SACK: %u (0x0%1hx)\n", (short unsigned int)(fc->bm_sack1),(short unsigned int)(fc->bm_sack1));
+	faifa_printf (out_stream, "Frame control check sequence: 0x0%2hx%2hx%2hx\n",
+		(unsigned int)(fc->fccs_av[0]),
+		(unsigned int)(fc->fccs_av[1]),
+		(unsigned int)(fc->fccs_av[2]));
 }
 
-static void dump_hpav_beacon(struct hpav_bcn *bcn)
+/*
+2. Function for decoding delimiter = beacon - IEEE 1910-2010 Table 6-9
+*/
+
+void dump_hpav_beacon(struct hpav_bcn *bcn)
 {
-	faifa_printf(out_stream, "Delimiter type: %1hhx\n", bcn->del_type);
-	faifa_printf(out_stream, "Access: %s\n", bcn->access ? "Yes" : "No");
-	faifa_printf(out_stream, "SNID: %1hhx\n", bcn->snid);
-	faifa_printf(out_stream, "Beacon timestamp: %u (0x%08x)\n",
+	faifa_printf (out_stream, "Beacon timestamp: %u (0x%08x)\n",
 		bcn->bts, bcn->bts);
-	faifa_printf(out_stream, "Beacon transmission offset 0: %d (0x%04hx)\n",
+	faifa_printf (out_stream, "Beacon transmission offset 0: %d (0x%04hx)\n",
 		bcn->bto_0, bcn->bto_0);
-	faifa_printf(out_stream, "Beacon transmission offset 1: %d (0x%04hx)\n",
+	faifa_printf (out_stream, "Beacon transmission offset 1: %d (0x%04hx)\n",
 		bcn->bto_1, bcn->bto_1);
-	faifa_printf(out_stream, "Beacon transmission offset 2: %d (0x%04hx)\n",
+	faifa_printf (out_stream, "Beacon transmission offset 2: %d (0x%04hx)\n",
 		bcn->bto_2, bcn->bto_2);
-	faifa_printf(out_stream, "Beacon transmission offset 3: %d (0x%04hx)\n",
+	faifa_printf (out_stream, "Beacon transmission offset 3: %d (0x%04hx)\n",
 		bcn->bto_3, bcn->bto_3);
-	faifa_printf(out_stream, "Frame control check sequence: 0x%2hhx%2hhx%2hhx\n",
+	faifa_printf (out_stream, "Frame control check sequence: 0x0%2hhx%2hhx%2hhx\n",
 		bcn->fccs_av[0], bcn->fccs_av[1], bcn->fccs_av[2]);
 }
+
+/*
+3. Function for decoding delimiter = sack - IEEE 1910-2010 Table 6-28
+*/
+
+void dump_hpav_sack(struct hpav_sack *sack)
+{
+	faifa_printf (out_stream, "DTEI: %u (0x0%02hx)\n", (short unsigned int)(sack->dtei),(short unsigned int)(sack->dtei));
+	faifa_printf (out_stream, "Contention free session: %s\n", sack->cfs ? "Yes" : "No (CSMA)");
+	faifa_printf (out_stream, "Beacon detected: %s\n", sack->bdf ? "Yes" : "No");
+	faifa_printf (out_stream, "Sack version number: %s\n", sack->svn ? "1" : "0");
+	faifa_printf (out_stream, "Request Reverse Transmission: %s\n", sack->rrtf ? "Requested" : "Not requested");
+	faifa_printf (out_stream, "Data MAC Frame Stream Response: %u (0x0%1hx)\n", (short unsigned int)(sack->mfs_rsp_data),(short unsigned int)(sack->mfs_rsp_data));
+	faifa_printf (out_stream, "Management MAC Frame Stream Response: %u (0x0%1hx)\n", (short unsigned int)(sack->mfs_rsp_mgmt),(short unsigned int)(sack->mfs_rsp_mgmt));
+	faifa_printf (out_stream, "Frame control check sequence: 0x0%2hx%2hx%2hx\n",
+		(unsigned int)(sack->fccs_av[0]),
+		(unsigned int)(sack->fccs_av[1]),
+		(unsigned int)(sack->fccs_av[2]));
+}
+
+/*
+4. Function for decoding delimiter = RTS/CTS - IEEE 1910-2010 Table 6-37
+*/
+
+void dump_hpav_rtscts(struct hpav_rtscts *rtscts)
+{
+	faifa_printf (out_stream, "STEI: %u (0x0%02hx)\n", (short unsigned int)(rtscts->stei),(short unsigned int)(rtscts->stei));
+	faifa_printf (out_stream, "DTEI: %u (0x0%02hx)\n", (short unsigned int)(rtscts->dtei),(short unsigned int)(rtscts->dtei));
+	faifa_printf (out_stream, "Link ID: %u (0x0%02hx)\n", (short unsigned int)(rtscts->lid),(short unsigned int)(rtscts->lid));
+	faifa_printf (out_stream, "Contention free session: %s\n", rtscts->cfs ? "Yes" : "No (CSMA)");
+	faifa_printf (out_stream, "Beacon detected: %s\n", rtscts->bdf ? "Yes" : "No");
+	faifa_printf (out_stream, "TIA-113 Detected: %s\n", rtscts->hp10df ? "Yes" : "No");
+	faifa_printf (out_stream, "1901-aware-TIA-1113 Detected: %s\n", rtscts->hp11df ? "Yes" : "No");
+	faifa_printf (out_stream, "RTS flag: %s MPDU\n", rtscts->rtsf ? "RTS" : "CTS");
+	faifa_printf (out_stream, "Immediate Grant Flag: %s\n", rtscts->igf ? "Yes" : "No");
+	faifa_printf (out_stream, "Multi-network Broadcast: %s\n", rtscts->mnbf ? "Yes" : "No");
+	faifa_printf (out_stream, "Multicast: %s\n", rtscts->mcf ? "Yes" : "No");
+	faifa_printf (out_stream, "Frame control check sequence: 0x0%2hx%2hx%2hx\n",
+		(unsigned int)(rtscts->fccs_av[0]),
+		(unsigned int)(rtscts->fccs_av[1]),
+		(unsigned int)(rtscts->fccs_av[2]));
+}
+
+/*
+5. Function for decoding delimiter = sound - IEEE 1910-2010 Table 6-40
+*/
+
+void dump_hpav_sound(struct hpav_sound *sound)
+{
+	faifa_printf (out_stream, "STEI: %u (0x0%02hx)\n", (short unsigned int)(sound->stei),(short unsigned int)(sound->stei));
+	faifa_printf (out_stream, "DTEI: %u (0x0%02hx)\n", (short unsigned int)(sound->dtei),(short unsigned int)(sound->dtei));
+	faifa_printf (out_stream, "Link ID: %u (0x0%02hx)\n", (short unsigned int)(sound->lid),(short unsigned int)(sound->lid));
+	faifa_printf (out_stream, "Contention free session: %s\n", sound->cfs ? "Yes" : "No (CSMA)");
+	faifa_printf (out_stream, "PHY block size: %s octets\n", sound->pbsz ? "136" : "520");
+	faifa_printf (out_stream, "Beacon detected: %s\n", sound->bdf ? "Yes" : "No");
+	faifa_printf (out_stream, "Sound Ack Flag: %s\n", sound->saf ? "Yes" : "No");
+	faifa_printf (out_stream, "Sound Complete Flag: %s\n", sound->scf ? "Yes" : "No");
+	faifa_printf (out_stream, "Tone Maps Requested: %u (0x0%02hx)\n", (short unsigned int)(sound->req_tm),(short unsigned int)(sound->req_tm));
+	faifa_printf (out_stream, "1901 frame length in multiples of 1.28 usec: %u (0x0%3hx) = ", sound->fl_av,sound->fl_av);
+	if (sound->fl_av > 0x3d) 
+		{
+		faifa_printf (out_stream, "%g usec\n", ((float)(sound->fl_av*128/100)));
+		}
+	else
+		{
+		faifa_printf (out_stream, "Reserved\n");
+		}
+	faifa_printf (out_stream, "MPDU count: %u (0x0%1hx)\n", (short unsigned int)(sound->mpducnt),(short unsigned int)(sound->mpducnt));
+	faifa_printf (out_stream, "Pending PHY blocks: %u (0x0%02hx)\n", (short unsigned int)(sound->ppb),(short unsigned int)(sound->ppb));
+	faifa_printf (out_stream, "Sound Reason Code: %u (0x0%02hx)\n", (short unsigned int)(sound->src),(short unsigned int)(sound->src));
+	faifa_printf (out_stream, "Additional Tone Maps Requested: %u (0x0%02hx)\n", (short unsigned int)(sound->add_req_tm),(short unsigned int)(sound->add_req_tm));
+	faifa_printf (out_stream, "Maximum PBs per symbol: %u (0x0%02hx)\n", (short unsigned int)(sound->max_pb_sym),(short unsigned int)(sound->max_pb_sym));
+	faifa_printf (out_stream, "Extended Carriers Support Flag: %s\n", sound->ecsf ? "Yes" : "No");
+	faifa_printf (out_stream, "Extended Carriers Used Flag: %s\n", sound->ecuf ? "Yes" : "No");
+	faifa_printf (out_stream, "Extended Modulation Support: %u (0x0%1hx)\n", (short unsigned int)(sound->ems),(short unsigned int)(sound->ems));
+	faifa_printf (out_stream, "Extended Smaller GI Support Flag: %s\n", sound->esgisf ? "Yes" : "No");
+	faifa_printf (out_stream, "Extended Larger GI Support Flag: %s\n", sound->elgisf ? "Yes" : "No");
+	faifa_printf (out_stream, "Extended FEC Rate Support: %u (0x0%02hx)\n", (short unsigned int)(sound->efrs),(short unsigned int)(sound->efrs));
+	faifa_printf (out_stream, "Frame control check sequence: 0x0%2hx%2hx%2hx\n",
+		(unsigned int)(sound->fccs_av[0]),
+		(unsigned int)(sound->fccs_av[1]),
+		(unsigned int)(sound->fccs_av[2]));
+}
+
+/*
+6. Function for decoding delimiter = reverse start of frame - IEEE 1910-2010 Table 6-46
+*/
+
+void dump_hpav_rsof(struct hpav_rsof *rsof)
+{
+	faifa_printf (out_stream, "DTEI: %u (0x0%02hx)\n", (short unsigned int)(rsof->dtei),(short unsigned int)(rsof->dtei));
+	faifa_printf (out_stream, "Contention free session: %s\n", rsof->cfs ? "Yes" : "No (CSMA)");
+	faifa_printf (out_stream, "Beacon detected: %s\n", rsof->bdf ? "Yes" : "No");
+	faifa_printf (out_stream, "Sack version number: %s\n",rsof->svn ? "1" : "0");
+	faifa_printf (out_stream, "Request Reverse Transmission: %s\n", rsof->rrtf ? "Yes" : "No");
+	faifa_printf (out_stream, "Data MAC Frame Stream Response: %u (0x0%1hx)\n", (short unsigned int)(rsof->mfs_rsp_data),(short unsigned int)(rsof->mfs_rsp_data));
+	faifa_printf (out_stream, "Management MAC Frame Stream Response: %u (0x0%1hx)\n", (short unsigned int)(rsof->mfs_rsp_mgmt),(short unsigned int)(rsof->mfs_rsp_mgmt));
+	faifa_printf (out_stream, "Reverse SOF Frame length: %u (0x0%3hx) = ", rsof->rsof_fl,rsof->rsof_fl);
+	if ((rsof->rsof_fl < 0x3e) || (rsof->rsof_fl > 0x3ff)) 
+		{
+		faifa_printf (out_stream, "Reserved\n");
+		}
+	else
+		{
+		if (rsof->rsof_fl < 0x200) 
+			{
+			faifa_printf (out_stream, "%g usec\n", ((float)(rsof->rsof_fl*128/100)));
+			}
+		else
+			{
+			faifa_printf (out_stream, "%g usec\n", ((float)(rsof->rsof_fl*256/100)));
+			}
+		}
+	faifa_printf (out_stream, "1901 Tone Map Index: %u (0x0%02hx)\n", (short unsigned int)(rsof->tmi),(short unsigned int)(rsof->tmi));
+	faifa_printf (out_stream, "PHY block size: %s\n", rsof->pbsz ? "Yes" : "No");
+	faifa_printf (out_stream, "Number of Symbols: %u (0x0%1hx)\n", (short unsigned int)(rsof->numsym),(short unsigned int)(rsof->numsym));
+	faifa_printf (out_stream, "Management MAC Frame Stream Command: %u (0x0%1hx)\n", (short unsigned int)(rsof->mfscmdmg),(short unsigned int)(rsof->mfscmdmg));
+	faifa_printf (out_stream, "Data MAC Frame Stream Command: %u (0x0%1hx)\n", (short unsigned int)(rsof->mfscmdd),(short unsigned int)(rsof->mfscmdd));
+	faifa_printf (out_stream, "Frame control check sequence: 0x0%2hx%2hx%2hx\n",
+		(unsigned int)(rsof->fccs_av[0]),
+		(unsigned int)(rsof->fccs_av[1]),
+		(unsigned int)(rsof->fccs_av[2]));
+}
+
+/***************************************************************************/
+
+/*
+7. Function for dumping beacon mpdu payload according to IEEE 1901-2010 Table 6-63
+*/
+
+void dump_beacon_mpdu_payload (struct beacon_mpdu_payload *bmp)
+{
+	faifa_printf (out_stream, "\nBeacon MPDU payload:\n");
+	faifa_printf (out_stream,  "Network Identifier: %02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx\n",bmp->nid0,bmp->nid1,bmp->nid2,bmp->nid3,bmp->nid4,bmp->nid5,bmp->nid6);
+	faifa_printf (out_stream,  "1901 FTT Hybrid Mode: %u (0x0%02hx) = ",bmp->hm,bmp->hm);
+	switch (bmp->hm)
+		{
+		case 0:
+		faifa_printf (out_stream, "FFT-only mode\n");
+		break;
+		case 1:
+		faifa_printf (out_stream, "Only in shared CSMA allocations\n");
+		break;
+		case 2:
+		faifa_printf (out_stream, "Fully hybrid in all CSMA, CFPI, and CFP allocations\n");
+		break;
+		case 3:
+		faifa_printf (out_stream, "Hybrid delimiters, non-TIA 1113 frame lengths, CSMA-only mode\n");
+		default:
+		break;
+		}
+	faifa_printf (out_stream,  "STEI: %u (0x0%02hx)\n",(short unsigned int)(bmp->stei),(short unsigned int)(bmp->stei));
+	faifa_printf (out_stream,  "Beacon Type: %u (0x0%02hx) = ",bmp->bt,bmp->bt);
+	switch (bmp->bt)
+		{
+		case 0:
+		faifa_printf (out_stream, "Central");
+		break;
+		case 1:
+		faifa_printf (out_stream, "Discover");
+		break;
+		case 2:
+		faifa_printf (out_stream, "Proxy");
+		break;
+		case 3:
+		faifa_printf (out_stream, "Reserved");
+		default:
+		break;
+		}
+	faifa_printf (out_stream, "\n");
+	faifa_printf (out_stream,  "Uncoordinated Networks Reported: %s\n",bmp->ucnr ? "Yes" : "No");
+	faifa_printf (out_stream,  "Network Power-Saving Mode: %s\n",bmp->npsm ? "Yes" : "No");
+	faifa_printf (out_stream,  "Number of Beacon Slots: %u (0x0%02hx) = %u\n",(short unsigned int)(bmp->numslots),(short unsigned int)(bmp->numslots),(short unsigned int)(bmp->numslots+1));	// 8
+	faifa_printf (out_stream,  "Beacon Slot Usage (bitmapped): %u (0x0%02hx) = ",(short unsigned int)(bmp->slotusage),(short unsigned int)(bmp->slotusage));		// 9
+	int bit ;
+	for (bit = 128 ; bit > 0 ; bit >>= 1)
+		faifa_printf (out_stream,"%s", (bmp->slotusage & bit) ? "1" : "0");
+	faifa_printf (out_stream,  "\n");
+	faifa_printf (out_stream,  "Beacon Slot ID: %u (0x0%02hx) = %u\n",(short unsigned int)(bmp->slotid),(short unsigned int)(bmp->slotid),(short unsigned int)(bmp->slotid+1));
+	faifa_printf (out_stream,  "AC Line Cycle Synchronization Status: %u (0x0%02hx)\n",(short unsigned int)(bmp->aclss),(short unsigned int)(bmp->aclss));
+	faifa_printf (out_stream,  "Handover-In-Progress: %u (0x0%02hx)\n",(short unsigned int)(bmp->hoip),(short unsigned int)(bmp->hoip));
+	faifa_printf (out_stream,  "RTS Broadcast: %s\n",bmp->rtsbf ? "Yes" : "No");		// 10
+	faifa_printf (out_stream,  "Network Mode: %u (0x0%02hx) = ",bmp->nm,bmp->nm);
+	switch (bmp->nm)
+		{
+		case 0:
+		faifa_printf (out_stream, "Uncoordinated mode");
+		break;
+		case 1:
+		faifa_printf (out_stream, "Coordinated mode");
+		break;
+		case 2:
+		faifa_printf (out_stream, "CSMA-Only mode");
+		break;
+		case 3:
+		faifa_printf (out_stream, "Reserved");
+		default:
+		break;
+		}
+	faifa_printf (out_stream, "\n");
+	faifa_printf (out_stream,  "BSS Manager Capability: %u (0x0%02hx) = Level ",bmp->bmcap,bmp->bmcap);
+	switch (bmp->bmcap)
+		{
+		case 0:
+		faifa_printf (out_stream, "0 - CSMA-only mode no QoS/TDMA support");
+		break;
+		case 1:
+		faifa_printf (out_stream, "1 - Uncoordinated mode QoS/TDMA support");
+		break;
+		case 2:
+		faifa_printf (out_stream, "2 - Coordinated mode QoS/TDMA support");
+		break;
+		case 3:
+		faifa_printf (out_stream, "3 - Reserved");
+		default:
+		break;
+		}
+	faifa_printf (out_stream, "\n");
+	faifa_printf (out_stream,  "Reusable SNID: %s\n",bmp->rsf ? "Yes" : "No");
+	faifa_printf (out_stream,  "Proxy Level: %u (0x0%02hx)\n",(short unsigned int)(bmp->plevel),(short unsigned int)(bmp->plevel));		// 11
+	faifa_printf (out_stream,  "Beacon Payload Check Sequence: %04x\n",(u_int32_t)(bmp->bpcs));		// 132-135
+}
+
+/* The following functions include amendments (c) Andrew Margolis to make faifa conform better to 
+   IEEE 1901-2010 standards by decoded all six possible delimiters in sniffed frames properly.*/
 
 static int hpav_dump_sniffer_indicate(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
 	int avail = len;
 	struct sniffer_indicate *mm = buf;
-
 	faifa_printf(out_stream, "Type: %s\n", mm->type ? "Unknown" : "Regular");
 	faifa_printf(out_stream, "Direction: %s\n", mm->direction ? "Rx" : "Tx");
-	faifa_printf(out_stream, "System time: %"SCNu64"n", mm->systime);
-	faifa_printf(out_stream, "Beacon time: %u\n", mm->beacontime);
-	dump_hpav_frame_ctl(&(mm->fc));
-	dump_hpav_beacon(&(mm->bcn));
+	faifa_printf(out_stream, "System time: %"SCNu64" (0x0%08x)\n", mm->systime, (unsigned int)mm->systime);
+	faifa_printf(out_stream, "Beacon time: %u (0x0%04x)\n\n", mm->beacontime,mm->beacontime);
+	faifa_printf(out_stream, "Delimiter type: %u (0x0%1hhx = ", mm->del_type,mm->del_type);
+	switch (mm->del_type)
+	{
+	case 0: // binary 000
+		faifa_printf(out_stream, "Beacon");
+		break;
+	case 1: // binary 001
+		faifa_printf(out_stream, "Start of Frame");
+		break;
+	case 2: //binary 010
+		faifa_printf(out_stream, "Selective Acknowledgement");
+		break;
+	case 3: //binary 011
+		faifa_printf(out_stream, "RTS/CTS");
+		break;
+	case 4: // binary 100
+		faifa_printf(out_stream, "Sound");
+		break;
+	case 5: // binary 101
+		faifa_printf(out_stream, "Reverse Start of Frame");
+		break;
+	default:
+		faifa_printf(out_stream, "Reserved");
+		break;
+	}
+	printf (")\n");
+	faifa_printf (out_stream, "Access field: %u (0x0%1hhx) = ", mm->access, mm->access);
+	faifa_printf (out_stream, "%s\n", mm->access ? "Access Network" : "In-home Network");
+	faifa_printf(out_stream, "SNID: %u (0x0%1hhx)\n", mm->snid, mm->snid);
+	
+	switch (mm->del_type) {
+	case 0: // binary 000
+		faifa_printf(out_stream, "Beacon variant fields:\n");
+		dump_hpav_beacon(&(mm->bcn));
+		if ((len - sizeof (*mm)) >= 136) // check we have the data for the 136 octet beacon payload
+			{ 
+			struct beacon_mpdu_payload *bmp = buf+sizeof(*mm) ;
+			dump_beacon_mpdu_payload (bmp);
+			avail -= sizeof(*bmp);
+			}
+		break;
+	case 1: // binary 001
+		faifa_printf(out_stream, "Start of Frame variant fields:\n");
+		dump_hpav_frame_ctl(&(mm->fc));
+		break;
+	case 2: //binary 010
+		faifa_printf(out_stream, "Selective Acknowledgement variant fields:\n");
+		dump_hpav_sack(&(mm->sack));
+		break;
+	case 3: //binary 011
+		faifa_printf(out_stream, "RTS/CTS variant fields:\n");
+		dump_hpav_rtscts(&(mm->rtscts));
+		break;
+	case 4: // binary 100
+		faifa_printf(out_stream, "Sound variant fields:\n");
+		dump_hpav_sound(&(mm->sound));
+		break;
+	case 5: // binary 101
+		faifa_printf(out_stream, "Reverse Start of Frame variant fields:\n");
+		dump_hpav_rsof(&(mm->rsof));
+		break;
+	default:
+		faifa_printf(out_stream, "Undecoded (reserved delimiter)\n");
+		break;
+	}
 
 	avail -= sizeof(*mm);
 
@@ -1307,8 +1624,8 @@ static int hpav_dump_check_points_indicate(void *buf, int len, struct ether_head
 	faifa_printf(out_stream, "Major: %s\n", mm->major ? "< 1.4" : "> 1.4");
 	faifa_printf(out_stream, "Checkpoint buffer locked: %s\n", mm->buf_locked ? "Yes" : "No");
 	faifa_printf(out_stream, "Auto-lock on reset supported: %s\n", mm->auto_lock ? "Yes" : "No");
-	faifa_printf(out_stream, "Unsollicited update supported: %s\n", mm->unsoc_upd ? "Yes" : "No");
-	faifa_printf(out_stream, "Unsollicited: %s\n", mm->unsoc ? "Yes" : "No");
+	faifa_printf(out_stream, "Unsolicited update supported: %s\n", mm->unsoc_upd ? "Yes" : "No");
+	faifa_printf(out_stream, "Unsolicited: %s\n", mm->unsoc ? "Yes" : "No");
 	faifa_printf(out_stream, "Session: %04hx\n", mm->session_id);
 	faifa_printf(out_stream, "Length: %u (0x%08x)\n", mm->length, mm->length);
 	faifa_printf(out_stream, "Offset: 0x%08x\n", mm->offset);
