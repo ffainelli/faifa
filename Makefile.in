@@ -14,6 +14,7 @@
 CC	= @CC@
 STRIP	?= $(CROSS)strip
 CFLAGS	= @CFLAGS@
+LDFLAGS	= @LDFLAGS@
 INSTALL	= @INSTALL@
 LIBS	= @LIBS@
 
@@ -50,7 +51,7 @@ SIM_LIBS:=-levent
 SIM_CFLAGS:=-Wno-unused
 
 ifeq ($(OS),DARWIN)
-LDFLAGS:=-dynamiclib -Wl,-dylib_install_name -Wl,$(LIB_SONAME)
+LDFLAGS+=-dynamiclib -Wl,-dylib_install_name -Wl,$(LIB_SONAME)
 endif
 
 LIBS:=$(LDFLAGS) $(LIBS)
