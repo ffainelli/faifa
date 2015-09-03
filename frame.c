@@ -609,7 +609,7 @@ static int hpav_init_read_mod_data_request(void *buf, int len, void *UNUSED(buff
 	faifa_printf(out_stream, "Length? ");
 	fscanf(in_stream, "%hu", &(mm->length));
 	faifa_printf(out_stream, "Offset? ");
-	fscanf(in_stream, "%u ", &(mm->offset));
+	fscanf(in_stream, "%u", &(mm->offset));
 
 	avail -= sizeof(*mm);
 	return (len - avail);
@@ -751,15 +751,15 @@ static int hpav_dump_get_devices_attrs_confirm(void *buf, int len, struct ether_
 		goto out;
 		break;
 	}
-	faifa_printf(out_stream, "Cookie: %u \n", mm->cookie);
+	faifa_printf(out_stream, "Cookie: %u\n", mm->cookie);
 	faifa_printf(out_stream, "Report type: %s\n", mm->rtype ? "XML" : "Binary");
 	faifa_printf(out_stream, "Size: %d\n", mm->size);
 	faifa_printf(out_stream, "Hardware: %s\n", mm->fmt.hardware);
 	faifa_printf(out_stream, "Software: %s\n", mm->fmt.software);
-	faifa_printf(out_stream, "Major: %u \n", mm->fmt.major);
-	faifa_printf(out_stream, "Minor: %u \n", mm->fmt.minor);
-	faifa_printf(out_stream, "Subversion: %u \n", mm->fmt.subversion);
-	faifa_printf(out_stream, "Build number: %u \n", mm->fmt.build_number);
+	faifa_printf(out_stream, "Major: %u\n", mm->fmt.major);
+	faifa_printf(out_stream, "Minor: %u\n", mm->fmt.minor);
+	faifa_printf(out_stream, "Subversion: %u\n", mm->fmt.subversion);
+	faifa_printf(out_stream, "Build number: %u\n", mm->fmt.build_number);
 	faifa_printf(out_stream, "Build date: %s\n", mm->fmt.build_date);
 	faifa_printf(out_stream, "Release type: %s\n", mm->fmt.release_type);
 
@@ -1015,7 +1015,7 @@ static void dump_rx_link_stats(struct rx_link_stats *rx)
 		faifa_printf(out_stream, "-- Rx interval %d --\n", i);
 		faifa_printf(out_stream, "Rx PHY rate.....................: %02hhd\n",
 				rx->rx_interval_stats[i].phyrate);
-		faifa_printf(out_stream, "PB received successfully........: %"SCNu64"\n",
+		faifa_printf(out_stream, "PB received successfully........: %"SCNu64"n",
 				rx->rx_interval_stats[i].pb_passed);
 		faifa_printf(out_stream, "PB received failed..............: %"SCNu64"\n",
 				rx->rx_interval_stats[i].pb_failed);
@@ -1470,8 +1470,8 @@ void dump_beacon_mpdu_payload (struct beacon_mpdu_payload *bmp)
 	faifa_printf (out_stream,  "Beacon Payload Check Sequence: %04x\n",(u_int32_t)(bmp->bpcs));		// 132-135
 }
 
-/* The following functions include amendments (c) Andrew Margolis to make faifa conform better to 
-   IEEE 1901-2010 standards by decoded all six possible delimiters in sniffed frames properly.*/
+/* The following function includes amendments (c) Andrew Margolis to make faifa conform better to 
+   IEEE 1901-2010 standards by decoding all six possible delimiters in sniffed frames properly.*/
 
 static int hpav_dump_sniffer_indicate(void *buf, int len, struct ether_header *UNUSED(hdr))
 {
@@ -1624,8 +1624,8 @@ static int hpav_dump_check_points_indicate(void *buf, int len, struct ether_head
 	faifa_printf(out_stream, "Major: %s\n", mm->major ? "< 1.4" : "> 1.4");
 	faifa_printf(out_stream, "Checkpoint buffer locked: %s\n", mm->buf_locked ? "Yes" : "No");
 	faifa_printf(out_stream, "Auto-lock on reset supported: %s\n", mm->auto_lock ? "Yes" : "No");
-	faifa_printf(out_stream, "Unsolicited update supported: %s\n", mm->unsoc_upd ? "Yes" : "No");
-	faifa_printf(out_stream, "Unsolicited: %s\n", mm->unsoc ? "Yes" : "No");
+	faifa_printf(out_stream, "Unsollicited update supported: %s\n", mm->unsoc_upd ? "Yes" : "No");
+	faifa_printf(out_stream, "Unsollicited: %s\n", mm->unsoc ? "Yes" : "No");
 	faifa_printf(out_stream, "Session: %04hx\n", mm->session_id);
 	faifa_printf(out_stream, "Length: %u (0x%08x)\n", mm->length, mm->length);
 	faifa_printf(out_stream, "Offset: 0x%08x\n", mm->offset);

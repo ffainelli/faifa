@@ -7,7 +7,7 @@
  *
  *	Modifications by Andrew Margolis (c) 2015 to produce human-readable MPDU frame 
  *	control fields and Beacon MPDU payload fields in accordance with the IEEE 
- *   1901-2010 Powerline standard.
+ *  1901-2010 Powerline standard.
  *							 
  *  The BSD License
  *  ===============

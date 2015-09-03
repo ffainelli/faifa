@@ -119,7 +119,6 @@ int main(int argc, char **argv)
 	u_int8_t addr[ETHER_ADDR_LEN] = { 0 };
 
 	fprintf(stdout, "Faifa for HomePlug AV (GIT revision %s)\n\n", GIT_REV);
-	fprintf(stdout, "Modifications for better IEEE-1901-2010 conformance by Andrew Margolis\n\n");
 
 	if (argc < 2) {
 		usage();

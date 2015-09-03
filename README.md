@@ -11,7 +11,7 @@ differentially according to delimiter type, and also for decoding beacon MPDU pa
 
 Various changes made to better describe fields and give values in both decimal and hex (and occasionally binary).
 
-Tested using Debian GNU/Linux 8 with a variety of Homeplug adapters having both QCA and Broadcmm chipsets.
+Tested using Debian GNU/Linux 8 with a variety of Homeplug adapters having both QCA and Broadcom chipsets.
 
 (Obviously, the Broadcom chipsets don't implement the Intellon/QCA proprietary sniffer mode, but the frames they 
-emit can be successfully sniffed once an Intellon/QCA adapter is added to a Broadcmm Homeplug network).
+emit can be successfully sniffed once an Intellon/QCA adapter is added to a Broadcom Homeplug network).
