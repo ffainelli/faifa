@@ -40,6 +40,7 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "endian.h"
 #include "sha2.h"
 
 /*
