@@ -53,8 +53,6 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-#include <linux/if_ether.h>
-
 #include "homeplug_av.h"
 #include "crypto.h"
 
