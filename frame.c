@@ -164,11 +164,16 @@ static int hpav_init_write_mac_memory_request(void *buf, int len, void *UNUSED(b
 {
 	int avail = len;
 	struct write_mac_memory_request *mm = buf;
+	int ret;
 
 	faifa_printf(out_stream, "Address? ");
-	fscanf(in_stream, "%8x", &(mm->address));
+	ret = fscanf(in_stream, "%8x", &(mm->address));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Length? ");
-	fscanf(in_stream, "%8x", &(mm->length));
+	ret = fscanf(in_stream, "%8x", &(mm->length));
+	if (ret < 0)
+		return ret;
 	avail -= sizeof(*mm);
 	faifa_printf(out_stream, "Data?\n");
 	avail -= init_hex(mm->data, mm->length);
@@ -249,11 +254,16 @@ static int hpav_init_read_mac_memory_request(void *buf, int len, void *UNUSED(bu
 {
 	int avail = len;
 	struct read_mac_memory_request *mm = buf;
+	int ret;
 
 	faifa_printf(out_stream, "Address? ");
-	fscanf(in_stream, "%8x", &(mm->address));
+	ret = fscanf(in_stream, "%8x", &(mm->address));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Length? ");
-	fscanf(in_stream, "%8x", &(mm->length));
+	ret = fscanf(in_stream, "%8x", &(mm->length));
+	if (ret < 0)
+		return ret;
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -413,17 +423,28 @@ static int hpav_init_start_mac_request(void *buf, int len, void *UNUSED(buffer))
 {
 	int avail = len;
 	struct start_mac_request *mm = buf;
+	int ret;
 
 	faifa_printf(out_stream, "Module ID? ");
-	fscanf(in_stream, "%2hhx", &(mm->module_id));
+	ret = fscanf(in_stream, "%2hhx", &(mm->module_id));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Image load address? ");
-	fscanf(in_stream, "%8x", &(mm->image_load));
+	ret = fscanf(in_stream, "%8x", &(mm->image_load));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Image length? ");
-	fscanf(in_stream, "%8x", &(mm->image_length));
+	ret = fscanf(in_stream, "%8x", &(mm->image_length));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Image checksum? ");
-	fscanf(in_stream, "%8x", &(mm->image_chksum));
+	ret = fscanf(in_stream, "%8x", &(mm->image_chksum));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Image start address? ");
-	fscanf(in_stream, "%8x", &(mm->image_saddr));
+	ret = fscanf(in_stream, "%8x", &(mm->image_saddr));
+	if (ret < 0)
+		return ret;
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -516,13 +537,20 @@ static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer)
 	FILE *fp;
 	short unsigned int size;
 	uint32_t crc32;
+	int ret;
 
 	faifa_printf(out_stream, "Module ID? ");
-	fscanf(in_stream, "%2hhx", &(mm->module_id));
+	ret = fscanf(in_stream, "%2hhx", &(mm->module_id));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Offset? ");
-	fscanf(in_stream, "%8x", &(mm->offset));
+	ret = fscanf(in_stream, "%8x", &(mm->offset));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Firmware file? ");
-	fscanf(in_stream, "%s", (char *)filename);
+	ret = fscanf(in_stream, "%s", (char *)filename);
+	if (ret < 0)
+		return ret;
 	fp = fopen(filename, "rb");
 	if (!fp) {
 		faifa_printf(err_stream, "Cannot open: %s\n", filename);
@@ -544,7 +572,9 @@ static int hpav_init_write_data_request(void *buf, int len, void *UNUSED(buffer)
 		avail = -1;
 		goto out;
 	}
-	fread(buffer, size, 1, fp);
+	ret = fread(buffer, size, 1, fp);
+	if (ret < size)
+		return ret;
 	/* Compute crc on the file */
 	crc32 = crc32buf(buffer, size);
 	memcpy(&(mm->data), buffer, size);
@@ -599,13 +629,20 @@ static int hpav_init_read_mod_data_request(void *buf, int len, void *UNUSED(buff
 {
 	int avail = len;
 	struct read_mod_data_request *mm = buf;
+	int ret;
 
 	faifa_printf(out_stream, "Module ID? ");
-	fscanf(in_stream, "%2hhx", &(mm->module_id));
+	ret = fscanf(in_stream, "%2hhx", &(mm->module_id));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Length? ");
-	fscanf(in_stream, "%hu", &(mm->length));
+	ret = fscanf(in_stream, "%hu", &(mm->length));
+	if (ret < 0)
+		return ret;
 	faifa_printf(out_stream, "Offset? ");
-	fscanf(in_stream, "%u", &(mm->offset));
+	ret = fscanf(in_stream, "%u", &(mm->offset));
+	if (ret < 0)
+		return ret;
 
 	avail -= sizeof(*mm);
 	return (len - avail);
@@ -803,15 +840,21 @@ static int hpav_init_get_tone_map_charac_request(void *buf, int len, void *UNUSE
 	int avail = len;
 	u_int8_t macaddr[ETHER_ADDR_LEN];
 	struct get_tone_map_charac_request *mm = buf;
+	int ret;
 
 	faifa_printf(out_stream, "Address of peer node?\n");
-	fscanf(in_stream, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
-		&macaddr[0], &macaddr[1], &macaddr[2],
-		&macaddr[3], &macaddr[4], &macaddr[5]);
+	ret = fscanf(in_stream, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
+		     &macaddr[0], &macaddr[1], &macaddr[2],
+		     &macaddr[3], &macaddr[4], &macaddr[5]);
+	if (ret < 0)
+		return ret;
+
 	memcpy(mm->macaddr, macaddr, ETHER_ADDR_LEN);
 
 	faifa_printf(out_stream, "Tone map slot?\n0 -> slot 0\n1 -> slot 1 ...\n");
-	fscanf(in_stream, "%2hhx", &(mm->tmslot));
+	ret = fscanf(in_stream, "%2hhx", &(mm->tmslot));
+	if (ret < 0)
+		return ret;
 	avail -= sizeof(*mm);
 
 	return (len - avail);
@@ -950,16 +993,22 @@ static int hpav_init_link_stats_request(void *buf, int len, void *UNUSED(user))
 	u_int8_t link_id;
 	u_int8_t macaddr[ETHER_ADDR_LEN];
 	int direction;
+	int ret;
 
 	faifa_printf(out_stream, "Direction ?\n0: TX\n1: RX\n2: TX and RX\n");
-	fscanf(in_stream, "%2d", &direction);
+	ret = fscanf(in_stream, "%2d", &direction);
+	if (ret < 0)
+		return ret;
 
 	if (direction >= 0 || direction <= 2)
 		mm->direction = direction;
 
 	faifa_printf(out_stream, "Link ID ?\n");
 
-	fscanf(in_stream, "%2hhx", &link_id);
+	ret = fscanf(in_stream, "%2hhx", &link_id);
+	if (ret < 0)
+		return ret;
+
 	switch(link_id) {
 	case HPAV_LID_CSMA_CAP_0:
 	case HPAV_LID_CSMA_CAP_1:
@@ -977,9 +1026,11 @@ static int hpav_init_link_stats_request(void *buf, int len, void *UNUSED(user))
 
 	if (link_id != HPAV_LID_CSMA_SUM_ANY) {
 		faifa_printf(out_stream, "Address of peer node?\n");
-		fscanf(in_stream, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+		ret = fscanf(in_stream, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
 			&macaddr[0], &macaddr[1], &macaddr[2],
 			&macaddr[3], &macaddr[4], &macaddr[5]);
+		if (ret < 0)
+			return ret;
 		memcpy(mm->macaddr, macaddr, ETHER_ADDR_LEN);
 	}
 	avail -= sizeof(*mm);
@@ -1098,12 +1149,15 @@ static int hpav_init_sniffer_request(void *buf, int len, void *UNUSED(buffer))
 	int avail = len;
 	struct sniffer_request *mm = buf;
 	int control;
+	int ret;
 
 	faifa_printf(out_stream, "Sniffer mode?\n");
 	for (control = HPAV_SC_DISABLE; control <= HPAV_SC_NO_CHANGE; control++) {
 		faifa_printf(out_stream, "%d: %s\n", control, get_sniffer_control_str(control));
 	}
-	fscanf(in_stream, "%d", &control);
+	ret = fscanf(in_stream, "%d", &control);
+	if (ret < 0)
+		return ret;
 	switch(control) {
 		case HPAV_SC_DISABLE:
 		case HPAV_SC_ENABLE:
@@ -1330,9 +1384,12 @@ static int hpav_dump_loopback_request(void *buf, int len, void *UNUSED(buffer))
 	struct loopback_request *mm = buf;
 	int duration;
 	u_int8_t eth_test_frame[512];
+	int ret;
 
 	faifa_printf(out_stream, "Duration ?\n");
-	fscanf(in_stream, "%2d", &duration);
+	ret = fscanf(in_stream, "%2d", &duration);
+	if (ret < 0)
+		return ret;
 	if (duration >= 0 || duration <= 60)
 		mm->duration = duration;
 
@@ -1379,16 +1436,21 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 	u_int8_t key[16], dak[16];
 	char nek[16], dek[16];
 	u_int8_t macaddr[ETHER_ADDR_LEN];
+	int ret;
 
 	faifa_printf(out_stream, "Local or distant setting ?\n");
 	faifa_printf(out_stream, "0: distant\n1: local\n");
-	fscanf(in_stream, "%d", &local);
+	ret = fscanf(in_stream, "%d", &local);
+	if (ret < 0)
+		return ret;
 
 	/* Old versions should use 0x03 */
 	mm->peks = 0x01;
 	mm->peks_payload = NO_KEY;
 	faifa_printf(out_stream, "AES NMK key ?");
-	fscanf(in_stream, "%s", nek);
+	ret = fscanf(in_stream, "%s", nek);
+	if (ret < 0)
+		return ret;
 
 	/* Generate the key from the NEK and and NMK Salt */
 	gen_passphrase(nek, key, nmk_salt);
@@ -1397,7 +1459,9 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 	/* If we are setting a remote device ask for more options */
 	if (!local) {
 		faifa_printf(out_stream, "Device DEK ?\n");
-		fscanf(in_stream, "%s", dek);
+		ret = fscanf(in_stream, "%s", dek);
+		if (ret < 0)
+			return ret;
 
 		/* Generate the key from the DEK and DAK salt */
 		gen_passphrase(dek, dak, dak_salt);
@@ -1409,9 +1473,11 @@ static int hpav_init_set_enc_key_request(void *buf, int len, void *UNUSED(user))
 	} else {
 		/* Ask for the station MAC address */
 		faifa_printf(out_stream, "Destination MAC address ?");
-		fscanf(in_stream, "%02hhx:%02hhx:%02hhx:%2hhx:%2hhx:%2hhx",
-			&macaddr[0], &macaddr[1], &macaddr[2],
-			&macaddr[3], &macaddr[4], &macaddr[5]);
+		ret = fscanf(in_stream, "%02hhx:%02hhx:%02hhx:%2hhx:%2hhx:%2hhx",
+			     &macaddr[0], &macaddr[1], &macaddr[2],
+			     &macaddr[3], &macaddr[4], &macaddr[5]);
+		if (ret < 0)
+			return ret;
 
 		/* Set the desination address */
 		memcpy(mm->rdra, macaddr, ETHER_ADDR_LEN);
@@ -2322,6 +2388,8 @@ static int hpav_do_frame(void *frame_buf, int frame_len, u_int16_t mmtype, u_int
 	/* Call the frame specific setup callback */
 	if (hpav_frame_ops[i].init_frame != NULL) {
 		n = hpav_frame_ops[i].init_frame(frame_ptr, frame_len, user);
+		if (n < 0)
+			return n;
 		frame_ptr += n;
 		frame_len = frame_ptr - (u_int8_t *)frame_buf;
 	}
@@ -2379,6 +2447,8 @@ static int hp10_do_frame(u_int8_t *frame_buf, int frame_len, u_int8_t mmtype, u_
 	/* Call the frame specific setup callback */
 	if (hp10_frame_ops[i].init_frame != NULL) {
 		n = hp10_frame_ops[i].init_frame(frame_ptr, frame_len, user);
+		if (n < 0)
+			return n;
 		frame_ptr += n;
 		frame_len = frame_ptr - (u_int8_t *)frame_buf;
 		frame->mmentries[0].mmelength += n;
@@ -2405,7 +2475,7 @@ int do_frame(faifa_t *faifa, u_int16_t mmtype, u_int8_t *da, u_int8_t *sa, void 
 	else if ((i = hp10_mmtype2index(mmtype)) >= 0)
 		frame_len = hp10_do_frame(frame_buf, frame_len, mmtype, da, sa, user);
 
-	if (i < 0)
+	if (i < 0 || frame_len < 0)
 		return -1;
 
 	if (frame_len < ETH_ZLEN)
@@ -2545,6 +2615,7 @@ void *receive_loop(faifa_t *faifa)
 static int ask_for_frame(u_int16_t *mmtype)
 {
 	unsigned int i;
+	int ret;
 
 	faifa_printf(out_stream, "\nSupported HomePlug AV frames\n\n");
 	faifa_printf(out_stream, "type   description\n");
@@ -2563,7 +2634,9 @@ static int ask_for_frame(u_int16_t *mmtype)
 		}
 	}
 	faifa_printf(out_stream, "\nChoose the frame type (Ctrl-C to exit): 0x");
-	fscanf(in_stream, "%4x", &i);
+	ret = fscanf(in_stream, "%4x", &i);
+	if (ret < 0)
+		return ret;
 	*mmtype = (u_int16_t)(0xFFFF & i);
 
 	return (*mmtype != 0xFFFF);
@@ -2576,7 +2649,7 @@ static int ask_for_frame(u_int16_t *mmtype)
 void menu(faifa_t *faifa)
 {
 	pthread_t receive_thread;
-	u_int16_t mmtype;
+	u_int16_t mmtype = 0;
 
 	/* Create a receiving thread */
 	if (pthread_create(&receive_thread, NULL, (void *)receive_loop, faifa)) {
