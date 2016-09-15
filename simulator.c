@@ -128,7 +128,6 @@ static void sim_read_cb(evutil_socket_t fd, short flags, void *argv)
 	ssize_t len;
 	socklen_t lllen;
 	struct sockaddr_ll ll;
-	uint8_t *from;
 	struct hpav_frame_header *hdr;
 	const void *payload = NULL;
 	size_t payload_size = 0;
@@ -145,7 +144,6 @@ static void sim_read_cb(evutil_socket_t fd, short flags, void *argv)
 		return;
 	}
 
-	from = ll.sll_addr;
 	hdr = (struct hpav_frame_header *)frame;
 
 	switch (hdr->mmtype) {
@@ -254,7 +252,6 @@ int main(int argc, char **argv)
 	struct context ctx;
 	int ret;
 	const char *appname = argv[0];
-	const char *iface = NULL;
 
 	memset(&ctx, 0, sizeof(ctx));
 
@@ -281,7 +278,7 @@ int main(int argc, char **argv)
 	}
 
 	ret = sim_event_loop(&ctx);
-out:
+
 	sim_deinit_ctx(&ctx);
 	return ret;
 }
