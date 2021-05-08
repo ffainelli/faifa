@@ -1751,9 +1751,9 @@ static int hpav_dump_cm_bridge_infos_confirm(void *buf, int len, struct ether_he
 		int i;
 
 		faifa_printf(out_stream, "Bridge TEI: %02hhx\n", mm->bridge_infos.btei);
-		faifa_printf(out_stream, "Number of stations: %d\n", mm->bridge_infos.nbda);
+		faifa_printf(out_stream, "Number of destination addresses: %d\n", mm->bridge_infos.nbda);
 		for (i = 0; i < mm->bridge_infos.nbda; i++) {
-			faifa_printf(out_stream, "Bridged station %d", i);
+			faifa_printf(out_stream, "Bridged destination address %d - ", i);
 			dump_hex(mm->bridge_infos.bri_addr[i], ETHER_ADDR_LEN, ":");
 			faifa_printf(out_stream, "\n");
 		}
