@@ -23,7 +23,7 @@ faifa \- configure HomePlug 1.0/AV devices
 \-h	show the usage
 .br
 .SH DESCRIPTION
-faifa can configure any Intellon-based PowerLine Communication device using the Intellon INT5000 and INT6000 HomePlug AV (200Mbits) chips. It supports all Intellon-specific management and control frames.
+faifa can configure any PowerLine Communication device using the Homeplug AV / AV2 protocol. Initially this meant the Intellon (now Qualcomm Atheros) INT5000 and INT6000 HomePlug AV (200Mbits) chips but it also works with newer devices. In order to use it with Broadcom Homeplug adapters it is necessary to set the destination MAC address to either the adapter address or the broadcast address, they do not respond to the default Intellon address. It supports all Intellon-specific management and control frames.
 
 .SH "MENU COMMANDS"
 \-i	specify network interface to use
