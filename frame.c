@@ -1809,6 +1809,37 @@ static int hpav_dump_cm_get_network_infos_confirm(void *buf, int len, struct eth
 	return (len - avail);
 }
 
+static const char *get_error_reason(u_int8_t access)
+{
+	switch (access) {
+	case MME_NOT_SUP:
+		return "MME not supported";
+	case INVALID_MME_FIELDS:
+		return "Supported MME with invalid fields";
+	case UNSUPPORTED_FEATURE:
+		return "Unsupported Feature";
+	default:
+		return "Unknown";
+
+	}
+	return NULL;
+}
+
+static int hpav_dump_cm_mme_error_ind(void *buf, int len, struct ether_header *UNUSED(hdr))
+{
+	int avail = len;
+	struct cm_mme_error_ind *mm = buf;
+
+	faifa_printf(out_stream, "Reason: %s\n", get_error_reason(mm->err_reason_code));
+	faifa_printf(out_stream, "Version: %d\n", mm->rx_version);
+	faifa_printf(out_stream, "Message Type: %04x\n", mm->rx_mmtype);
+	if (mm->err_reason_code == INVALID_MME_FIELDS)
+		faifa_printf(out_stream, "Invalid Offset: %d\n", mm->invalid_offset);
+	avail -= sizeof(*mm);
+
+	return (len - avail);
+}
+
 static void dump_cm_sta_info(struct cm_sta_info *sta_info)
 {
 	faifa_printf(out_stream, "MAC address: ");
@@ -1885,6 +1916,10 @@ struct hpav_frame_ops hpav_frame_ops[] = {
 		.mmtype = HPAV_MMTYPE_CM_NW_INFO_CNF,
 		.desc = "Get Network Infos Confirm",
 		.dump_frame = hpav_dump_cm_get_network_infos_confirm,
+	}, {
+		.mmtype = HPAV_MMTYPE_CM_MME_ERROR_IND,
+		.desc = "MME Error Indication",
+		.dump_frame = hpav_dump_cm_mme_error_ind,
 	}, {
 		.mmtype = HPAV_MMTYPE_CM_NW_STATS_REQ,
 		.desc = "Get Network Stats Request",

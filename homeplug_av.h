@@ -94,6 +94,7 @@
 #define HPAV_MMTYPE_CM_BRG_INFO_CNF	0x6021
 #define HPAV_MMTYPE_CM_NW_INFO_REQ	0x6038
 #define HPAV_MMTYPE_CM_NW_INFO_CNF	0x6039
+#define HPAV_MMTYPE_CM_MME_ERROR_IND	0x6046
 #define HPAV_MMTYPE_CM_NW_STATS_REQ	0x6048
 #define HPAV_MMTYPE_CM_NW_STATS_CNF	0x6049
 #define HPAV_MMTYPE_GET_SW_REQ		0xA000
@@ -1080,6 +1081,19 @@ struct cm_get_network_infos_confirm {
 	struct cm_net_infos	net;
 } __attribute__((__packed__));
 
+enum err_reason_code {
+	MME_NOT_SUP		= 0,
+	INVALID_MME_FIELDS	= 1,
+	UNSUPPORTED_FEATURE	= 2,
+};
+
+/* 6046 - MME Error Indication */
+struct cm_mme_error_ind {
+	u_int8_t	err_reason_code;
+	u_int8_t	rx_version;
+	u_int16_t	rx_mmtype;
+	u_int16_t	invalid_offset;
+} __attribute__((__packed__));
 
 /* Get Network Stats MME */
 
